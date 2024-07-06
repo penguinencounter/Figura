@@ -340,7 +340,7 @@ public class Avatar {
             luaRuntime.takeInstructions(amount);
     }
 
-    // -- script events -- //
+    // -- script events -- // 
 
     private boolean isCancelled(Varargs args) {
         if (args == null)
@@ -429,6 +429,10 @@ public class Avatar {
         if (loaded) run("RESOURCE_RELOAD", tick);
     }
 
+    public void damageEvent(String sourceType, EntityAPI<?> sourceCause, EntityAPI<?> sourceDirect, FiguraVec3 sourcePosition) {
+        if (loaded) run("DAMAGE", tick, sourceType, sourceCause, sourceDirect, sourcePosition);
+    }
+
     // -- host only events -- //
 
     public String chatSendMessageEvent(String message) { // piped event
@@ -474,6 +478,10 @@ public class Avatar {
 
     public void charTypedEvent(String chars, int modifiers, int codePoint) {
         if (loaded) run("CHAR_TYPED", tick, chars, modifiers, codePoint);
+    }
+
+    public boolean totemEvent() {
+        return isCancelled(loaded ? run("TOTEM",tick) : null);
     }
 
     // -- rendering events -- //
@@ -888,7 +896,7 @@ public class Avatar {
     }
 
 
-    // -- animations -- //
+    // -- animations -- // 
 
 
     public void applyAnimations() {
@@ -918,7 +926,7 @@ public class Avatar {
             AnimationPlayer.clear(animation);
     }
 
-    // -- functions -- //
+    // -- functions -- // 
 
     /**
      * We should call this whenever an avatar is no longer reachable!
@@ -939,8 +947,10 @@ public class Avatar {
 
     public void clearSounds() {
         SoundAPI.getSoundEngine().figura$stopSound(owner, null);
-        for (SoundBuffer value : customSounds.values())
-            value.releaseAlBuffer();
+        if (SoundAPI.getSoundEngine().figura$isEngineActive()) {
+            for (SoundBuffer value : customSounds.values())
+                value.releaseAlBuffer();
+        }
     }
 
     public void closeBuffers() {
@@ -977,7 +987,7 @@ public class Avatar {
         return version.compareTo(FiguraMod.VERSION);
     }
 
-    // -- loading -- //
+    // -- loading -- // 
 
     private void createLuaRuntime() {
         if (!nbt.contains("scripts"))
@@ -1077,9 +1087,13 @@ public class Avatar {
     }
 
     public void loadSound(String name, byte[] data) throws Exception {
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data); OggAudioStream oggAudioStream = new OggAudioStream(inputStream)) {
-            SoundBuffer sound = new SoundBuffer(oggAudioStream.readAll(), oggAudioStream.getFormat());
-            this.customSounds.put(name, sound);
+        if (SoundAPI.getSoundEngine().figura$isEngineActive()) {
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data); OggAudioStream oggAudioStream = new OggAudioStream(inputStream)) {
+                SoundBuffer sound = new SoundBuffer(oggAudioStream.readAll(), oggAudioStream.getFormat());
+                this.customSounds.put(name, sound);
+            }
+        } else {
+            FiguraMod.LOGGER.error("Sound is not supported or enabled on this system but a custom sound tried to load anyway, scripts may break.");
         }
     }
 
