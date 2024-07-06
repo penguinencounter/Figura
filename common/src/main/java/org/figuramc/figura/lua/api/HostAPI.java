@@ -617,6 +617,30 @@ public class HostAPI {
         return false;
     }
 
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "string"),
+            },
+            value = "host.write_to_log"
+    )
+    public void writeToLog(@LuaNotNil String string) {
+        if (!isHost()) return;
+        FiguraMod.LOGGER.info("[FIGURA/LUA] -- " + string);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "string"),
+            },
+            value = "host.warn_to_log"
+    )
+    public void warnToLog(@LuaNotNil String string) {
+        if (!isHost()) return;
+        FiguraMod.LOGGER.warn("[FIGURA/LUA] -- " + string);
+    }
+
     public Object __index(String arg) {
         if ("unlockCursor".equals(arg))
             return unlockCursor;

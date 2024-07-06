@@ -131,11 +131,27 @@ public class BlockbenchModelParser {
             byte[] source;
             try {
                 //check the file to load
-                Path p = sourceFile.resolve(texture.relative_path);
+                Path p = sourceFile.getParent().resolve(texture.relative_path);
                 if (p.getFileSystem() == FileSystems.getDefault()) {
                     File f = p.toFile().getCanonicalFile();
                     p = f.toPath();
-                    if (!f.exists()) throw new IllegalStateException("File do not exists!");
+                    if (!f.exists()) {
+                        // Compatibility with old Blockbench models. (BB 4.9-)
+                        if (texture.relative_path.startsWith("../")) {
+                            p = sourceFile.resolve(texture.relative_path);
+                            if (p.getFileSystem() == FileSystems.getDefault()) {
+                                f = p.toFile().getCanonicalFile();
+                                p = f.toPath();
+                                if (!f.exists()) throw new IllegalStateException("File do not exists!");
+                            } else {
+                                p = p.normalize();
+                                if (p.getFileSystem() != avatar.getFileSystem())
+                                    throw new IllegalStateException("File from outside the avatar folder!");
+                            }
+                        } else {
+                            throw new IllegalStateException("File do not exists!");
+                        }
+                    }
                 } else {
                     p = p.normalize();
                     if (p.getFileSystem() != avatar.getFileSystem())
@@ -272,11 +288,17 @@ public class BlockbenchModelParser {
                 continue;
 
             //convert face json to java object
-            BlockbenchModel.CubeFace face = GSON.fromJson(faces.getAsJsonObject(cubeFace), BlockbenchModel.CubeFace.class);
-
+            JsonObject faceObj = faces.getAsJsonObject(cubeFace);
             //dont add null faces
-            if (face.texture == null)
+            if (!faceObj.has("texture"))
                 continue;
+            try{
+            	faceObj.get("texture").getAsNumber();
+            }catch(Exception e){
+            	continue;
+            }
+            BlockbenchModel.CubeFace face = GSON.fromJson(faceObj, BlockbenchModel.CubeFace.class);
+
 
             //parse texture
             TextureData texture = textureMap.get(textureIdMap.get(face.texture));

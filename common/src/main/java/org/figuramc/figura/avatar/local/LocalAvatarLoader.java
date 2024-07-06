@@ -15,7 +15,10 @@ import org.figuramc.figura.utils.FiguraResourceListener;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.IOUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +47,7 @@ public class LocalAvatarLoader {
         CEM_AVATARS.clear();
         AvatarManager.clearCEMAvatars();
 
-        for (ResourceLocation resource : manager.listResources("cem", location -> location.endsWith(".moon"))) {
+        for (ResourceLocation resource : manager.listResources("cem", location -> location.endsWith(".nbt"))) {
             // id
             String[] split = resource.getPath().split("/");
             if (split.length <= 1)
@@ -130,10 +133,15 @@ public class LocalAvatarLoader {
 
                 // metadata
                 loadState = LoadState.METADATA;
-                String metadata = IOUtils.readFile(finalPath.resolve("avatar.json"));
-                nbt.put("metadata", AvatarMetadataParser.parse(metadata, IOUtils.getFileNameOrEmpty(finalPath)));
-                AvatarMetadataParser.injectToModels(metadata, models);
-                AvatarMetadataParser.injectToTextures(metadata, textures);
+                String _meta = IOUtils.readFile(finalPath.resolve("avatar.json"));
+				var metadata = AvatarMetadataParser.read(_meta);
+
+				CompoundTag metaNBT = AvatarMetadataParser.parse(metadata,_meta, IOUtils.getFileNameOrEmpty(finalPath));
+				nbt.put("metadata", metaNBT);
+				metaNBT.putString("uuid",target.id.toString());
+
+				AvatarMetadataParser.injectToModels(metadata, models);
+				AvatarMetadataParser.injectToTextures(metadata, textures);
 
                 // return :3
                 if (!models.isEmpty())
@@ -309,7 +317,7 @@ public class LocalAvatarLoader {
                 Path path = entry.getKey().resolve((Path) event.context());
                 String name = IOUtils.getFileNameOrEmpty(path);
 
-                if (IOUtils.isHidden(path) || !(Files.isDirectory(path) || name.matches("(.*(\\.lua|\\.bbmodel|\\.ogg|\\.png)$|avatar\\.json)")))
+                if (IOUtils.isHiddenAvatarResource(path) || !(Files.isDirectory(path) || name.matches("(.*(\\.lua|\\.bbmodel|\\.ogg|\\.png)$|avatar\\.json)")))
                     continue;
 
                 if (kind == StandardWatchEventKinds.ENTRY_CREATE && !IS_WINDOWS)
