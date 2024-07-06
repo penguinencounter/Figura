@@ -25,8 +25,6 @@ import java.util.Locale;
 @LuaTypeDoc(name = "FileAPI", value = "file")
 public class FileAPI {
     private final Avatar parent;
-    private static final Path rootFolderPath = FiguraMod.getFiguraDirectory().resolve("data").toAbsolutePath()
-            .normalize();
     private static final String WRITE_NOT_ALLOWED = "You are only allowed to write in the data folder! Anything else is read only!";
 
     public FileAPI(Avatar parent) {
@@ -41,10 +39,15 @@ public class FileAPI {
         return p;
     }
 
+    private static Path dataPath() {
+        return FiguraMod.getFiguraDirectory().resolve("data").toAbsolutePath()
+                .normalize();
+    }
+
     private Path relativizePath(String path) {
         Path p = Path.of(path);
         if (p.isAbsolute()) return p.normalize();
-        return rootFolderPath.resolve(path).toAbsolutePath().normalize();
+        return dataPath().resolve(path).toAbsolutePath().normalize();
     }
 
     @LuaWhitelist
@@ -61,7 +64,7 @@ public class FileAPI {
     }
 
     public boolean isPathAllowed(Path path) {
-        return !Files.isSymbolicLink(path) && path.toAbsolutePath().startsWith(rootFolderPath);
+        return !Files.isSymbolicLink(path) && path.toAbsolutePath().startsWith(dataPath());
     }
 
     @LuaWhitelist
@@ -152,7 +155,7 @@ public class FileAPI {
     public FiguraOutputStream openWriteStream(@LuaNotNil String path) {
         try {
             Path p = securityCheck(path);
-            if (!p.startsWith(rootFolderPath)) {
+            if (!p.startsWith(dataPath())) {
                 throw new LuaError(WRITE_NOT_ALLOWED);
             }
             File f = p.toFile();
@@ -173,8 +176,7 @@ public class FileAPI {
             )
     )
     public String readString(@LuaNotNil String path, String encoding) {
-        try (FiguraInputStream fis = openReadStream(path)) {
-            byte[] data = fis.readAllBytes();
+        try {
             Charset charset = encoding == null ? StandardCharsets.UTF_8 : switch (encoding.toLowerCase(Locale.US)) {
                 case "utf_16", "utf16" -> StandardCharsets.UTF_16;
                 case "utf_16be", "utf16be" -> StandardCharsets.UTF_16BE;
@@ -183,6 +185,9 @@ public class FileAPI {
                 case "iso_8859_1", "iso88591" -> StandardCharsets.ISO_8859_1;
                 default -> StandardCharsets.UTF_8;
             };
+            Path filePath = securityCheck(path);
+            File file = filePath.toFile();
+            byte[] data = com.google.common.io.Files.toByteArray(file);
             return new String(data, charset);
         } catch (IOException e) {
             throw new LuaError(e);
@@ -224,7 +229,7 @@ public class FileAPI {
     )
     public boolean mkdir(@LuaNotNil String path) {
         Path p = securityCheck(path);
-        if (!p.startsWith(rootFolderPath)) {
+        if (!p.startsWith(dataPath())) {
             throw new LuaError(WRITE_NOT_ALLOWED);
         }
         File f = p.toFile();
@@ -242,7 +247,7 @@ public class FileAPI {
     )
     public boolean mkdirs(@LuaNotNil String path) {
         Path p = securityCheck(path);
-        if (!p.startsWith(rootFolderPath)) {
+        if (!p.startsWith(dataPath())) {
             throw new LuaError(WRITE_NOT_ALLOWED);
         }
         File f = p.toFile();
@@ -260,7 +265,7 @@ public class FileAPI {
     )
     public boolean delete(@LuaNotNil String path) {
         Path p = securityCheck(path);
-        if (!p.startsWith(rootFolderPath)) {
+        if (!p.startsWith(dataPath())) {
             throw new LuaError(WRITE_NOT_ALLOWED);
         }
         File f = p.toFile();

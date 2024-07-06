@@ -43,6 +43,8 @@ import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -372,7 +374,7 @@ public class ClientAPI {
                 if (shaderClass == String.class)
                     return (String) shaderNameField.get(null);
             }
-        }catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignored) {
         }
         return "";
     }
@@ -480,6 +482,11 @@ public class ClientAPI {
         return EntityAPI.wrap(Minecraft.getInstance().getCameraEntity());
     }
 
+    @LuaWhitelist
+    @LuaMethodDoc("client.is_integrated_server")
+    public static Boolean isIntegratedServer() {
+    	return Minecraft.getInstance().getSingleplayerServer() != null;
+    }
     @LuaWhitelist
     @LuaMethodDoc("client.get_server_data")
     public static Map<String, String> getServerData() {

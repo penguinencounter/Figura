@@ -3,6 +3,7 @@ package org.figuramc.figura.utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.figuramc.figura.FiguraMod;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -164,6 +165,39 @@ public class IOUtils {
             hidden = false;
         }
         return hidden || getFileNameOrEmpty(path).startsWith(".");
+    }
+
+    /**
+     * Checks, if given file is a hidden avatar resource.
+     * Avatar resource is hidden, if it is contained within
+     * a hidden folder. Folder is considered "hidden" if either
+     * it is marked as "hidden" by the OS or folder's name starts
+     * with a `{@code .}` (dot), or if it is contained within
+     * another hidden folder.
+     *
+     * @param path Path of the file to check
+     * @return {@code true} if given file is hidden
+     */
+    public static boolean isHiddenAvatarResource(@NotNull Path path) {
+        final Path avatarsDirectory = FiguraMod.getFiguraDirectory().resolve("avatars/");
+        if (!path.toAbsolutePath().startsWith(avatarsDirectory.toAbsolutePath())) {
+            throw new IllegalArgumentException("A path to a file within avatars folder was expected");
+        }
+        try {
+            // Iterate through all parent folders of the avatars
+            // resource to find a hidden one (if any)
+            for (Path parent = path;
+                 !Files.isSameFile(parent, avatarsDirectory);
+                 parent = parent.resolve("..").normalize()) {
+                if (Files.isHidden(parent) || parent.getFileName().toString().startsWith(".")) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (IOException e) {
+            FiguraMod.LOGGER.error("Failed to get if \"" + path + "\" is hidden", e);
+            return false;
+        }
     }
 
     public static class DirWrapper {

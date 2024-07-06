@@ -30,7 +30,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-@Mixin(ChatComponent.class)
+// 400 Priority is used as messages must be modified before ChatPatches tries to.
+@Mixin(value = ChatComponent.class, priority = 400)
 public class ChatComponentMixin {
 
     @Unique private Integer color;
@@ -127,9 +128,9 @@ public class ChatComponentMixin {
             message = TextUtils.replaceInText(message, quotedName, emptyReplacement, (s, style) -> true, isOwner ? 1 : 0, Integer.MAX_VALUE);
 
             // sender badges
-            if (config > 1 && isOwner) {
+            if (isOwner) {
                 // badges
-                Component temp = Badges.appendBadges(replacement, uuid, true);
+                Component temp = Badges.appendBadges(replacement, uuid, config > 1);
                 // trim
                 temp = TextUtils.trim(temp);
                 // modify message, only first
