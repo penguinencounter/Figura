@@ -3,7 +3,8 @@
 _VERSION = "Lua 5.2 - Figura"
 
 -- yeet FileIO and gc globals
-debug = nil
+-- FIXME: TESTING ONLY
+debug = { getinfo = debug.getinfo }
 dofile = nil
 loadfile = nil
 collectgarbage = nil

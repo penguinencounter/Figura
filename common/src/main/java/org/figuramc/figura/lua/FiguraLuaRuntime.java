@@ -232,7 +232,7 @@ public class FiguraLuaRuntime {
             Path path = PathUtils.getPath(arg.checkstring(1));
             Path dir = PathUtils.getWorkingDirectory(getInfoFunction);
             String scriptName = PathUtils.computeSafeString(
-                PathUtils.isAbsolute(path) ? path : dir.resolve(path)
+                    PathUtils.isAbsolute(path) ? path : dir.resolve(path)
             );
 
             if (loadingScripts.contains(scriptName))
@@ -270,7 +270,7 @@ public class FiguraLuaRuntime {
                 Path result = targetPath.relativize(scriptPath);
                 // Paths always have at least one name.
                 // If we do not allow subfolders, only allow paths that directly point to a file
-                if (!subFolders && result.getNameCount()!=1)
+                if (!subFolders && result.getNameCount() != 1)
                     continue;
                 table.set(i++, LuaValue.valueOf(s.replace('/', '.')));
             }
@@ -278,7 +278,7 @@ public class FiguraLuaRuntime {
             return table;
         }
     };
-    
+
     private static final Function<FiguraLuaRuntime, LuaValue> loadstringConstructor = runtime -> new VarArgFunction() {
         @Override
         public Varargs invoke(Varargs args) {
@@ -347,7 +347,7 @@ public class FiguraLuaRuntime {
 
     // init event //
 
-    private Varargs initializeScript(String str){
+    private Varargs initializeScript(String str) {
         Path path = PathUtils.getPath(str);
         String name = PathUtils.computeSafeString(path);
 
@@ -374,7 +374,9 @@ public class FiguraLuaRuntime {
         loadedScripts.put(name, value);
         loadingScripts.pop();
         return value;
-    };
+    }
+
+    ;
 
     public boolean init(ListTag autoScripts) {
         if (scripts.isEmpty())
@@ -415,20 +417,72 @@ public class FiguraLuaRuntime {
 
     // avatar limiting //
 
-    private final ZeroArgFunction onReachedLimit = new ZeroArgFunction() {
+    private LuaValue onReachedLimit() {
+        FiguraMod.LOGGER.warn("Avatar {} bypassed resource limits with {} instructions", owner.owner, getInstructions());
+        LuaError error = new LuaError("Script overran resource limits!");
+        owner.noPermissions.add(Permissions.INIT_INST);
+        setInstructionLimit(1);
+
+        throw error;
+    }
+    
+    private void logStackFrames() {
+        int i = 1;
+        Varargs info = getInfoFunction.invoke(LuaValue.valueOf(i));
+        boolean rc = true;
+        while ((info.narg() > 0 && !info.arg1().isnil()) || i <= 1) {
+            if (info.narg() == 0 || info.arg1().isnil()) {
+                if (i <= 1) {
+                    FiguraMod.LOGGER.info("  Frame {}: no data", i);
+                    i++;
+                    info = getInfoFunction.invoke(LuaValue.valueOf(i));
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            rc = false;
+            LuaValue what = info.arg1().get("what");
+            LuaValue name = info.arg1().get("name");
+            LuaValue source = info.arg1().get("source");
+//            LuaValue ssrc = info.arg1().get("short_src");
+            LuaValue currentLine = info.arg1().get("currentline");
+            FiguraMod.LOGGER.info("  Frame {}: {}: {} at line {}, from {}", i, what, source, currentLine, name);
+            
+            i++;
+            info = getInfoFunction.invoke(LuaValue.valueOf(i));
+        }
+        if (rc) {
+            FiguraMod.LOGGER.info("  No stack frames...");
+        }
+    }
+
+    private final OneArgFunction hook = new OneArgFunction() {
         @Override
-        public LuaValue call() {
-            FiguraMod.LOGGER.warn("Avatar {} bypassed resource limits with {} instructions", owner.owner, getInstructions());
-            LuaError error = new LuaError("Script overran resource limits!");
-            owner.noPermissions.add(Permissions.INIT_INST);
-            setInstructionLimit(1);
-            throw error;
+        public LuaValue call(LuaValue reasonBox) {
+            String reason = reasonBox.checkstring().tojstring();
+            if (reason.equals("count")) {
+                // Out of instructions!
+                return onReachedLimit();
+            } else if (reason.equals("call") || reason.equals("tail call") || reason.equals("return")) {
+                try {
+                    FiguraMod.LOGGER.info("{} ", reason);
+                    return LuaValue.NIL;
+                } catch (LuaError e) {
+                    throw new IllegalStateException(e);
+                }
+            } else if (reason.equals("line")) {
+//                FiguraMod.LOGGER.info("Line: ");
+//                logStackFrames();
+                return LuaValue.NIL;
+            }
+            throw new IllegalArgumentException("Unexpected hook reason received from Lua: " + reason);
         }
     };
 
     public void setInstructionLimit(int limit) {
         userGlobals.running.state.bytecodes = 0;
-        setHookFunction.invoke(LuaValue.varargsOf(onReachedLimit, LuaValue.EMPTYSTRING, LuaValue.valueOf(Math.max(limit, 1))));
+        setHookFunction.invoke(LuaValue.varargsOf(hook, LuaString.valueOf("c"), LuaValue.valueOf(Math.max(limit, 1))));
     }
 
     public int getInstructions() {
@@ -474,6 +528,24 @@ public class FiguraLuaRuntime {
             return ret;
         } catch (Exception | StackOverflowError e) {
             error(e);
+        } catch (OutOfMemoryError oome) {
+            switch (oome.getMessage()) {
+                case "Requested array size exceeds VM limit":
+                    // We didn't actually run out of memory
+                    FiguraMod.LOGGER.error("Avatar {} tried to allocate too much memory!", owner.owner);
+                    // Set an error state
+                    error(oome);
+                    // survived!
+                    break;
+                case "GC Overhead limit exceeded":
+                    // this is bad - we're not OOM yet, but the GC is spending a long time and not freeing enough memory
+                    throw oome;
+                default:
+                    FiguraMod.LOGGER.error("Avatar {} ran out of memory! ... {}", owner.owner, oome.getMessage());
+                    error(oome);
+                    break;
+//                    throw oome;
+            }
         }
 
         // failsafe return
