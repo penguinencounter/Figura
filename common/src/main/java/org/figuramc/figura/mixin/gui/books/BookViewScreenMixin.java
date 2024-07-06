@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(BookViewScreen.class)
+@Mixin(value = BookViewScreen.class, priority = 1100)
 public class BookViewScreenMixin {
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/util/FormattedCharSequence;FFI)I"))
     public int render(Font font, PoseStack poseStack, FormattedCharSequence formattedCharSequence, float x, float y, int color) {

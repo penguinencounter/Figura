@@ -103,6 +103,8 @@ public class Animation {
                 break;
             case HOLD:
                 time = inverted ? Math.max(time, offset) : Math.min(time, length);
+                if (time == length)
+                    playState = PlayState.HOLDING;
                 break;
         }
 
@@ -158,6 +160,12 @@ public class Animation {
     @LuaMethodDoc("animation.is_stopped")
     public boolean isStopped() {
         return this.playState == PlayState.STOPPED;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("animation.is_holding")
+    public boolean isHolding() {
+        return this.playState == PlayState.HOLDING;
     }
 
     @LuaWhitelist
@@ -603,7 +611,8 @@ public class Animation {
     public enum PlayState {
         STOPPED,
         PAUSED,
-        PLAYING
+        PLAYING,
+        HOLDING
     }
 
     public enum LoopMode {

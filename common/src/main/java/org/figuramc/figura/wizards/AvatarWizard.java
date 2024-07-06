@@ -268,7 +268,7 @@ public class AvatarWizard {
         if (hasCape) {
             Group cape = model.addGroup(Cape, FiguraVec3.of(0, 24, 2), root);
             Cube cube = model.addCube("Cape", FiguraVec3.of(-5, 8, 2), FiguraVec3.of(10, 16, 1), cape);
-            cube.generateBoxFaces(0, 0, capeTex, 1, hasPlayer ? 2 : 1);
+            cube.generateBoxFaces(0, 0, capeTex, 1, 1);
         }
 
         //elytra

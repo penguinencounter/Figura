@@ -1,5 +1,10 @@
 package org.figuramc.figura.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -8,7 +13,9 @@ import net.minecraft.world.level.Level;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.ducks.LivingEntityExtension;
+import org.figuramc.figura.lua.api.entity.EntityAPI;
 import org.figuramc.figura.lua.api.world.ItemStackAPI;
+import org.figuramc.figura.math.vector.FiguraVec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -39,5 +46,18 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityEx
     public void figura$updateWalkAnimation(float f) {
         this.animationSpeed += (f - this.animationSpeed) * 0.4f;
         this.animationPosition += this.animationSpeed;
+    }
+
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent;"), method = "handleEntityEvent")
+    private SoundEvent handleDamageEvent(LivingEntity instance, DamageSource source, Operation<SoundEvent> original) {
+        Avatar avatar = AvatarManager.getAvatar(this);
+        if (avatar == null) return null;
+        avatar.damageEvent(
+                source.msgId,
+                EntityAPI.wrap(source.getEntity()),
+                EntityAPI.wrap(source.getDirectEntity()),
+                source.getSourcePosition() != null ? FiguraVec3.fromVec3(source.getSourcePosition()) : null
+        );
+        return original.call(instance, source);
     }
 }

@@ -204,4 +204,9 @@ public abstract class SoundEngineMixin implements SoundEngineAccessor {
         }
         return false;
     }
+
+    @Override
+    public boolean figura$isEngineActive() {
+        return loaded;
+    }
 }
