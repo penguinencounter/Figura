@@ -5,12 +5,14 @@
   "minVersion": "0.8",
   "client": [
     "CommandSuggestionsMixinForge",
-    "compat.GeckolibIGeoRendererMixin",
-    "compat.GeckolibGeoArmorRendererMixin"
+    "ForgeIngameGuiMixin",
+    "compat.GeckolibGeoArmorRendererMixin",
+    "compat.GeckolibIGeoRendererMixin"
   ],
   "mixins": [
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "plugin": "org.figuramc.figura.forge.FiguraMixinPlugin"
 }

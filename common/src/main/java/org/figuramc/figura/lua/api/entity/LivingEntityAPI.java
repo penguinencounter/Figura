@@ -130,7 +130,9 @@ public class LivingEntityAPI<T extends LivingEntity> extends EntityAPI<T> {
     @LuaMethodDoc("living_entity.get_active_hand")
     public String getActiveHand() {
         checkEntity();
-        return entity.getUsedItemHand().name();
+        if (entity.getUsedItemHand() != null)
+            return entity.getUsedItemHand().name();
+        return InteractionHand.MAIN_HAND.name();
     }
 
     @LuaWhitelist

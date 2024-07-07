@@ -1,5 +1,6 @@
 package org.figuramc.figura.forge;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -54,16 +55,6 @@ public class FiguraModClientForge extends FiguraMod {
                 event.setCanceled(true);
             }
         }
-    }
-
-    public static void renderOverlay(RenderGameOverlayEvent.Post event) {
-        if (!AvatarManager.panic)
-            FiguraGui.renderOverlays(event.getMatrixStack());
-    }
-
-    public static void renderUnderlay(RenderGameOverlayEvent.Pre event) {
-        if (!AvatarManager.panic)
-            FiguraGui.onRender(event.getMatrixStack(), event.getPartialTicks(), new CallbackInfo("dummy", true));
     }
 
     @SubscribeEvent

@@ -34,9 +34,8 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-1.16.5:2022.03.06@zip")
     }
 
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.6"))
-    implementation(include("io.github.llamalad7:mixinextras-forge:0.3.6"))
-    
+    shadowCommon(compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.6")))
+
     // Libraries
     shadowCommon(forgeRuntimeLibrary("com.github.FiguraMC.luaj:luaj-core:$luaj-figura"))
     shadowCommon(forgeRuntimeLibrary("com.github.FiguraMC.luaj:luaj-jse:$luaj-figura"))
@@ -76,6 +75,8 @@ shadowJar {
     relocate 'org.apache.bcel', "${project.group}.org.apache.bcel"
     relocate 'org.apache.commons.lang3', "${project.group}.org.apache.commons.lang3"
     relocate 'com.neovisionaries', "${project.group}.com.neovisionaries"
+    relocate 'com.llamalad7.mixinextras', "${project.group}.com.llamalad7.mixinextras"
+    mergeServiceFiles() // Very important!
 }
 
 remapJar {
