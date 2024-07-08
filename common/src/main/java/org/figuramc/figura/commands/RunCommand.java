@@ -28,7 +28,7 @@ class RunCommand {
             luaRuntime.load("runCommand", lua).call();
             return 1;
         } catch (Exception | StackOverflowError e) {
-            FiguraLuaPrinter.sendLuaError(FiguraLuaRuntime.parseError(e), luaRuntime.owner);
+            FiguraLuaPrinter.sendLuaError(luaRuntime, FiguraLuaRuntime.parseError(e), luaRuntime.owner);
             return 0;
         }
     }
