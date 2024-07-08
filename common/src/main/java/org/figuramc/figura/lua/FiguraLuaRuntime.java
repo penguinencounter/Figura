@@ -20,6 +20,8 @@ import org.figuramc.figura.lua.api.ping.PingAPI;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaModelAPI;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.PathUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.*;
@@ -62,10 +64,18 @@ public class FiguraLuaRuntime {
     private final Globals userGlobals = new Globals();
     private final LuaFunction setHookFunction;
     private final LuaFunction getInfoFunction;
+    private final LuaFunction getLocalFunction;
+    private final LuaFunction getUpvalueFunction;
+    private final DebugLib debug;
     protected final Map<String, String> scripts = new HashMap<>();
     private final Map<String, Varargs> loadedScripts = new HashMap<>();
     private final Stack<String> loadingScripts = new Stack<>();
     public final LuaTypeManager typeManager = new LuaTypeManager();
+
+    @Override
+    public String toString() {
+        return "<FiguraLuaRuntime for " + owner.name + ">";
+    }
 
     public FiguraLuaRuntime(Avatar avatar, Map<String, String> scripts) {
         this.owner = avatar;
@@ -80,10 +90,13 @@ public class FiguraLuaRuntime {
 
         LuaC.install(userGlobals);
 
-        userGlobals.load(new DebugLib());
+        debug = new DebugLib();
+        userGlobals.load(debug);
         LuaTable debugLib = userGlobals.get("debug").checktable();
         setHookFunction = debugLib.get("sethook").checkfunction();
         getInfoFunction = debugLib.get("getinfo").checkfunction();
+        getLocalFunction = debugLib.get("getlocal").checkfunction();
+        getUpvalueFunction = debugLib.get("getupvalue").checkfunction();
 
         setupFiguraSandbox();
 
@@ -138,6 +151,9 @@ public class FiguraLuaRuntime {
     }
 
     private void loadExtraLibraries() {
+        // TODO: TESTING ONLY
+        this.setGlobal("handle_error", onerror);
+
         // require
         this.setGlobal("require", require);
 
@@ -232,7 +248,7 @@ public class FiguraLuaRuntime {
             Path path = PathUtils.getPath(arg.checkstring(1));
             Path dir = PathUtils.getWorkingDirectory(getInfoFunction);
             String scriptName = PathUtils.computeSafeString(
-                PathUtils.isAbsolute(path) ? path : dir.resolve(path)
+                    PathUtils.isAbsolute(path) ? path : dir.resolve(path)
             );
 
             if (loadingScripts.contains(scriptName))
@@ -270,7 +286,7 @@ public class FiguraLuaRuntime {
                 Path result = targetPath.relativize(scriptPath);
                 // Paths always have at least one name.
                 // If we do not allow subfolders, only allow paths that directly point to a file
-                if (!subFolders && result.getNameCount()!=1)
+                if (!subFolders && result.getNameCount() != 1)
                     continue;
                 table.set(i++, LuaValue.valueOf(s.replace('/', '.')));
             }
@@ -278,7 +294,7 @@ public class FiguraLuaRuntime {
             return table;
         }
     };
-    
+
     private static final Function<FiguraLuaRuntime, LuaValue> loadstringConstructor = runtime -> new VarArgFunction() {
         @Override
         public Varargs invoke(Varargs args) {
@@ -345,9 +361,80 @@ public class FiguraLuaRuntime {
         }
     };
 
+    public record ErrorFrame(@Nullable String message, @Nullable Prototype p, @NotNull CallFrameWrapper frame) {
+    }
+
+    public @Nullable ErrorFrame latestError;
+
+    // FIXME: temporary location
+    private final LuaValue onerror = new OneArgFunction() {
+        private @Nullable LuaValue resolve(String scopedName, LuaInteger frame) {
+            // check locals
+            int index = 1;
+            Varargs local = getLocalFunction.invoke(frame, LuaInteger.valueOf(index));
+            while (!local.isnil(1)) {
+                LuaString name = local.checkstring(1);
+                LuaValue value = local.arg(2);
+                FiguraMod.LOGGER.info("local: {} = {}", name, value);
+                if (name.tojstring().equals(scopedName)) {
+                    return value;
+                }
+                index++;
+                local = getLocalFunction.invoke(frame, LuaInteger.valueOf(index));
+            }
+
+            // check upvars
+            LuaTable about = getInfoFunction.invoke(frame, LuaString.valueOf("f")).checktable(1);
+            LuaValue fn = about.get("func");
+            LuaValue env = LuaValue.NIL;
+            if (fn.isclosure()) {
+                LuaClosure fnc = fn.checkclosure();
+                int upidx = 1;
+                while (true) {
+                    Varargs upval = getUpvalueFunction.invoke(fnc, LuaInteger.valueOf(upidx));
+                    if (upval.isnil(1)) break;
+                    LuaString name = upval.checkstring(1);
+                    LuaValue value = upval.arg(2);
+                    FiguraMod.LOGGER.info("up: {} = {}", name, value);
+                    if (name.tojstring().equals(scopedName)) {
+                        return value;
+                    }
+                    if (name.tojstring().equals("_ENV")) {
+                        env = value;
+                    }
+                    upidx++;
+                }
+            }
+
+            FiguraMod.LOGGER.info("env: {}", env);
+            // check environment
+            if (env.istable()) {
+                return env.get(scopedName);
+            }
+            return null;
+        }
+
+        @Override
+        public LuaValue call(LuaValue box_message) {
+            try {
+                String message = box_message.tojstring();
+                CallFrameWrapper frameWrapped = new CallFrameWrapper(debug.getCallFrame(1));
+                LuaFunction f = frameWrapped.get_f();
+                Prototype p = f.isclosure() ? f.checkclosure().p : null;
+
+                latestError = new ErrorFrame(message, p, frameWrapped);
+            } catch (Exception e) {
+                FiguraMod.LOGGER.error("Error while collecting error information", e);
+            }
+            return box_message;
+        }
+    };
+
     // init event //
 
-    private Varargs initializeScript(String str){
+    private Varargs initializeScript(String str) {
+        FiguraMod.LOGGER.info("{}: Load script: {}", this, str);
+
         Path path = PathUtils.getPath(str);
         String name = PathUtils.computeSafeString(path);
 
@@ -366,7 +453,8 @@ public class FiguraLuaRuntime {
         // load
         String directory = PathUtils.computeSafeString(path.getParent());
         String fileName = PathUtils.computeSafeString(path.getFileName());
-        Varargs value = userGlobals.load(src, name).invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
+        Varargs value = userGlobals.load(src, name)
+                .invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
         if (value == LuaValue.NIL)
             value = LuaValue.TRUE;
 
@@ -374,13 +462,15 @@ public class FiguraLuaRuntime {
         loadedScripts.put(name, value);
         loadingScripts.pop();
         return value;
-    };
+    }
 
     public boolean init(ListTag autoScripts) {
         if (scripts.isEmpty())
             return false;
 
         owner.luaRuntime = this;
+
+        userGlobals.running.errorfunc = onerror;
 
         try {
             if (autoScripts == null) {
@@ -401,7 +491,10 @@ public class FiguraLuaRuntime {
     // error ^-^ //
 
     public void error(Throwable e) {
-        FiguraLuaPrinter.sendLuaError(parseError(e), owner);
+        if (!(e instanceof LuaError)) {
+            latestError = null;
+        }
+        FiguraLuaPrinter.sendLuaError(this, parseError(e), owner);
         owner.scriptError = true;
         owner.luaRuntime = null;
         owner.clearParticles();
@@ -410,7 +503,8 @@ public class FiguraLuaRuntime {
     }
 
     public static LuaError parseError(Throwable e) {
-        return e instanceof LuaError lua ? lua : e instanceof StackOverflowError ? new LuaError("Stack Overflow") : new LuaError(e);
+        return e instanceof LuaError lua ? lua : e instanceof StackOverflowError ? new LuaError("Stack Overflow") : new LuaError(
+                e);
     }
 
     // avatar limiting //
@@ -418,7 +512,11 @@ public class FiguraLuaRuntime {
     private final ZeroArgFunction onReachedLimit = new ZeroArgFunction() {
         @Override
         public LuaValue call() {
-            FiguraMod.LOGGER.warn("Avatar {} bypassed resource limits with {} instructions", owner.owner, getInstructions());
+            FiguraMod.LOGGER.warn(
+                    "Avatar {} bypassed resource limits with {} instructions",
+                    owner.owner,
+                    getInstructions()
+            );
             LuaError error = new LuaError("Script overran resource limits!");
             owner.noPermissions.add(Permissions.INIT_INST);
             setInstructionLimit(1);
@@ -428,7 +526,11 @@ public class FiguraLuaRuntime {
 
     public void setInstructionLimit(int limit) {
         userGlobals.running.state.bytecodes = 0;
-        setHookFunction.invoke(LuaValue.varargsOf(onReachedLimit, LuaValue.EMPTYSTRING, LuaValue.valueOf(Math.max(limit, 1))));
+        setHookFunction.invoke(LuaValue.varargsOf(
+                onReachedLimit,
+                LuaValue.EMPTYSTRING,
+                LuaValue.valueOf(Math.max(limit, 1))
+        ));
     }
 
     public int getInstructions() {
@@ -466,7 +568,8 @@ public class FiguraLuaRuntime {
             else if (toRun instanceof LuaValue func)
                 ret = func.invoke(val);
             else
-                throw new IllegalArgumentException("Internal event error - Invalid type to run! (" + toRun.getClass().getSimpleName() + ")");
+                throw new IllegalArgumentException("Internal event error - Invalid type to run! (" + toRun.getClass()
+                        .getSimpleName() + ")");
 
             // use instructions
             limit.use(getInstructions());
