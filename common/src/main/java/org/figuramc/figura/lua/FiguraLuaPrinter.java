@@ -67,7 +67,7 @@ public class FiguraLuaPrinter {
     }
 
     // print an error, errors should always show up on chat
-    public static void sendLuaError(LuaError error, Avatar owner) {
+    public static void sendLuaError(FiguraLuaRuntime source, LuaError error, Avatar owner) {
         // Jank as hell
         String message = error.toString().replace("org.luaj.vm2.LuaError: ", "")
                 .replace("\n\t[Java]: in ?", "")
@@ -111,13 +111,20 @@ public class FiguraLuaPrinter {
                 .append(Component.literal(owner.entityName))
                 .append(Component.literal(" : " + message).withStyle(ColorUtils.Colors.LUA_ERROR.style))
                 .append(Component.literal("\n"));
-
+        
         owner.errorText = TextUtils.replaceTabs(Component.literal(message).withStyle(ColorUtils.Colors.LUA_ERROR.style));
 
         if ((owner.entityType == EntityType.PLAYER && !Configs.LOG_OTHERS.value && !FiguraMod.isLocal(owner.owner)) || owner.permissions.getCategory() == Permissions.Category.BLOCKED)
             return;
 
         chatQueue.offer(component); // bypass the char limit filter
+
+        if (source.latestError != null) {
+            chatQueue.offer(ErrorMessageHelper.analyze(source, source.latestError));
+            // Clear the error once it's been used so that the prototypes and things can be GC'd properly
+            source.latestError = null;
+        }
+        
         FiguraMod.LOGGER.error("", error);
     }
 
