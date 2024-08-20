@@ -329,7 +329,7 @@ public class FiguraLuaRuntime {
         public String tojstring() {
             return "function: loadstring";
         }
-
+        
         // Class that creates input stream from 
         private static class FuncStream extends InputStream {
             private final LuaFunction function;
@@ -433,7 +433,7 @@ public class FiguraLuaRuntime {
     // init event //
 
     private Varargs initializeScript(String str) {
-        FiguraMod.LOGGER.info("{}: Load script: {}", this, str);
+//        FiguraMod.LOGGER.info("{}: Load script: {}", this, str);
 
         Path path = PathUtils.getPath(str);
         String name = PathUtils.computeSafeString(path);
@@ -503,8 +503,8 @@ public class FiguraLuaRuntime {
     }
 
     public static LuaError parseError(Throwable e) {
-        return e instanceof LuaError lua ? lua : e instanceof StackOverflowError ? new LuaError("Stack Overflow") : new LuaError(
-                e);
+//        return e instanceof LuaError lua ? lua : e instanceof StackOverflowError ? new LuaError("Stack Overflow") : new LuaError(
+        return e instanceof LuaError lua ? lua : new LuaError(e);
     }
 
     // avatar limiting //
