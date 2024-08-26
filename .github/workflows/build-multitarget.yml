@@ -20,6 +20,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.target_branch }}
       
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+      
       - name: Cherry-pick base + feature
         shell: bash
         run: |
