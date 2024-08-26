@@ -3,7 +3,10 @@
 # Finally, If the compiled files have been pushed out to the "(something)/build/libs/" directory - It gets uploaded to GitHub.
 
 name: Build Figura using Gradle
-on: [pull_request, push]
+on: 
+  pull_request:
+  push:
+    branches-ignore: ["actions"]
 
 jobs:
   build:
