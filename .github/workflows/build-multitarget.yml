@@ -18,12 +18,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.target_branch }}
       
       - name: Cherry-pick base + feature
         shell: bash
         run: |
           git checkout ${{ matrix.base_branch }}
-          git cherry-pick '^1.20' '${{ inputs.target_branch }}' || exit 1
+          git cherry-pick ^1.20..${{ inputs.target_branch }} || exit 1
 
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
