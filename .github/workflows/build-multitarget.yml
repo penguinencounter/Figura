@@ -35,6 +35,7 @@ jobs:
           # actually checkout and replay the commits
           git checkout ${{ matrix.base_branch }}
           git cherry-pick 1.20..${{ inputs.target_branch }} -n || exit 1
+          git status --porcelain=v2
 
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
