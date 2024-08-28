@@ -4,6 +4,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import org.figuramc.figura.lua.docs.FiguraDocsManager;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
+import org.figuramc.figura.utils.TextUtils;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -331,8 +332,12 @@ public class LuaTypeManager {
             return wrapCollection(collection);
         else if (val.getClass().isArray())
             return wrapArray(val);
-        else if (val instanceof Component c)
-            return LuaValue.valueOf(Component.Serializer.toJson(c, RegistryAccess.EMPTY));
+        else if (val instanceof Component c) {
+            TextUtils.allowScriptEvents = true;
+            LuaValue ret = LuaValue.valueOf(Component.Serializer.toJson(c, RegistryAccess.EMPTY));
+            TextUtils.allowScriptEvents = false;
+            return ret;
+        }
         else
             return wrap(val);
     }
