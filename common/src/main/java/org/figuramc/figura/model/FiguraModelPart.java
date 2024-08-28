@@ -176,12 +176,14 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             return;
 
         // Because view/rot isn't implicitly in the matrix anymore we have to multiply by it
-        FiguraMat4 prevPartToView = AvatarRenderer.worldToViewMatrix().multiply(currentTransforms.positionMatrix.inverted());
+        FiguraMat4 prevPartToView = currentTransforms.positionMatrix.inverted();
 
         double s = 1 / 16d;
         if (UIHelper.paperdoll) {
             s *= -UIHelper.dollScale;
         } else {
+            prevPartToView.rightMultiply(AvatarRenderer.worldToViewMatrix());
+
             prevPartToView.rightMultiply(FiguraMat4.of().rotateY(180));
         }
         FiguraVec3 scale = currentTransforms.stackScale.scaled(s);

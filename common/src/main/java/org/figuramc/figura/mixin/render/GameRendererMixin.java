@@ -67,33 +67,6 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             return instance;
         }
 
-        // part of the bobbing fix
-        if (!hasShaders) {
-            PoseStack stack = new PoseStack();
-            stack.last().pose().set(instance);
-
-            float tickDelta = this.mainCamera.getPartialTickTime();
-            this.bobHurt(stack, tickDelta);
-            if (this.minecraft.options.bobView().get()) {
-                this.bobView(stack, tickDelta);
-            }
-
-            instance.set(stack.last().pose());
-
-            float h = this.minecraft.options.screenEffectScale().get().floatValue();
-            float i = Mth.lerp(tickDelta, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity) * h * h;
-            if (i > 0.0F) {
-                int j = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
-                float k = 5.0F / (i * i + 5.0F) - i * 0.04F;
-                k *= k;
-                Vector3f vector3f = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
-                float l = ((float)this.confusionAnimationTick + tickDelta) * (float)j * (float) (Math.PI / 180.0);
-                instance.rotate(l, vector3f);
-                instance.scale(1.0F / k, 1.0F, 1.0F);
-                instance.rotate(-l, vector3f);
-            }
-        }
-
         float z = 0f;
 
         FiguraVec3 rot = avatar.luaRuntime.renderer.cameraRot;
@@ -110,10 +83,35 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
         if (mat != null)
             instance.set(mat.toMatrix4f());
 
+        // part of the bobbing fix
+        PoseStack stack = new PoseStack();
+        stack.last().pose().set(instance);
+
+        float tickDelta = this.mainCamera.getPartialTickTime();
+        this.bobHurt(stack, tickDelta);
+        if (this.minecraft.options.bobView().get()) {
+            this.bobView(stack, tickDelta);
+        }
+
+        instance.set(stack.last().pose());
+
+        float h = this.minecraft.options.screenEffectScale().get().floatValue();
+        float i = Mth.lerp(tickDelta, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity) * h * h;
+        if (i > 0.0F) {
+            int j = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
+            float k = 5.0F / (i * i + 5.0F) - i * 0.04F;
+            k *= k;
+            Vector3f vector3f = new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F);
+            float l = ((float)this.confusionAnimationTick + tickDelta) * (float)j * (float) (Math.PI / 180.0);
+            instance.rotate(l, vector3f);
+            instance.scale(1.0F / k, 1.0F, 1.0F);
+            instance.rotate(-l, vector3f);
+        }
+
        // FiguraMat3 normal = avatar.luaRuntime.renderer.cameraNormal;
       //  if (normal != null)
       //      stack.last().normal().set(normal.toMatrix3f());
-        original.call(instance, angleX, angleY, angleZ);
+        instance.rotateXYZ(angleX, angleY, angleZ);
         return instance;
     }
 
