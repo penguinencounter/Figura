@@ -184,8 +184,6 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             s *= -UIHelper.dollScale;
         } else {
             prevPartToView.rightMultiply(AvatarRenderer.worldToViewMatrix());
-
-            prevPartToView.rightMultiply(FiguraMat4.of().rotateY(180));
         }
         FiguraVec3 scale = currentTransforms.stackScale.scaled(s);
         FiguraVec3 piv = customization.getPivot();
