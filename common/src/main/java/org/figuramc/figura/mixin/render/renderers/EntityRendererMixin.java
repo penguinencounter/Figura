@@ -108,7 +108,6 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
         textMatrix.set(matrices.last().pose());
         if (figura$enabled && figura$avatar != null && figura$hasCustomNameplate && figura$custom.shadow) {
             matrices.pushPose();
-            matrices.scale(1, 1, -1);
             textMatrix.set(matrices.last().pose());
             matrices.popPose();
         }
