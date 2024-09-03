@@ -19,6 +19,7 @@ import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.utils.LuaUtils;
 import org.luaj.vm2.LuaError;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @LuaWhitelist
@@ -429,6 +430,12 @@ public class RendererAPI {
     )
     public RendererAPI setPostEffect(String effect) {
         this.postShader = effect == null ? null : LuaUtils.parsePath("shaders/post/" + effect + ".json");
+        try {
+            if (postShader != null)
+                Minecraft.getInstance().getResourceManager().getResource(postShader);
+        } catch (IOException e) {
+            throw new LuaError("The post shader " + postShader.toString() + " does not exist or could not be found");
+        }
         return this;
     }
 

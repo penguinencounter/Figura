@@ -20,7 +20,14 @@ public class InventoryScreenMixin {
         if (!Configs.FIGURA_INVENTORY.value || AvatarManager.panic)
             return;
 
+        int initialX = x - 51, initialY = y - 75;
+        if (Configs.INVENTORY_SCISSOR.value) {
+            UIHelper.setupScissor(initialX+36, initialY+36, 32, 43);
+        }
         UIHelper.drawEntity(x, y, size, (float) Math.atan(mouseY / 40f) * 20f, (float) -Math.atan(mouseX / 40f) * 20f, entity, new PoseStack(), EntityRenderMode.MINECRAFT_GUI);
+        if (Configs.INVENTORY_SCISSOR.value) {
+            UIHelper.disableScissor();
+        }
         ci.cancel();
     }
 }

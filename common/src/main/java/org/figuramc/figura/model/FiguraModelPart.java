@@ -1418,6 +1418,9 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         if(part.childCache.get(this.name) == null)
             part.childCache.put(this.name, this);
         this.parent = part;
+
+        if (this.parentType.isSeparate)
+            owner.renderer.sortParts();
         return this;
     }
 
@@ -1443,6 +1446,10 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         if(this.childCache.get(part.name) == null)
             this.childCache.put(part.name, part);
         part.parent = this;
+
+        if (part.parentType.isSeparate)
+            owner.renderer.sortParts();
+
         return this;
     }
 
@@ -1459,6 +1466,10 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             this.children.remove(part);
             this.childCache.remove(part.name);
             part.parent = null;
+
+            // Since any part arbitrarily down the tree could have a parent
+            // type marked as separate, this is pretty much required.
+            owner.renderer.sortParts();
         }
         return this;
     }
