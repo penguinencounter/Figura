@@ -26,10 +26,13 @@ public class InventoryScreenMixin {
         float yaw = h - mouseY;
         Vector3f modelOffset = new Vector3f(0.0F, -(entity.getBbHeight() / 2.0F + yOffset), 0);
 
-        // Scissor is disabled here as enabling it would cut off nameplate rendering and taller models.
-        // guiGraphics.enableScissor(x, y, i, j);
+        if (Configs.INVENTORY_SCISSOR.value) {
+            guiGraphics.enableScissor(x, y, i, j);
+        }
         UIHelper.drawEntity(g, h, size, (float) Math.atan(yaw / 40f) * 20f, (float) -Math.atan(pitch / 40f) * 20f, entity, guiGraphics, modelOffset, EntityRenderMode.MINECRAFT_GUI);
-        // guiGraphics.disableScissor();
+        if (Configs.INVENTORY_SCISSOR.value) {
+            guiGraphics.disableScissor();
+        }
         ci.cancel();
     }
 }
