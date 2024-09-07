@@ -219,6 +219,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;", ordinal = 1))
     private<T> T figura$disableConfusionOnMatrix(OptionInstance<T> instance, Operation<T> original) {
-        return !hasShaders ? (T) (Object) 0.0 : original.call(instance);
+        Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
+        return (!RenderUtils.vanillaModelAndScript(avatar) || hasShaders) ? original.call(instance) : (T) (Object) 0.0;
     }
 }
