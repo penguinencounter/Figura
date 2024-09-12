@@ -34,7 +34,7 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-1.16.5:2022.03.06@zip")
     }
 
-    shadowCommon(compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.6")))
+    shadowCommon(implementation(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.6")))
 
     // Libraries
     shadowCommon(forgeRuntimeLibrary("com.github.FiguraMC.luaj:luaj-core:$luaj-figura"))
