@@ -230,8 +230,8 @@ public class LuaUtils {
             try {
                 Level level = WorldAPI.getCurrentWorld();
                 // Use the DFU only if necessary to convert item nbt -> components
-
-                if (string.contains("{")) {
+                boolean oldLogic = string.contains("{") && string.contains("[") ? string.indexOf("{") < string.indexOf("[") && !string.contains("minecraft:attribute_modifiers"): string.contains("{");
+                if (oldLogic) {
                     String tagStr = string.substring(string.indexOf("{"));
                     CompoundTag nbtItem = new TagParser(new StringReader(tagStr)).readStruct();
                     CompoundTag tag = new CompoundTag();
