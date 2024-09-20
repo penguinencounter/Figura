@@ -145,8 +145,6 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             if (this.postEffect == null || !this.postEffect.getName().equals(resource.toString()))
                 if (this.getMinecraft().getResourceManager().getResource(resource).isPresent()) {
                     this.loadEffect(resource);
-                } else {
-                    FiguraMod.sendChatMessage(Component.literal("Could not load %s as it was not a valid or present post effect.".formatted(resource.toString())).setStyle(ColorUtils.Colors.RED.style));
                 }
         } catch (Exception ignored) {
             this.effectActive = false;
