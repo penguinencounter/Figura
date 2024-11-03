@@ -9,6 +9,7 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PlayNetworkDirection;
 import net.neoforged.neoforge.network.event.EventNetworkChannel;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.packets.Packet;
@@ -62,7 +63,7 @@ public class FiguraModServerForge {
         public void accept(NetworkEvent event) {
             if (event.getPayload() == null) return;
             var ctx = event.getSource();
-            if (ctx.getDirection().getReceptionSide() == LogicalSide.SERVER) {
+            if (ctx.getDirection().equals(PlayNetworkDirection.PLAY_TO_SERVER)) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
                     ServerPlayer sender = ctx.getSender();

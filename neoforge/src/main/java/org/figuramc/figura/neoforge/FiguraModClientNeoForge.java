@@ -17,6 +17,7 @@ import net.neoforged.neoforge.client.gui.overlay.NamedGuiOverlay;
 import net.neoforged.neoforge.client.gui.overlay.VanillaGuiOverlay;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.PlayNetworkDirection;
 import net.neoforged.neoforge.network.event.EventNetworkChannel;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
@@ -107,7 +108,7 @@ public class FiguraModClientNeoForge extends FiguraMod {
         public void accept(NetworkEvent event) {
             if (event.getPayload() == null) return;
             var ctx = event.getSource();
-            if (ctx.getDirection().getReceptionSide() == LogicalSide.CLIENT) {
+            if (ctx.getDirection().equals(PlayNetworkDirection.PLAY_TO_CLIENT)) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
                     handler.handle(packet);

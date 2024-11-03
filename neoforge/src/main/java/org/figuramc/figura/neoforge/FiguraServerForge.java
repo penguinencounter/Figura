@@ -24,9 +24,6 @@ public class FiguraServerForge extends FiguraModServer {
         var id = packet.getId();
         var channel = ForgeNetworking.getChannel(id);
         if (channel == null) return;
-        var resLoc = new ResourceLocation(id.namespace(), id.path());
-        var buf = new FriendlyByteBuf(Unpooled.buffer());
-        packet.write(new FriendlyByteBufWrapper(buf));
-        player.connection.send(PlayNetworkDirection.PLAY_TO_CLIENT.buildPacket(new INetworkDirection.PacketData(buf, 0), resLoc));
+        PacketDistributor.PLAYER.noArg().send(new ClientboundCustomPayloadPacket(new PayloadWrapper(packet)));
     }
 }

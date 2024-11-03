@@ -3,6 +3,7 @@ package org.figuramc.figura.backend2;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.network.NetworkEvent;
 import net.neoforged.neoforge.network.NetworkRegistry;
 import net.neoforged.neoforge.network.event.EventNetworkChannel;
 import org.figuramc.figura.neoforge.FiguraModClientNeoForge;

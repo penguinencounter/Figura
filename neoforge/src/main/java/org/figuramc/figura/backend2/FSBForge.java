@@ -18,10 +18,6 @@ public class FSBForge extends FSB {
         var id = packet.getId();
         var channel = ForgeNetworking.getChannel(id);
         if (channel == null) return;
-        var connection = Minecraft.getInstance().getConnection();
-        var resLoc = new ResourceLocation(id.namespace(), id.path());
-        var buf = new FriendlyByteBuf(Unpooled.buffer());
-        packet.write(new FriendlyByteBufWrapper(buf));
-        connection.send(PlayNetworkDirection.PLAY_TO_SERVER.buildPacket(new INetworkDirection.PacketData(buf, 0), resLoc));
+        PacketDistributor.SERVER.noArg().send(new ServerboundCustomPayloadPacket(new PayloadWrapper(packet)));
     }
 }

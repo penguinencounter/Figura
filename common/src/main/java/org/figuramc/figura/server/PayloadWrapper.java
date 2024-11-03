@@ -18,6 +18,10 @@ public class PayloadWrapper implements CustomPacketPayload {
         source.write(new FriendlyByteBufWrapper(buf));
     }
 
+    public Packet source() {
+        return source;
+    }
+
     @Override
     public ResourceLocation id() {
         var id = source.getId();
