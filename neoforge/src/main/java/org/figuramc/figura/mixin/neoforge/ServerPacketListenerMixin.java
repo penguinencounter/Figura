@@ -34,6 +34,7 @@ public abstract class ServerPacketListenerMixin {
             C2SPacketHandler<Packet> handler = FiguraServer.getInstance().getPacketHandler(id);
             if (handler != null) {
                 handler.handle(playerProfile().getId(), source);
+                ci.cancel();
             }
         }
     }

@@ -2,6 +2,7 @@ package org.figuramc.figura.neoforge;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.network.NetworkEvent;
@@ -19,7 +20,7 @@ import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(modid = FiguraModServer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.DEDICATED_SERVER)
+@Mod.EventBusSubscriber(modid = FiguraModServer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.DEDICATED_SERVER)
 public class FiguraModServerForge {
     private static FiguraServerForge fsbInstance;
 
@@ -44,7 +45,8 @@ public class FiguraModServerForge {
         fsbInstance.close();
     }
 
-    public static void onTick(TickEvent event) {
+    @SubscribeEvent
+    public static void onTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END && event.type == TickEvent.Type.SERVER) {
             if (fsbInstance != null) fsbInstance.tick();
         }

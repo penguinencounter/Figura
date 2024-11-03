@@ -24,6 +24,6 @@ public class FiguraServerForge extends FiguraModServer {
         var id = packet.getId();
         var channel = ForgeNetworking.getChannel(id);
         if (channel == null) return;
-        PacketDistributor.PLAYER.noArg().send(new ClientboundCustomPayloadPacket(new PayloadWrapper(packet)));
+        PacketDistributor.PLAYER.with(() -> player).send(new ClientboundCustomPayloadPacket(new PayloadWrapper(packet)));
     }
 }
