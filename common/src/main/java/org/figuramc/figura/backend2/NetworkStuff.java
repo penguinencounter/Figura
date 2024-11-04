@@ -24,6 +24,7 @@ import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.gui.FiguraToast;
 import org.figuramc.figura.permissions.PermissionManager;
 import org.figuramc.figura.permissions.Permissions;
+import org.figuramc.figura.server.packets.c2s.C2SPingPacket;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.RefilledNumber;
 import org.figuramc.figura.utils.TextUtils;
@@ -36,8 +37,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -49,6 +48,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static org.figuramc.figura.server.utils.Utils.getHash;
+
 public class NetworkStuff {
 
     protected static final HttpClient client = HttpClient.newHttpClient();
@@ -57,6 +58,7 @@ public class NetworkStuff {
     private static final ConcurrentLinkedQueue<Request<HttpAPI>> API_REQUESTS = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<Request<WebSocket>> WS_REQUESTS = new ConcurrentLinkedQueue<>();
     private static final List<UUID> SUBSCRIPTIONS = new ArrayList<>();
+    private static final ArrayList<AvatarEquipInstruction> AVATAR_EQUIP_INSTRUCTIONS = new ArrayList<>();
     private static CompletableFuture<Void> tasks;
 
     private static final int RECONNECT = 6000; //5 min
@@ -109,6 +111,13 @@ public class NetworkStuff {
         //pings counter
         if (lastPing > 0 && FiguraMod.ticks - lastPing >= 20)
             lastPing = pingsSent = pingsReceived = 0;
+
+        if (!fsb().connected()) {
+            for (AvatarEquipInstruction instruction: AVATAR_EQUIP_INSTRUCTIONS) {
+                instruction.avatar.loadData(instruction.avatars(), instruction.bitPair());
+            }
+        }
+        AVATAR_EQUIP_INSTRUCTIONS.clear();
     }
 
     private static void tickSubscriptions() {
@@ -215,6 +224,7 @@ public class NetworkStuff {
     }
 
     public static void disconnect(String reason) {
+        if (tasks != null) tasks.cancel(true);
         backendStatus = 1;
         disconnectedReason = reason;
         disconnectAPI();
@@ -294,8 +304,14 @@ public class NetworkStuff {
     }
 
     public static void getUser(UserData user) {
-        if (checkUUID(user.id))
+        if (fsb().connected()) {
+            fsb().getUser(user);
             return;
+        }
+
+        if (checkUUID(user.id)) {
+            return;
+        }
 
         queueString(user.id, api -> api.getUser(user.id), (code, data) -> {
             //debug
@@ -343,25 +359,36 @@ public class NetworkStuff {
                 if (cat != null) PermissionManager.setDefaultFor(user.id, cat);
             }
 
-            user.loadData(avatars, badgesPair);
+            // Async breaks a lot of stuff
+            AVATAR_EQUIP_INSTRUCTIONS.add(new AvatarEquipInstruction(user, avatars, badgesPair));
         });
     }
 
+    // TODO: multiple modes of upload (Backend, FSB, Backend + FSB)
     public static void uploadAvatar(Avatar avatar) {
         if (avatar == null || avatar.nbt == null)
             return;
 
         String id = avatar.id == null || true ? "avatar" : avatar.id; //TODO - profile screen
 
+
+
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             NbtIo.writeCompressed(avatar.nbt, baos);
+
+            if (fsb().connected()) {
+                fsb().uploadAvatar(id, baos.toByteArray());
+                return;
+            }
+
             queueString(Util.NIL_UUID, api -> api.uploadAvatar(id, baos.toByteArray()), (code, data) -> {
                 responseDebug("uploadAvatar", code, data);
 
                 if (code == 200) {
                     //TODO - profile screen
-                    equipAvatar(List.of(Pair.of(avatar.owner, id)));
+                    if (fsb().connected()) fsb().equipAvatar(List.of(Pair.of(id, getHash(baos.toByteArray()))));
+                    else equipAvatar(List.of(Pair.of(avatar.owner, id)));
                     AvatarManager.localUploaded = true;
                 }
 
@@ -382,6 +409,12 @@ public class NetworkStuff {
 
     public static void deleteAvatar(String avatar) {
         String id = avatar == null || true ? "avatar" : avatar; //TODO - profile screen
+
+        if (fsb().connected()) {
+            fsb().deleteAvatar(id);
+            return;
+        }
+
         queueString(Util.NIL_UUID, api -> api.deleteAvatar(id), (code, data) -> {
             responseDebug("deleteAvatar", code, data);
 
@@ -411,8 +444,13 @@ public class NetworkStuff {
     }
 
     public static void getAvatar(UserData target, UUID owner, String id, String hash) {
-        if (checkUUID(target.id))
+        if (fsb().connected()) {
+            fsb().getAvatar(target, hash);
+        }
+
+        if (checkUUID(target.id)) {
             return;
+        }
 
         queueStream(target.id, api -> api.getAvatar(owner, id), (code, stream) -> {
             String s;
@@ -428,6 +466,7 @@ public class NetworkStuff {
                 return;
 
             //success
+            if (fsb().connected()) return;
             try {
                 CompoundTag nbt = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
                 CacheAvatarLoader.save(hash, nbt);
@@ -467,8 +506,11 @@ public class NetworkStuff {
             return;
 
         try {
-            ByteBuffer buffer = C2SMessageHandler.ping(id, sync, data);
-            ws.sendBinary(buffer.array());
+            if (!fsb().connected()) {
+                ByteBuffer buffer = C2SMessageHandler.ping(id, sync, data);
+                ws.sendBinary(buffer.array());
+            }
+            else fsb().sendPacket(new C2SPingPacket(id, sync, data));
 
             pingsSent++;
             if (lastPing == 0) lastPing = FiguraMod.ticks;
@@ -518,6 +560,9 @@ public class NetworkStuff {
         SUBSCRIPTIONS.clear();
     }
 
+    private static FSB fsb() {
+        return FSB.instance();
+    }
 
     // -- resources stuff -- //
 
@@ -544,11 +589,11 @@ public class NetworkStuff {
     }
 
     public static boolean canUpload() {
-        return isConnected() && uploadRate.check();
+        return fsb().connected() || isConnected() && uploadRate.check();
     }
 
     public static int getSizeLimit() {
-        return isConnected() ? maxAvatarSize : Integer.MAX_VALUE;
+        return fsb().connected() ? fsb().handshake().maxAvatarSize() : isConnected() ? maxAvatarSize : Integer.MAX_VALUE;
     }
 
 
@@ -562,4 +607,6 @@ public class NetworkStuff {
             return o instanceof Request request && owner.equals(request.owner);
         }
     }
+
+    private record AvatarEquipInstruction(UserData avatar, ArrayList<Pair<String, Pair<String, UUID>>> avatars, Pair<BitSet, BitSet> bitPair) {}
 }
