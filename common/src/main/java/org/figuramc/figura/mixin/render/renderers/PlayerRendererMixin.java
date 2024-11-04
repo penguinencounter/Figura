@@ -99,7 +99,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         // customization boolean, which also is the permission check
         boolean hasCustom = custom != null && avatar.permissions.get(Permissions.NAMEPLATE_EDIT) == 1;
 
-        Component name = Component.literal(text.getString());
+        Component name = Component.literal(player.getName().getString());
         FiguraMod.popPushProfiler("text");
 
         Component replacement = hasCustom && custom.getJson() != null ? custom.getJson().copy() : name;
@@ -153,9 +153,12 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
             return;
         }
 
-        FiguraMod.pushProfiler(FiguraMod.MOD_ID);
-        FiguraMod.pushProfiler(player.getName().getString());
-        FiguraMod.pushProfiler("nameplate");
+        // If the user has an avatar equipped, figura nameplate rendering will be enabled so the profiler is pushed
+        if (hasCustom) {
+            FiguraMod.pushProfiler(FiguraMod.MOD_ID);
+            FiguraMod.pushProfiler(player.getName().getString());
+            FiguraMod.pushProfiler("nameplate");
+        }
     }
 
 

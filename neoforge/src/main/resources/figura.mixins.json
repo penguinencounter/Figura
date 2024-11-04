@@ -6,8 +6,6 @@
   "client": [
     "CommandSuggestionsMixinNeoForge"
   ],
-  "mixins": [
-  ],
   "injectors": {
     "defaultRequire": 1
   }
