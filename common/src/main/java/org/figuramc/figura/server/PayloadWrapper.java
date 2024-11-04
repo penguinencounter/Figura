@@ -6,25 +6,29 @@ import net.minecraft.resources.ResourceLocation;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
-public class PayloadWrapper implements CustomPacketPayload {
-    private final Packet source;
+public class PayloadWrapper<P extends Packet> implements CustomPacketPayload {
+    private final P source;
 
-    public PayloadWrapper(Packet source) {
+    public PayloadWrapper(P source) {
         this.source = source;
     }
 
-    @Override
+
     public void write(FriendlyByteBuf buf) {
         source.write(new FriendlyByteBufWrapper(buf));
     }
 
-    public Packet source() {
+    public P source() {
         return source;
     }
 
-    @Override
     public ResourceLocation id() {
         var id = source.getId();
         return new ResourceLocation(id.namespace(), id.path());
+    }
+
+    @Override
+    public Type<PayloadWrapper<P>> type() {
+        return new Type<>(id());
     }
 }

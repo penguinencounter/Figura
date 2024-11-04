@@ -55,7 +55,6 @@ public class FiguraModClientForge extends FiguraMod {
     }
 
     static void initClient() {
-        MinecraftForge.EVENT_BUS.addListener(FiguraModClientForge::cancelVanillaOverlays);
         new FSBForge();
     }
 
@@ -77,7 +76,7 @@ public class FiguraModClientForge extends FiguraMod {
         public void accept(CustomPayloadEvent event) {
             if (event.getPayload() == null) return;
             var ctx = event.getSource();
-            if (ctx.getDirection().equals(NetworkDirection.PLAY_TO_CLIENT)) {
+            if (ctx.isClientSide()) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
                     handler.handle(packet);

@@ -28,11 +28,11 @@ public class Handlers {
         PACKET_HANDLERS.forEach(consumer);
     }
 
-    public static S2CPacketHandler<Packet> getHandler(Identifier identifier) {
-        return (S2CPacketHandler<Packet>) PACKET_HANDLERS.get(identifier);
+    public static <P extends Packet> S2CPacketHandler<P> getHandler(Identifier identifier) {
+        return (S2CPacketHandler<P>) PACKET_HANDLERS.get(identifier);
     }
 
-    public static S2CPacketHandler<Packet> getHandler(ResourceLocation resLoc) {
+    public static <P extends Packet> S2CPacketHandler<P> getHandler(ResourceLocation resLoc) {
         Identifier identifier = new Identifier(resLoc.getNamespace(), resLoc.getPath());
         return getHandler(identifier);
     }

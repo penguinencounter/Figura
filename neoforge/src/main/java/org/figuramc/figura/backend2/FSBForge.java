@@ -8,6 +8,6 @@ import org.figuramc.figura.server.packets.Packet;
 public class FSBForge extends FSB {
     @Override
     public void sendPacket(Packet packet) {
-        PacketDistributor.SERVER.noArg().send(new ServerboundCustomPayloadPacket(new PayloadWrapper(packet)));
+        PacketDistributor.sendToServer(new PayloadWrapper(packet));
     }
 }

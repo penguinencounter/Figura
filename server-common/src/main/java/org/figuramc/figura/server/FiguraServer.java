@@ -135,8 +135,8 @@ public abstract class FiguraServer {
         catch (IOException ignored) {}
     }
 
-    public final C2SPacketHandler<Packet> getPacketHandler(Identifier id) {
-        return (C2SPacketHandler<Packet>) PACKET_HANDLERS.get(id);
+    public final <P extends Packet> C2SPacketHandler<P> getPacketHandler(Identifier id) {
+        return (C2SPacketHandler<P>) PACKET_HANDLERS.get(id);
     }
 
     public void close() {
