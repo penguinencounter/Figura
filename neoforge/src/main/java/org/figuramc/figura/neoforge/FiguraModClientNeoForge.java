@@ -14,17 +14,25 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
+import org.figuramc.figura.backend2.FSBForge;
 import org.figuramc.figura.config.ConfigManager;
 import org.figuramc.figura.config.neoforge.ModConfig;
 import org.figuramc.figura.gui.neoforge.GuiOverlay;
 import org.figuramc.figura.gui.neoforge.GuiUnderlay;
+import org.figuramc.figura.server.PayloadWrapper;
+import org.figuramc.figura.server.packets.Packet;
+import org.figuramc.figura.server.packets.handlers.s2c.Handlers;
+import org.figuramc.figura.server.packets.handlers.s2c.S2CPacketHandler;
 import org.figuramc.figura.utils.neoforge.FiguraResourceListenerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = FiguraMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class FiguraModClientNeoForge extends FiguraMod {
@@ -67,6 +75,19 @@ public class FiguraModClientNeoForge extends FiguraMod {
         for (KeyMapping value : KEYBINDS) {
             if(value != null)
                 event.register(value);
+        }
+    }
+
+    static void initClient() {
+        NeoForge.EVENT_BUS.addListener(FiguraModClientNeoForge::cancelVanillaOverlays);
+        new FSBForge();
+    }
+
+    public static void handlePayload(PayloadWrapper wrapper, PlayPayloadContext playPayloadContext) {
+        Packet source = wrapper.source();
+        S2CPacketHandler<Packet> handler = Handlers.getHandler(source.getId());
+        if (handler != null) {
+            handler.handle(source);
         }
     }
 }
