@@ -83,6 +83,7 @@ public class NetworkStuff {
             uploadRate = new RefilledNumber(),
             downloadRate = new RefilledNumber();
     private static int maxAvatarSize = Integer.MAX_VALUE;
+    private static int pingsRateLimit = Integer.MAX_VALUE, pingsSizeLimit = Integer.MAX_VALUE;
 
     public static void tick() {
         //limits
@@ -300,7 +301,24 @@ public class NetworkStuff {
 
             JsonObject limits = json.getAsJsonObject("limits");
             maxAvatarSize = limits.get("maxAvatarSize").getAsInt();
+
+            try {
+                pingsRateLimit = rate.get("pingRate").getAsInt();
+                pingsSizeLimit = rate.get("pingSize").getAsInt();
+            }
+            catch (Exception e) {
+                pingsRateLimit = 32;
+                pingsSizeLimit = 1024;
+            }
         });
+    }
+
+    public static int pingsRateLimit() {
+        return fsb().connected() ? fsb().handshake().pingsRateLimit() : pingsRateLimit;
+    }
+
+    public static int pingsSizeLimit() {
+        return fsb().connected() ? fsb().handshake().pingsSizeLimit() : pingsSizeLimit;
     }
 
     public static void getUser(UserData user) {
