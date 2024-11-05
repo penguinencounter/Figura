@@ -27,7 +27,7 @@ public class ForgeNetworking {
 
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(FiguraModServer.MOD_ID);
+        final PayloadRegistrar registrar = event.registrar(FiguraModServer.MOD_ID).optional();
         final IPayloadHandler<PayloadWrapper<?>> currentHandler = getCurrentHandler();
         Packets.forEachPacket(((id, desc) -> {
             ResourceLocation resLoc = new ResourceLocation(id.namespace(), id.path());
