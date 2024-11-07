@@ -155,7 +155,7 @@ public abstract class FSB {
                     list.add(new Pair<>(hashPair.hash().toString(), new Pair<>(avatar.left(), user.id)));
                 }
             }
-            user.loadData(list, new Pair<>(packet.prideBadges(), new BitSet()));
+            Minecraft.getInstance().execute(() -> user.loadData(list, new Pair<>(packet.prideBadges(), new BitSet())));
             awaitingUserdata.remove(packet.target());
         }
     }
@@ -282,7 +282,7 @@ public abstract class FSB {
                     ByteArrayInputStream bais = new ByteArrayInputStream(avatarData);
                     CompoundTag tag = NbtIo.readCompressed(bais, NbtAccounter.unlimitedHeap());
                     CacheAvatarLoader.save(hash.toString(), tag);
-                    target.loadAvatar(tag);
+                    Minecraft.getInstance().execute(() -> target.loadAvatar(tag));
                 }
                 catch (Exception e) {
                     FiguraMod.LOGGER.error("Failed to load avatar for " + target.id, e);
