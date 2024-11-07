@@ -1,5 +1,8 @@
 package org.figuramc.figura.fabric;
 
+import com.google.gson.JsonObject;
+import io.netty.buffer.Unpooled;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -35,7 +38,14 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
         }
     }
 
+    @Override
+    public boolean getPermission(UUID uuid, String permission) {
+        ServerPlayer player = getServer().getPlayerList().getPlayer(uuid);
+        return player != null && Permissions.check(player, permission);
+    }
+
     private static class FabricServerHandler<P extends Packet> implements ServerPlayNetworking.PlayPayloadHandler<PayloadWrapper<P>> {
+
         private final C2SPacketHandler<P> parent;
 
         private FabricServerHandler(C2SPacketHandler<P> parent) {
