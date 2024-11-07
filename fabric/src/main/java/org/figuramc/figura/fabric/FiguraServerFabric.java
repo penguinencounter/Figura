@@ -1,14 +1,19 @@
 package org.figuramc.figura.fabric;
 
+import com.google.gson.JsonObject;
 import io.netty.buffer.Unpooled;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.figuramc.figura.commands.fabric.FiguraCommandsFabric;
+import org.figuramc.figura.commands.fabric.FiguraServerCommandsFabric;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.packets.handlers.c2s.C2SPacketHandler;
@@ -24,6 +29,7 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
             var resLoc = new ResourceLocation(id.namespace(), id.path());
             ServerPlayNetworking.registerGlobalReceiver(resLoc, new FabricServerHandler<>(handler));
         });
+        FiguraServerCommandsFabric.init();
     }
 
     @Override
@@ -36,6 +42,12 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
             packet.write(new FriendlyByteBufWrapper(buf));
             ServerPlayNetworking.send(player, resLoc, buf);
         }
+    }
+
+    @Override
+    public boolean getPermission(UUID uuid, String permission) {
+        ServerPlayer player = getServer().getPlayerList().getPlayer(uuid);
+        return player != null && Permissions.check(player, permission);
     }
 
     private static class FabricServerHandler<P extends Packet> implements ServerPlayNetworking.PlayChannelHandler {

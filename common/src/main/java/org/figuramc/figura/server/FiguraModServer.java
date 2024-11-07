@@ -1,7 +1,9 @@
 package org.figuramc.figura.server;
 
+import com.google.gson.JsonObject;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,6 +47,12 @@ public abstract class FiguraModServer extends FiguraServer {
 
     public static FiguraModServer getInstance() {
         return (FiguraModServer) INSTANCE;
+    }
+
+    @Override
+    public void sendMessage(UUID receiver, JsonObject component) {
+        ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
+        if (player != null) player.sendSystemMessage(Component.Serializer.fromJson(component));
     }
 
     protected MinecraftServer getServer() {
