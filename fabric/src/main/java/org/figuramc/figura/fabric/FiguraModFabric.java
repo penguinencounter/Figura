@@ -56,7 +56,7 @@ public class FiguraModFabric extends FiguraMod implements ClientModInitializer {
 
         @Override
         public void receive(PayloadWrapper<P> payload, ClientPlayNetworking.Context context) {
-            parent.handle(payload.source());
+            Minecraft.getInstance().execute(() -> parent.handle(payload.source()));
         }
     }
 }
