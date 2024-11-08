@@ -90,7 +90,7 @@ public class FiguraModClientNeoForge extends FiguraMod {
         Packet source = wrapper.source();
         S2CPacketHandler<Packet> handler = Handlers.getHandler(source.getId());
         if (handler != null) {
-            handler.handle(source);
+            Minecraft.getInstance().execute(() -> handler.handle(source));
         }
     }
 }
