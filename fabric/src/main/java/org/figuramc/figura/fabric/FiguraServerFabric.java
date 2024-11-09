@@ -1,6 +1,5 @@
 package org.figuramc.figura.fabric;
 
-import com.google.gson.JsonObject;
 import io.netty.buffer.Unpooled;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.DedicatedServerModInitializer;
