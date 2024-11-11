@@ -470,6 +470,7 @@ public class NetworkStuff {
     public static void getAvatar(UserData target, UUID owner, String id, String hash) {
         if (target.fromFSB()) {
             fsb().getAvatar(target, hash);
+            return;
         }
 
         if (checkUUID(target.id)) {
@@ -489,8 +490,6 @@ public class NetworkStuff {
             if (code != 200)
                 return;
 
-            //success
-            if (fsb().connected()) return;
             try {
                 CompoundTag nbt = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
                 CacheAvatarLoader.save(hash, nbt);
