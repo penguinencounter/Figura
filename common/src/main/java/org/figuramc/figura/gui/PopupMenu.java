@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -94,7 +95,7 @@ public class PopupMenu {
         pose.pushPose();
 
         // world to screen space
-        FiguraVec3 worldPos = FiguraVec3.fromVec3(entity.getPosition(minecraft.getTimer().getGameTimeDeltaPartialTick(false)));
+        FiguraVec3 worldPos = FiguraVec3.fromVec3(entity.getPosition(minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false)));
         worldPos.add(0f, entity.getBbHeight() + 0.1f, 0f);
 
         FiguraVec4 vec = MathUtils.worldToScreenSpace(worldPos);
@@ -113,13 +114,13 @@ public class PopupMenu {
 
         UIHelper.enableBlend();
         int frame = Configs.REDUCED_MOTION.value ? 0 : (int) ((FiguraMod.ticks / 5f) % 4);
-        gui.blit(BACKGROUND, width / -2, -24, width, 26, 0, frame * 26, width, 26, width, 104);
+        gui.blit(RenderType::guiTextured, BACKGROUND, width / -2, -24, width, 26, 0, frame * 26, width, 26, width, 104);
 
         // icons
         pose.translate(0f, 0f, -2f);
         UIHelper.enableBlend();
         for (int i = 0; i < LENGTH; i++)
-            gui.blit(ICONS, width / -2 + (18 * i), -24, 18, 18, 18 * i, i == index ? 18 : 0, 18, 18, width, 36);
+            gui.blit(RenderType::guiTextured, ICONS, width / -2 + (18 * i), -24, 18, 18, 18 * i, i == index ? 18 : 0, 18, 18, width, 36);
 
         // texts
         Font font = minecraft.font;

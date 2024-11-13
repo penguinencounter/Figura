@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.sounds.JOrbisAudioStream;
 import net.minecraft.core.Direction;
@@ -33,6 +34,7 @@ import org.figuramc.figura.animation.Animation;
 import org.figuramc.figura.animation.AnimationPlayer;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.config.Configs;
+import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
 import org.figuramc.figura.lua.FiguraLuaPrinter;
 import org.figuramc.figura.lua.FiguraLuaRuntime;
 import org.figuramc.figura.lua.api.TextureAPI;
@@ -154,6 +156,10 @@ public class Avatar {
 
     public Avatar(Entity entity) {
         this(entity.getUUID(), entity.getType(), entity.getName().getString());
+    }
+
+    public Avatar(EntityRenderState entity) {
+        this(((FiguraEntityRenderStateExtension)entity).figura$getEntity());
     }
 
     public void load(CompoundTag nbt) {
@@ -499,7 +505,7 @@ public class Avatar {
         complexity.remaining = prev;
     }
 
-    public void render(Entity entity, float yaw, float delta, float alpha, PoseStack stack, MultiBufferSource bufferSource, int light, int overlay, LivingEntityRenderer<?, ?> entityRenderer, PartFilterScheme filter, boolean translucent, boolean glowing) {
+    public void render(Entity entity, float yaw, float delta, float alpha, PoseStack stack, MultiBufferSource bufferSource, int light, int overlay, LivingEntityRenderer<?, ?, ?> entityRenderer, PartFilterScheme filter, boolean translucent, boolean glowing) {
         if (renderer == null || !loaded)
             return;
 
@@ -881,7 +887,7 @@ public class Avatar {
         return true;
     }
 
-    public void updateMatrices(LivingEntityRenderer<?, ?> entityRenderer, PoseStack stack) {
+    public void updateMatrices(LivingEntityRenderer<?, ?, ?> entityRenderer, PoseStack stack) {
         if (renderer == null || !loaded)
             return;
 

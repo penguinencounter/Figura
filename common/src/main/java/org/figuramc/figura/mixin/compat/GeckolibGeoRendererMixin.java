@@ -131,7 +131,7 @@ public interface GeckolibGeoRendererMixin<T extends GeoAnimatable> {
             ((GeckolibGeoArmorAccessor)armorRenderer).figura$setEntityRenderTranslations(stack.last().pose());
 
             stack.pushPose();
-            BakedGeoModel model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(geoAnimatable));
+            /*BakedGeoModel model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(geoAnimatable));
             armorRenderer.scaleModelForBaby(stack, (Item) geoAnimatable, partialTick, isReRender);
             armorRenderer.scaleModelForRender(((GeckolibGeoArmorAccessor) armorRenderer).figura$getScaleWidth(), ((GeckolibGeoArmorAccessor) armorRenderer).figura$getScaleHeight(), stack, geoAnimatable, model, isReRender, partialTick, packedLight, packedOverlay);
 
@@ -141,7 +141,7 @@ public interface GeckolibGeoRendererMixin<T extends GeoAnimatable> {
             ((GeckolibGeoArmorAccessor)armorRenderer).figura$setModelRenderTranslations(stack.last().pose());
             renderRecursively(stack, geoAnimatable, geoBone, renderType, multiBufferSource, vertexConsumer, isReRender, partialTick, packedLight, packedOverlay, color);
             stack.popPose();
-            stack.popPose();
+            stack.popPose();*/
         });
     }
 

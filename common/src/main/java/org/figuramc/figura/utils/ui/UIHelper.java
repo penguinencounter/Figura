@@ -1,5 +1,6 @@
 package org.figuramc.figura.utils.ui;
 
+import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -9,9 +10,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -85,11 +84,11 @@ public final class UIHelper {
         GlStateManager._clearStencil(0);
         GlStateManager._clearColor(0f, 0f, 0f, 1f);
         GlStateManager._clearDepth(1);
-        GlStateManager._clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL30.GL_STENCIL_BUFFER_BIT, false);
+        GlStateManager._clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL30.GL_STENCIL_BUFFER_BIT);
 
         Matrix4f mf = RenderSystem.getProjectionMatrix();
-        Minecraft.getInstance().getMainRenderTarget().blitToScreen(width, height, false);
-        RenderSystem.setProjectionMatrix(mf, VertexSorting.ORTHOGRAPHIC_Z);
+        Minecraft.getInstance().getMainRenderTarget().blitToScreen(width, height);
+        RenderSystem.setProjectionMatrix(mf, ProjectionType.ORTHOGRAPHIC);
     }
 
     public static void useVanillaFramebuffer() {
@@ -109,7 +108,7 @@ public final class UIHelper {
 
         Matrix4f mf = RenderSystem.getProjectionMatrix();
         FIGURA_FRAMEBUFFER.drawToScreen(windowWidth, windowHeight);
-        RenderSystem.setProjectionMatrix(mf, VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(mf, ProjectionType.ORTHOGRAPHIC);
         RenderSystem.enableBlend();
     }
 
@@ -228,7 +227,7 @@ public final class UIHelper {
 
         double finalXPos = xPos;
         double finalYPos = yPos;
-        RenderSystem.runAsFancy(() -> dispatcher.render(entity, finalXPos, finalYPos, 0d, 0f, 1f, pose, immediate, LightTexture.FULL_BRIGHT));
+        gui.drawSpecial((multiBufferSource -> dispatcher.render(entity, finalXPos, finalYPos, 0d, 1f, pose, immediate, LightTexture.FULL_BRIGHT)));
         immediate.endBatch();
 
         paperdoll = false;
@@ -255,11 +254,11 @@ public final class UIHelper {
     private static void prepareTexture(ResourceLocation texture) {
         enableBlend();
         RenderSystem.setShaderTexture(0, texture);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
     }
 
     public static void blit(GuiGraphics gui, int x, int y, int width, int height, ResourceLocation texture) {
-        gui.blit(texture, x, y, width, height, 0f, 0f, 1, 1, 1, 1);
+        gui.blit(RenderType::guiTextured, texture, x, y, 0f, 0f, width, height, 1, 1, 1, 1);
     }
 
     public static void renderAnimatedBackground(GuiGraphics gui, ResourceLocation texture, float x, float y, float width, float height, float textureWidth, float textureHeight, double speed, float delta) {
@@ -354,12 +353,12 @@ public final class UIHelper {
 
         // left
         int w = width / 2;
-        gui.blit(texture, x, y, w, height, u, v, w, regionHeight, textureWidth, textureHeight);
+        gui.blit(RenderType::guiTextured, texture, x, y, u, v, w, height, w, regionHeight, textureWidth, textureHeight);
 
         // right
         x += w;
         if (width % 2 == 1) w++;
-        gui.blit(texture, x, y, w, height, u + regionWidth - w, v, w, regionHeight, textureWidth, textureHeight);
+        gui.blit(RenderType::guiTextured, texture, x, y, u + regionWidth - w, v, w, height, w, regionHeight, textureWidth, textureHeight);
     }
 
     public static void renderSprite(GuiGraphics gui, int x, int y, int z, int width, int height, TextureAtlasSprite sprite) {

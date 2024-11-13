@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -160,11 +161,11 @@ public class PlayerPermPackElement extends AbstractPermPackElement {
                 if (this.skin != null) {
                     // head
                     UIHelper.enableBlend();
-                    gui.blit(this.skin, x + 4, y + 4, 32, 32, 8f, 8f, 8, 8, 64, 64);
+                    gui.blit(RenderType::guiTextured, this.skin, x + 4, y + 4, 8f, 8f,32, 32, 8, 8, 64, 64);
 
                     // hat
                     RenderSystem.enableBlend();
-                    gui.blit(this.skin, x + 4, y + 4, 32, 32, 40f, 8f, 8, 8, 64, 64);
+                    gui.blit(RenderType::guiTextured, this.skin, x + 4, y + 4, 40f, 8f,32, 32, 8, 8, 64, 64);
                     RenderSystem.disableBlend();
                 } else {
                     UIHelper.blit(gui, x + 4, y + 4, 32, 32, UNKNOWN);

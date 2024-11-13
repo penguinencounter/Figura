@@ -105,13 +105,13 @@ public class ItemStackAPI {
     public List<String> getTags() {
         List<String> list = new ArrayList<>();
 
-        Registry<Item> registry = WorldAPI.getCurrentWorld().registryAccess().registryOrThrow(Registries.ITEM);
+        Registry<Item> registry = WorldAPI.getCurrentWorld().registryAccess().lookupOrThrow(Registries.ITEM);
         Optional<ResourceKey<Item>> key = registry.getResourceKey(itemStack.getItem());
 
         if (key.isEmpty())
             return list;
 
-        for (TagKey<Item> itemTagKey : registry.getHolderOrThrow(key.get()).tags().toList())
+        for (TagKey<Item> itemTagKey : registry.getOrThrow(key.get()).tags().toList())
             list.add(itemTagKey.location().toString());
 
         return list;

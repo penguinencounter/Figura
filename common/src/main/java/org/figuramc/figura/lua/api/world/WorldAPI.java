@@ -615,7 +615,7 @@ public class WorldAPI {
     @LuaMethodDoc("world.get_build_height")
     public static int[] getBuildHeight() {
         Level world = getCurrentWorld();
-        return new int[]{world.getMinBuildHeight(), world.getMaxBuildHeight()};
+        return new int[]{world.getMinY(), world.getMaxY()};
     }
 
     @LuaWhitelist

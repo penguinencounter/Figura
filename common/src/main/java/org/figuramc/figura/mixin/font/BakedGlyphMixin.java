@@ -48,7 +48,7 @@ public abstract class BakedGlyphMixin implements BakedGlyphAccessor {
     }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    public void render(boolean italic, float x, float y, Matrix4f matrix, VertexConsumer vertexConsumer, float red, float green, float blue, float alpha, int light, CallbackInfo ci) {
+    public void render(boolean italic, float x, float y, Matrix4f matrix, VertexConsumer vertexConsumer, int light, int color, CallbackInfo ci) {
         if (figura$metadata == null) return;
 
         float h = this.up;
@@ -62,10 +62,10 @@ public abstract class BakedGlyphMixin implements BakedGlyphAccessor {
         float shift = singleWidth * figura$metadata.getCurrentFrame();
 
         float u = u0 + shift;
-        vertexConsumer.addVertex(matrix, x + m, k, 0.0f).setColor(red, green, blue, alpha).setUv(u, this.v0).setLight(light);
-        vertexConsumer.addVertex(matrix, x + n, l, 0.0f).setColor(red, green, blue, alpha).setUv(u, this.v1).setLight(light);
-        vertexConsumer.addVertex(matrix, x + figura$metadata.width + n, l, 0.0f).setColor(red, green, blue, alpha).setUv(u + singleWidth, this.v1).setLight(light);
-        vertexConsumer.addVertex(matrix, x + figura$metadata.width + m, k, 0.0f).setColor(red, green, blue, alpha).setUv(u + singleWidth, this.v0).setLight(light);
+        vertexConsumer.addVertex(matrix, x + m, k, 0.0f).setColor(color).setUv(u, this.v0).setLight(light);
+        vertexConsumer.addVertex(matrix, x + n, l, 0.0f).setColor(color).setUv(u, this.v1).setLight(light);
+        vertexConsumer.addVertex(matrix, x + figura$metadata.width + n, l, 0.0f).setColor(color).setUv(u + singleWidth, this.v1).setLight(light);
+        vertexConsumer.addVertex(matrix, x + figura$metadata.width + m, k, 0.0f).setColor(color).setUv(u + singleWidth, this.v0).setLight(light);
         ci.cancel();
     }
 }

@@ -9,11 +9,14 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.config.Configs;
+import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
 import org.figuramc.figura.ducks.LivingEntityRendererAccessor;
 import org.figuramc.figura.gui.PopupMenu;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaPart;
@@ -36,28 +39,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
+public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<S>> extends EntityRenderer<T,S> implements RenderLayerParent<S, M> {
 
     protected LivingEntityRendererMixin(EntityRendererProvider.Context context) {
         super(context);
     }
 
-    @Shadow @Final protected List<RenderLayer<T, M>> layers;
+    @Shadow @Final protected List<RenderLayer<S, M>> layers;
 
-    @Shadow protected abstract boolean isBodyVisible(T livingEntity);
-    @Shadow public static int getOverlayCoords(LivingEntity entity, float whiteOverlayProgress) {
+
+    @Shadow
+    public static int getOverlayCoords(LivingEntityRenderState arg, float whiteOverlayProgress) {
         return 0;
     }
-    @Shadow protected abstract float getWhiteOverlayProgress(T entity, float tickDelta);
+
+    @Shadow protected abstract float getWhiteOverlayProgress(S arg);
 
     @Unique
     private Avatar currentAvatar;
     @Unique
     private Matrix4f lastPose;
 
-    @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
-    private void onRender(T livingEntity, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
-        currentAvatar = AvatarManager.getAvatar(livingEntity);
+    @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
+    private void onRender(S livingEntityRenderState, PoseStack poseStack, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
+        currentAvatar = AvatarManager.getAvatar(livingEntityRenderState);
         if (currentAvatar == null)
             return;
 
@@ -69,20 +74,20 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V"
             ),
-            method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             index = 3
     )
     private int customOverlay(int thing) {
         return LivingEntityRendererAccessor.overrideOverlay.orElse(thing);
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", shift = At.Shift.AFTER), method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
-    private void preRender(T entity, float yaw, float delta, PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;)V", shift = At.Shift.AFTER), method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
+    private void preRender(S livingEntityRenderState, PoseStack poseStack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
         if (currentAvatar == null)
             return;
 
         if (Avatar.firstPerson) {
-            currentAvatar.updateMatrices((LivingEntityRenderer<?, ?>) (Object) this, poseStack);
+            currentAvatar.updateMatrices((LivingEntityRenderer<?, ?, ?>) (Object) this, poseStack);
             currentAvatar = null;
             lastPose = null;
             poseStack.popPose();
@@ -98,14 +103,16 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
                 part.preTransform(model);
         }
 
-        boolean showBody = this.isBodyVisible(entity);
-        boolean translucent = !showBody && Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player);
-        boolean glowing = !showBody && Minecraft.getInstance().shouldEntityAppearGlowing(entity);
+        boolean showBody = livingEntityRenderState.isInvisible;
+        boolean translucent = !showBody && Minecraft.getInstance().player != null && !livingEntityRenderState.isInvisibleToPlayer;
+        boolean glowing = !showBody && livingEntityRenderState.appearsGlowing;
         boolean invisible = !translucent && !showBody && !glowing;
+        Entity entity = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntity();
+        float tickDelta = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getTickDelta();
 
         // When viewed 3rd person, render all non-world parts.
         PartFilterScheme filter = invisible ? PartFilterScheme.PIVOTS : PartFilterScheme.MODEL;
-        int overlay = getOverlayCoords(entity, getWhiteOverlayProgress(entity, delta));
+        int overlay = getOverlayCoords(livingEntityRenderState, getWhiteOverlayProgress(livingEntityRenderState));
 
         FiguraMod.pushProfiler(FiguraMod.MOD_ID);
         FiguraMod.pushProfiler(currentAvatar);
@@ -115,13 +122,13 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
         FiguraMat4 poseMatrix = new FiguraMat4().set(diff);
 
         FiguraMod.popPushProfiler("renderEvent");
-        currentAvatar.renderEvent(delta, poseMatrix);
+        currentAvatar.renderEvent(tickDelta, poseMatrix);
 
         FiguraMod.popPushProfiler("render");
-        currentAvatar.render(entity, yaw, delta, translucent ? 0.15f : 1f, poseStack, bufferSource, light, overlay, (LivingEntityRenderer<?, ?>) (Object) this, filter, translucent, glowing);
+        currentAvatar.render(entity, livingEntityRenderState.yRot, tickDelta, translucent ? 0.15f : 1f, poseStack, bufferSource, light, overlay, (LivingEntityRenderer<?, ?, ?>) (Object) this, filter, translucent, glowing);
 
         FiguraMod.popPushProfiler("postRenderEvent");
-        currentAvatar.postRenderEvent(delta, poseMatrix);
+        currentAvatar.postRenderEvent(tickDelta, poseMatrix);
 
         FiguraMod.popProfiler(3);
 
@@ -129,8 +136,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
             currentAvatar.luaRuntime.vanilla_model.PLAYER.posTransform(getModel());
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
-    private void endRender(T entity, float yaw, float delta, PoseStack matrices, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
+    private void endRender(S livingEntityRenderState, PoseStack matrices, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
         if (currentAvatar == null)
             return;
 
@@ -142,8 +149,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
         lastPose = null;
     }
 
-    @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
-    private void shouldShowName(T livingEntity, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;D)Z", at = @At("HEAD"), cancellable = true)
+    private void shouldShowName(T livingEntity, double d, CallbackInfoReturnable<Boolean> cir) {
         if (UIHelper.paperdoll)
             cir.setReturnValue(Configs.PREVIEW_NAMEPLATE.value);
         else if (!Minecraft.renderNames() || livingEntity.getUUID().equals(PopupMenu.getEntityId()))

@@ -19,6 +19,7 @@ import org.figuramc.figura.entries.EntryPointManager;
 import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.FiguraLuaPrinter;
 import org.figuramc.figura.lua.docs.FiguraDocsManager;
+import org.figuramc.figura.mixin.MinecraftAccesor;
 import org.figuramc.figura.mixin.SkullBlockEntityAccessor;
 import org.figuramc.figura.permissions.PermissionManager;
 import org.figuramc.figura.resources.FiguraRuntimeResources;
@@ -173,28 +174,28 @@ public class FiguraMod {
     // -- profiler -- //
 
     public static void pushProfiler(String name) {
-        Minecraft.getInstance().getProfiler().push(name);
+        ((MinecraftAccesor)Minecraft.getInstance()).figura$invokeGetMetricsRecorder().getProfiler().push(name);
     }
 
     public static void pushProfiler(Avatar avatar) {
-        Minecraft.getInstance().getProfiler().push(avatar.entityName.isBlank() ? avatar.owner.toString() : avatar.entityName);
+        ((MinecraftAccesor)Minecraft.getInstance()).figura$invokeGetMetricsRecorder().getProfiler().push(avatar.entityName.isBlank() ? avatar.owner.toString() : avatar.entityName);
     }
 
     public static void popPushProfiler(String name) {
-        Minecraft.getInstance().getProfiler().popPush(name);
+        ((MinecraftAccesor)Minecraft.getInstance()).figura$invokeGetMetricsRecorder().getProfiler().popPush(name);
     }
 
     public static void popProfiler() {
-        Minecraft.getInstance().getProfiler().pop();
+        ((MinecraftAccesor)Minecraft.getInstance()).figura$invokeGetMetricsRecorder().getProfiler().pop();
     }
 
     public static <T> T popReturnProfiler(T var) {
-        Minecraft.getInstance().getProfiler().pop();
+        ((MinecraftAccesor)Minecraft.getInstance()).figura$invokeGetMetricsRecorder().getProfiler().pop();
         return var;
     }
 
     public static void popProfiler(int times) {
-        var profiler = Minecraft.getInstance().getProfiler();
+        var profiler = ((MinecraftAccesor)Minecraft.getInstance()).figura$invokeGetMetricsRecorder().getProfiler();
         for (int i = 0; i < times; i++)
             profiler.pop();
     }

@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.figuramc.figura.FiguraMod;
@@ -171,7 +172,7 @@ public class PanelSelectorWidget extends AbstractContainerElement {
 
             UIHelper.enableBlend();
             int size = getTextureSize();
-            gui.blit(texture, getX() + (iconsOnly() ? (getWidth() - size) / 2 : 2), getY() + (getHeight() - size) / 2 + (!isSelected() ? 2 : 0), size, size, u, v, regionSize, regionSize, textureWidth, textureHeight);
+            gui.blit(RenderType::guiTextured, texture, getX() + (iconsOnly() ? (getWidth() - size) / 2 : 2), getY() + (getHeight() - size) / 2 + (!isSelected() ? 2 : 0),  u, v, size, size, regionSize, regionSize, textureWidth, textureHeight);
         }
 
         @Override

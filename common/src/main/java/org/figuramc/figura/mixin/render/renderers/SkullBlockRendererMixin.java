@@ -72,7 +72,7 @@ public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<Sku
         FiguraMod.pushProfiler(localBlock != null ? localBlock.getBlockPos().toString() : String.valueOf(i));
 
         FiguraMod.pushProfiler("event");
-        boolean bool = localAvatar.skullRenderEvent(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), b, i, e, m);
+        boolean bool = localAvatar.skullRenderEvent(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true), b, i, e, m);
 
         // render skull :3
         FiguraMod.popPushProfiler("render");

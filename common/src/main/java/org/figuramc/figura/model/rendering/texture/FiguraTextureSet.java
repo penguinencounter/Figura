@@ -5,7 +5,6 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-import org.figuramc.figura.mixin.render.layers.elytra.ElytraLayerAccessor;
 import org.figuramc.figura.model.TextureCustomization;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,7 +72,7 @@ public class FiguraTextureSet {
 
                 yield switch (type) {
                     case CAPE -> info.getSkin().capeTexture();
-                    case ELYTRA -> info.getSkin().elytraTexture() == null ? ElytraLayerAccessor.getWingsLocation() : info.getSkin().elytraTexture();
+                    case ELYTRA -> info.getSkin().elytraTexture() == null ? ResourceLocation.withDefaultNamespace("elytra") : info.getSkin().elytraTexture();
                     default -> info.getSkin().texture();
                 };
             }

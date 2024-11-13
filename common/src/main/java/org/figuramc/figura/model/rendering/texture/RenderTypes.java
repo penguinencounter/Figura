@@ -6,6 +6,7 @@ import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.TriState;
 
 import java.util.OptionalDouble;
 import java.util.function.BiFunction;
@@ -19,7 +20,7 @@ public enum RenderTypes {
     CUTOUT_EMISSIVE_SOLID(resourceLocation -> FiguraRenderType.CUTOUT_EMISSIVE_SOLID.apply(resourceLocation, true)),
 
     TRANSLUCENT(RenderType::entityTranslucent),
-    TRANSLUCENT_CULL(RenderType::entityTranslucentCull),
+    TRANSLUCENT_CULL(RenderType::entityTranslucent),
 
     EMISSIVE(RenderType::eyes),
     EMISSIVE_SOLID(resourceLocation -> RenderType.beaconBeam(resourceLocation, false)),
@@ -29,7 +30,7 @@ public enum RenderTypes {
     END_GATEWAY(t -> RenderType.endGateway(), false),
     TEXTURED_PORTAL(FiguraRenderType.TEXTURED_PORTAL),
 
-    GLINT(t -> RenderType.entityGlintDirect(), false, false),
+    GLINT(t -> RenderType.armorEntityGlint(), false, false),
     GLINT2(t -> RenderType.glint(), false, false),
     TEXTURED_GLINT(FiguraRenderType.TEXTURED_GLINT, true, false),
 
@@ -94,7 +95,7 @@ public enum RenderTypes {
                         create("figura_cutout_emissive_solid", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, true, true,
                                 CompositeState.builder()
                                         .setShaderState(RenderStateShard.RENDERTYPE_BEACON_BEAM_SHADER)
-                                        .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
+                                        .setTextureState(new RenderStateShard.TextureStateShard(texture, TriState.FALSE, false))
                                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                                         .setCullState(NO_CULL)
                                         .setWriteMaskState(COLOR_DEPTH_WRITE)
@@ -132,7 +133,7 @@ public enum RenderTypes {
                         true,
                         CompositeState.builder()
                                 .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-                                .setTextureState(new TextureStateShard(texture, true, false))
+                                .setTextureState(new TextureStateShard(texture, TriState.TRUE, false))
                                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                                 .setCullState(NO_CULL)
                                 .setLightmapState(LIGHTMAP)
@@ -150,8 +151,8 @@ public enum RenderTypes {
                         false,
                         false,
                         RenderType.CompositeState.builder()
-                                .setShaderState(RENDERTYPE_ENTITY_GLINT_DIRECT_SHADER)
-                                .setTextureState(new TextureStateShard(texture, false, false))
+                                .setShaderState(RENDERTYPE_ENTITY_GLINT_SHADER)
+                                .setTextureState(new TextureStateShard(texture, TriState.FALSE, false))
                                 .setWriteMaskState(COLOR_WRITE)
                                 .setCullState(NO_CULL)
                                 .setDepthTestState(EQUAL_DEPTH_TEST)

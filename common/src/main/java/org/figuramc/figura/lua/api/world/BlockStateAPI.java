@@ -8,6 +8,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -125,13 +126,13 @@ public class BlockStateAPI {
     @LuaWhitelist
     @LuaMethodDoc("blockstate.is_translucent")
     public boolean isTranslucent() {
-        return blockState.propagatesSkylightDown(WorldAPI.getCurrentWorld(), getBlockPos());
+        return blockState.propagatesSkylightDown();
     }
 
     @LuaWhitelist
     @LuaMethodDoc("blockstate.get_opacity")
     public int getOpacity() {
-        return blockState.getLightBlock(WorldAPI.getCurrentWorld(), getBlockPos());
+        return blockState.getLightBlock();
     }
 
     @LuaWhitelist
@@ -229,13 +230,13 @@ public class BlockStateAPI {
     public List<String> getTags() {
         List<String> list = new ArrayList<>();
 
-        Registry<Block> registry = WorldAPI.getCurrentWorld().registryAccess().registryOrThrow(Registries.BLOCK);
+        Registry<Block> registry = WorldAPI.getCurrentWorld().registryAccess().lookupOrThrow(Registries.BLOCK);
         Optional<ResourceKey<Block>> key = registry.getResourceKey(blockState.getBlock());
 
         if (key.isEmpty())
             return list;
 
-        for (TagKey<Block> blockTagKey : registry.getHolderOrThrow(key.get()).tags().toList())
+        for (TagKey<Block> blockTagKey : registry.getOrThrow(key.get()).tags().toList())
             list.add(blockTagKey.location().toString());
 
         return list;
@@ -267,11 +268,11 @@ public class BlockStateAPI {
 
         sounds.put("pitch", snd.getPitch());
         sounds.put("volume", snd.getVolume());
-        sounds.put("break", snd.getBreakSound().getLocation().toString());
-        sounds.put("fall", snd.getFallSound().getLocation().toString());
-        sounds.put("hit", snd.getHitSound().getLocation().toString());
-        sounds.put("place", snd.getPlaceSound().getLocation().toString());
-        sounds.put("step", snd.getStepSound().getLocation().toString());
+        sounds.put("break", snd.getBreakSound().location().toString());
+        sounds.put("fall", snd.getFallSound().location().toString());
+        sounds.put("hit", snd.getHitSound().location().toString());
+        sounds.put("place", snd.getPlaceSound().location().toString());
+        sounds.put("step", snd.getStepSound().location().toString());
 
         return sounds;
     }

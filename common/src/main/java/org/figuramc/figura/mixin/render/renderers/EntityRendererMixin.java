@@ -5,11 +5,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import org.figuramc.figura.FiguraMod;
@@ -17,6 +17,7 @@ import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.ducks.EntityRendererAccessor;
+import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
 import org.figuramc.figura.lua.api.nameplate.EntityNameplateCustomization;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.permissions.Permissions;
@@ -32,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(EntityRenderer.class)
-public abstract class EntityRendererMixin<T extends Entity> implements EntityRendererAccessor {
+public abstract class EntityRendererMixin<T extends Entity, S extends EntityRenderState> implements EntityRendererAccessor {
 
     @Inject(at = @At("HEAD"), method = "shouldRender", cancellable = true)
     private void shouldRender(T entity, Frustum frustum, double d, double e, double f, CallbackInfoReturnable<Boolean> cir) {
@@ -54,9 +55,16 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
     @Unique
     List<Component> figura$textList;
 
+    @Inject(at = @At("HEAD"), method = "extractRenderState")
+    private void extractRenderState(T entity, S entityRenderState, float f, CallbackInfo ci) {
+        ((FiguraEntityRenderStateExtension)entityRenderState).figura$setEntity(entity);
+        ((FiguraEntityRenderStateExtension)entityRenderState).figura$setTickDelta(f);
+    }
+
+
     @Inject(at = @At(value = "HEAD"), method = "renderNameTag")
-    private void setupAvatar(T entity, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, float delta, CallbackInfo ci) {
-        figura$avatar = AvatarManager.getAvatar(entity);
+    private void setupAvatar(S entityRenderState, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
+        figura$avatar = AvatarManager.getAvatar(entityRenderState);
         figura$custom = figura$avatar == null || figura$avatar.luaRuntime == null ? null : figura$avatar.luaRuntime.nameplate.ENTITY;
         figura$hasCustomNameplate = figura$custom != null && figura$avatar.permissions.get(Permissions.NAMEPLATE_EDIT) == 1;
         figura$enabled =  Configs.ENTITY_NAMEPLATE.value > 0 && !AvatarManager.panic;
@@ -78,7 +86,7 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
     }
 
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", shift = At.Shift.AFTER), method = "renderNameTag")
-    private void modifyPos(T entity, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, float delta, CallbackInfo ci) {
+    private void modifyPos(S entityRenderState, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
         if (figura$enabled && figura$avatar != null) {
             // pos
             FiguraMod.popPushProfiler("position");
@@ -104,7 +112,7 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
 
 
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack$Pose;pose()Lorg/joml/Matrix4f;"), method = "renderNameTag")
-    private void setShadowMatrix(T entity, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, float delta, CallbackInfo ci, @Share("textMatrix") LocalRef<Matrix4f> textMatrix) {
+    private void setShadowMatrix(S entityRenderState, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci, @Share("textMatrix") LocalRef<Matrix4f> textMatrix) {
         textMatrix.set(matrices.last().pose());
         if (figura$enabled && figura$avatar != null && figura$hasCustomNameplate && figura$custom.shadow) {
             matrices.pushPose();

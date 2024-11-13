@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -174,7 +175,7 @@ public abstract class AvatarRenderer {
      * @return A matrix which represents the transformation from entity space to part space.
      */
     public static FiguraMat4 entityToWorldMatrix(Entity e, float delta) {
-        double yaw = e instanceof LivingEntity le ? Mth.lerp(delta, le.yBodyRotO, le.yBodyRot) : e.getViewYRot(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true));
+        double yaw = e instanceof LivingEntity le ? Mth.lerp(delta, le.yBodyRotO, le.yBodyRot) : e.getViewYRot(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true));
         FiguraMat4 result = FiguraMat4.of();
         result.rotateX(180 - yaw);
         result.translate(e.getPosition(delta));
@@ -182,7 +183,7 @@ public abstract class AvatarRenderer {
     }
 
     public static double getYawOffsetRot(Entity e, float delta) {
-        double yaw = e instanceof LivingEntity le ? Mth.lerp(delta, le.yBodyRotO, le.yBodyRot) : e.getViewYRot(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true));
+        double yaw = e instanceof LivingEntity le ? Mth.lerp(delta, le.yBodyRotO, le.yBodyRot) : e.getViewYRot(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true));
         return 180 - yaw;
     }
 

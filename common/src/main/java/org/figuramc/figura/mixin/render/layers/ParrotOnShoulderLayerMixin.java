@@ -10,6 +10,8 @@ import net.minecraft.client.renderer.entity.ParrotRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.ParrotRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
+import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
 import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.utils.RenderUtils;
 import org.spongepowered.asm.mixin.Final;
@@ -27,17 +30,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ParrotOnShoulderLayer.class)
-public abstract class ParrotOnShoulderLayerMixin<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
+public abstract class ParrotOnShoulderLayerMixin<S extends PlayerRenderState> extends RenderLayer<S, PlayerModel> {
 
-    public ParrotOnShoulderLayerMixin(RenderLayerParent<T, PlayerModel<T>> renderLayerParent) {
+    public ParrotOnShoulderLayerMixin(RenderLayerParent<S, PlayerModel> renderLayerParent) {
         super(renderLayerParent);
     }
 
     @Shadow @Final private ParrotModel model;
 
-    @Inject(at = @At("HEAD"), method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/player/Player;FFFFZ)V", cancellable = true)
-    private void render(PoseStack matrices, MultiBufferSource vertexConsumers, int light, T player, float limbAngle, float limbDistance, float headYaw, float headPitch, boolean leftShoulder, CallbackInfo ci) {
-        Avatar avatar = AvatarManager.getAvatar(player);
+    @Shadow @Final private ParrotRenderState parrotState;
+
+    @Inject(at = @At("HEAD"), method = "renderOnShoulder", cancellable = true)
+    private void render(PoseStack matrices, MultiBufferSource vertexConsumers, int light, PlayerRenderState playerRenderState, Parrot.Variant variant, float yRot, float xRot, boolean leftShoulder, CallbackInfo ci) {
+        Avatar avatar = AvatarManager.getAvatar(playerRenderState);
         if (!RenderUtils.vanillaModel(avatar))
             return;
 
@@ -51,9 +56,8 @@ public abstract class ParrotOnShoulderLayerMixin<T extends Player> extends Rende
         }
 
         // pivot part
-        CompoundTag compoundTag = leftShoulder ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
+        CompoundTag compoundTag = leftShoulder ? ((Player)((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntity()).getShoulderEntityLeft() :  ((Player)((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntity()).getShoulderEntityRight();
         EntityType.byString(compoundTag.getString("id")).filter((type) -> type == EntityType.PARROT).ifPresent((type) -> {
-            Parrot.Variant variant = Parrot.Variant.byId(compoundTag.getInt("Variant"));
             VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(variant)));
             if (avatar.pivotPartRender(leftShoulder ? ParentType.LeftParrotPivot : ParentType.RightParrotPivot, stack -> {
                 stack.translate(0d, 24d, 0d);
@@ -61,7 +65,13 @@ public abstract class ParrotOnShoulderLayerMixin<T extends Player> extends Rende
                 stack.scale(s, s, s);
                 stack.mulPose(Axis.XP.rotationDegrees(180f));
                 stack.mulPose(Axis.YP.rotationDegrees(180f));
-                this.model.renderOnShoulder(stack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, limbAngle, limbDistance, headYaw, headPitch, player.tickCount);
+                this.parrotState.ageInTicks = playerRenderState.ageInTicks;
+                this.parrotState.walkAnimationPos = playerRenderState.walkAnimationPos;
+                this.parrotState.walkAnimationSpeed = playerRenderState.walkAnimationSpeed;
+                this.parrotState.yRot = yRot;
+                this.parrotState.xRot = xRot;
+                this.model.setupAnim(this.parrotState);
+                this.model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
             })) {
                 ci.cancel();
             }

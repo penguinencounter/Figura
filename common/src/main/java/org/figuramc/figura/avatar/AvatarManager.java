@@ -4,7 +4,10 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -14,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.local.LocalAvatarLoader;
 import org.figuramc.figura.backend2.NetworkStuff;
+import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
 import org.figuramc.figura.gui.FiguraToast;
 import org.figuramc.figura.gui.widgets.lists.AvatarList;
 import org.figuramc.figura.lua.api.particle.ParticleAPI;
@@ -38,7 +42,7 @@ public class AvatarManager {
     private static final Map<UUID, UserData> LOADED_USERS = new ConcurrentHashMap<>();
     private static final Set<UUID> FETCHED_USERS = new HashSet<>();
 
-    private static final Map<Entity, Avatar> LOADED_CEM = new ConcurrentHashMap<>();
+    private static final Int2ObjectMap<Avatar> LOADED_CEM = new Int2ObjectOpenHashMap<>();
 
     public static final FiguraResourceListener RESOURCE_RELOAD_EVENT = FiguraResourceListener.createResourceListener("resource_reload_event", manager -> executeAll("resourceReloadEvent", Avatar::resourceReloadEvent));
 
@@ -75,13 +79,15 @@ public class AvatarManager {
             return;
 
         // unload entities
-        Set<Entity> toBeRemoved = new HashSet<>();
+        IntSet toBeRemoved = new IntOpenHashSet();
 
-        for (Entity entity : LOADED_CEM.keySet())
-            if (entity.isRemoved())
-                toBeRemoved.add(entity);
+        for (int entityId : LOADED_CEM.keySet()) {
+            Entity entity = Minecraft.getInstance().level.getEntity(entityId);
+            if (entity != null && entity.isRemoved())
+                toBeRemoved.add(entityId);
+        }
 
-        for (Entity entity : toBeRemoved)
+        for (int entity : toBeRemoved)
             LOADED_CEM.remove(entity);
 
         // tick entities
@@ -135,7 +141,7 @@ public class AvatarManager {
 
     private static Avatar getAvatarForEntity(Entity entity) {
         // get loaded
-        Avatar loaded = LOADED_CEM.get(entity);
+        Avatar loaded = LOADED_CEM.get(entity.getId());
         if (loaded != null)
             return loaded;
 
@@ -143,6 +149,11 @@ public class AvatarManager {
         ResourceLocation type = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         CompoundTag nbt = LocalAvatarLoader.CEM_AVATARS.get(type);
         return nbt == null ? null : loadEntityAvatar(entity, nbt);
+    }
+
+    public static Avatar getAvatar(EntityRenderState state) {
+        Entity entity = ((FiguraEntityRenderStateExtension)state).figura$getEntity();
+        return getAvatar(entity);
     }
 
     // tries to get data from an entity
@@ -245,7 +256,15 @@ public class AvatarManager {
     public static Avatar loadEntityAvatar(Entity entity, CompoundTag nbt) {
         Avatar targetAvatar = new Avatar(entity);
         targetAvatar.load(nbt);
-        LOADED_CEM.put(entity, targetAvatar);
+        LOADED_CEM.put(entity.getId(), targetAvatar);
+        return targetAvatar;
+    }
+
+    // load CEM avatar
+    public static Avatar loadEntityAvatar(EntityRenderState entity, CompoundTag nbt) {
+        Avatar targetAvatar = new Avatar(entity);
+        targetAvatar.load(nbt);
+        LOADED_CEM.put(((FiguraEntityRenderStateExtension)entity).figura$getEntity().getId(), targetAvatar);
         return targetAvatar;
     }
 

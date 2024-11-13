@@ -16,6 +16,7 @@ import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.mixin.FoodDataMixin;
 import org.figuramc.figura.utils.EntityUtils;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaTable;
@@ -67,7 +68,7 @@ public class PlayerAPI extends LivingEntityAPI<Player> {
     @LuaMethodDoc("player.get_exhaustion")
     public float getExhaustion() {
         checkEntity();
-        return entity.getFoodData().getExhaustionLevel();
+        return ((FoodDataMixin)entity.getFoodData()).getExhaustionLevel();
     }
 
     @LuaWhitelist
@@ -204,7 +205,7 @@ public class PlayerAPI extends LivingEntityAPI<Player> {
     public float getCooldownPercent(@LuaNotNil ItemStackAPI stack, Float delta) {
         checkEntity();
         if (delta == null) delta = 0f;
-        return this.entity.getCooldowns().getCooldownPercent(stack.itemStack.getItem(), delta);
+        return this.entity.getCooldowns().getCooldownPercent(stack.itemStack, delta);
     }
 
     @Override

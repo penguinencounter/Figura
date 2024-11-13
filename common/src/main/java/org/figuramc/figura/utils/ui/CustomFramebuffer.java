@@ -5,7 +5,6 @@ import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShaderInstance;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -80,7 +79,8 @@ public class CustomFramebuffer {
         GlStateManager._disableDepthTest();
         GlStateManager._depthMask(false);
         GlStateManager._viewport(0, 0, viewWidth, viewHeight);
-
+        // TODO: Port this, not important, goes unused anyway
+/*
         Minecraft minecraftClient = Minecraft.getInstance();
         ShaderInstance shader = minecraftClient.gameRenderer.blitShader;
         shader.setSampler("DiffuseSampler", colorAttachment);
@@ -107,5 +107,6 @@ public class CustomFramebuffer {
         shader.clear();
         GlStateManager._depthMask(true);
         GlStateManager._colorMask(true, true, true, true);
+ */
     }
 }

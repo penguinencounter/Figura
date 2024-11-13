@@ -5,6 +5,8 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelReader;
@@ -29,7 +31,7 @@ public class EntityRenderDispatcherMixin {
     @Unique private Avatar avatar;
 
     @Inject(method = "renderFlame", at = @At("HEAD"), cancellable = true)
-    private void renderFlame(PoseStack matrices, MultiBufferSource vertexConsumers, Entity entity, Quaternionf quaternionf, CallbackInfo ci) {
+    private void renderFlame(PoseStack matrices, MultiBufferSource vertexConsumers, EntityRenderState entity, Quaternionf quaternionf, CallbackInfo ci) {
         Avatar a = AvatarManager.getAvatar(entity);
         if (RenderUtils.vanillaModelAndScript(a)) {
             if (!a.luaRuntime.renderer.renderFire) {
@@ -59,15 +61,15 @@ public class EntityRenderDispatcherMixin {
     }
 
     @ModifyVariable(method = "renderShadow", at = @At("HEAD"), ordinal = 2, argsOnly = true)
-    private static float modifyShadowSize(float h, PoseStack poseStack, MultiBufferSource multiBufferSource, Entity entity, float f, float g, LevelReader levelReader) {
+    private static float modifyShadowSize(float h, PoseStack poseStack, MultiBufferSource multiBufferSource, EntityRenderState entity, float f, float g, LevelReader levelReader) {
         Avatar avatar = AvatarManager.getAvatar(entity);
         if (RenderUtils.vanillaModelAndScript(avatar) && avatar.luaRuntime.renderer.shadowRadius != null)
             return avatar.luaRuntime.renderer.shadowRadius;
         return h;
     }
 
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private <E extends Entity> void render(E entity, double d, double e, double f, float g, float h, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V", at = @At("HEAD"), cancellable = true)
+    private <E extends Entity, S extends EntityRenderState> void render(E entity, double d, double e, double f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, EntityRenderer<? super E, S> entityRenderer, CallbackInfo ci) {
         if (this.camera == null)
             ci.cancel();
 

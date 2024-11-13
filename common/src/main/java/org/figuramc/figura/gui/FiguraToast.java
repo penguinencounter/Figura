@@ -4,7 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.gui.components.toasts.ToastManager;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +15,7 @@ import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.ui.UIHelper;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -25,7 +27,7 @@ public class FiguraToast implements Toast {
     private Component title, message;
 
     private long startTime;
-    private boolean update;
+    private Visibility visibility;
 
     public FiguraToast(Component title, Component message, ToastType type) {
         this.type = type;
@@ -35,28 +37,18 @@ public class FiguraToast implements Toast {
     public void update(Component title, Component message, boolean update) {
         this.title = Component.empty().setStyle(type.style).append(title);
         this.message = message;
-        this.update = update;
     }
 
     @Override
-    public Visibility render(GuiGraphics gui, ToastComponent component, long startTime) {
-        int time = Math.round(Configs.TOAST_TIME.value * 1000);
+    public void render(GuiGraphics gui, Font font, long startTime) {
         int titleTime = Math.round(Configs.TOAST_TITLE_TIME.value * 1000);
-
-        if (this.update) {
-            if (startTime - this.startTime < time)
-                Visibility.SHOW.playSound(component.getMinecraft().getSoundManager());
-            this.startTime = startTime;
-            this.update = false;
-        }
 
         long timeDiff = startTime - this.startTime;
 
         UIHelper.enableBlend();
         int frame = Configs.REDUCED_MOTION.value ? 0 : (int) ((FiguraMod.ticks / 5f) % type.frames);
-        gui.blit(type.texture, 0, 0, 0f, frame * height(), width(), height(), width(), height() * type.frames);
+        gui.blit(RenderType::guiTextured, type.texture, 0, 0, 0f, frame * height(), width(), height(), width(), height() * type.frames);
 
-        Font font = component.getMinecraft().font;
         if (this.message.getString().isBlank()) {
             renderText(this.title, font, gui, 0xFF);
         } else if (this.title.getString().isBlank()) {
@@ -75,8 +67,23 @@ public class FiguraToast implements Toast {
                 renderText(this.message, font, gui, Math.round(Math.min(Math.max((timeDiff - titleTime) / 300f, 0), 1) * 255));
             }
         }
+    }
 
-        return timeDiff < time ? Visibility.SHOW : Visibility.HIDE;
+    @Override
+    public @NotNull Visibility getWantedVisibility() {
+        return visibility;
+    }
+
+    @Override
+    public void update(ToastManager toastManager, long startTime) {
+        int time = Math.round(Configs.TOAST_TIME.value * 1000);
+        long timeDiff = startTime - this.startTime;
+
+        if (timeDiff < time)
+            Visibility.SHOW.playSound(Minecraft.getInstance().getSoundManager());
+        this.startTime = startTime;
+
+        visibility = timeDiff < time ? Visibility.SHOW : Visibility.HIDE;
     }
 
     public void renderText(Component text, Font font, GuiGraphics gui, int alpha) {
@@ -130,7 +137,7 @@ public class FiguraToast implements Toast {
                 type = ToastType.CHEESE;
         }
 
-        ToastComponent toasts = Minecraft.getInstance().getToasts();
+        ToastManager toasts = Minecraft.getInstance().getToastManager();
         FiguraToast toast = toasts.getToast(FiguraToast.class, type);
 
         FiguraMod.debug("Sent toast: \"{}\", \"{}\" of type: \"{}\"", text.getString(), text2.getString(), type.name());

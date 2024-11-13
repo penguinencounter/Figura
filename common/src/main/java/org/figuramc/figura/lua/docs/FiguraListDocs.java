@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.ClipContext;
 
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -94,7 +94,7 @@ public class FiguraListDocs {
         }
     }};
     private static final LinkedHashSet<String> USE_ACTIONS = new LinkedHashSet<>() {{
-        for (UseAnim value : UseAnim.values())
+        for (ItemUseAnimation value : ItemUseAnimation.values())
             add(value.name());
     }};
     private static final LinkedHashSet<String> RENDER_MODES = new LinkedHashSet<>() {{

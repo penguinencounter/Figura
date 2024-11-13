@@ -4,10 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -387,7 +384,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
 
         PoseStack stack = customization.copyIntoGlobalPoseStack();
 
-        LevelRenderer.renderLineBox(stack, bufferSource.getBuffer(RenderType.LINES),
+        ShapeRenderer.renderLineBox(stack, bufferSource.getBuffer(RenderType.LINES),
                 -boxSize, -boxSize, -boxSize,
                 boxSize, boxSize, boxSize,
                 (float) color.x, (float) color.y, (float) color.z, 1f);

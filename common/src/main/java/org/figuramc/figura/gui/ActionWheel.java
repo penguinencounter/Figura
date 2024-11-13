@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -176,10 +177,10 @@ public class ActionWheel {
 
             if (color != null)
                 RenderSystem.setShaderColor((float) color.x, (float) color.y, (float) color.z, 1f);
-            gui.blit(ICONS,
+            gui.blit(RenderType::guiTextured, ICONS,
                     (int) Math.round(x), (int) Math.round(y),
-                    8, 8,
                     action.scroll != null ? 24f : action.toggle != null ? action.isToggled() ? 16f : 8f : 0f, color == null ? 0f : 8f,
+                    8, 8,
                     8, 8,
                     32, 16
             );
@@ -203,11 +204,11 @@ public class ActionWheel {
             Action.TextureData texture = action.getTexture(isSelected);
             if (texture != null) {
                 UIHelper.enableBlend();
-                gui.blit(texture.texture.getLocation(),
+                gui.blit(RenderType::guiTextured, texture.texture.getLocation(),
                         (int) Math.round(xOff - texture.width * texture.scale / 2d),
                         (int) Math.round(yOff - texture.height * texture.scale / 2d),
-                        (int) Math.round(texture.width * texture.scale), (int) Math.round(texture.height * texture.scale),
                         (float) texture.u, (float) texture.v,
+                        (int) Math.round(texture.width * texture.scale), (int) Math.round(texture.height * texture.scale),
                         texture.width, texture.height,
                         texture.texture.getWidth(), texture.texture.getHeight());
             }
@@ -468,8 +469,8 @@ public class ActionWheel {
 
             UIHelper.enableBlend();
             if (color != null)
-                gui.setColor((float) color.x, (float) color.y, (float) color.z, 1f);
-            gui.blit(TEXTURE, 0, y, 64, h, u, color == null ? v : v + 128, 64, rh, 256, 256);
+                RenderSystem.setShaderColor((float) color.x, (float) color.y, (float) color.z, 1f);
+            gui.blit(RenderType::guiTextured, TEXTURE, 0, y,  u, color == null ? v : v + 128, 64, h,64, rh, 256, 256);
 
             pose.popPose();
         }

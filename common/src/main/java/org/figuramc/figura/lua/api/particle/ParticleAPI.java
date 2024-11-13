@@ -244,7 +244,7 @@ public class ParticleAPI {
     )
     public boolean isPresent(String id) {
         try {
-            ParticleOptions options = ParticleArgument.readParticle(new StringReader(id), (HolderLookup.Provider) BuiltInRegistries.PARTICLE_TYPE.asLookup());
+            ParticleOptions options = ParticleArgument.readParticle(new StringReader(id), (HolderLookup.Provider) BuiltInRegistries.PARTICLE_TYPE);
             return getParticleEngine().figura$makeParticle(options, 0, 0, 0, 0, 0, 0) != null;
         } catch (Exception ignored) {
             return false;

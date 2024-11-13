@@ -30,6 +30,7 @@ import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.mixin.EntityAccessor;
+import org.figuramc.figura.mixin.PlayerAccessor;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.LuaUtils;
 import org.jetbrains.annotations.NotNull;
@@ -391,7 +392,7 @@ public class EntityAPI<T extends Entity> {
     @LuaMethodDoc("entity.get_permission_level")
     public int getPermissionLevel() {
         checkEntity();
-        return ((EntityAccessor) entity).getPermissionLevel();
+        return entity instanceof Player ? ((PlayerAccessor) entity).getPermissionLevel() : 0;
     }
 
     @LuaWhitelist
@@ -511,7 +512,7 @@ public class EntityAPI<T extends Entity> {
             if (id == null) {
                 throw new LuaError("Invalid entity type: " + type);
             }
-            entityType = BuiltInRegistries.ENTITY_TYPE.get(id);
+            entityType = BuiltInRegistries.ENTITY_TYPE.get(id).get().value();
         } else {
             entityType = null;
         }

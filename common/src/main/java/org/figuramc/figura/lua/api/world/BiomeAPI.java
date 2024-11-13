@@ -37,7 +37,7 @@ public class BiomeAPI {
     public BiomeAPI(Biome biome, BlockPos pos) {
         this.biome = biome;
         this.pos = pos;
-        this.id = WorldAPI.getCurrentWorld().registryAccess().registry(Registries.BIOME).get().getKey(biome).toString();
+        this.id = WorldAPI.getCurrentWorld().registryAccess().get(Registries.BIOME).get().value().getKey(biome).toString();
     }
 
     protected BlockPos getBlockPos() {
@@ -81,13 +81,13 @@ public class BiomeAPI {
     public List<String> getTags() {
         List<String> list = new ArrayList<>();
 
-        Registry<Biome> registry = WorldAPI.getCurrentWorld().registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<Biome> registry = WorldAPI.getCurrentWorld().registryAccess().lookupOrThrow(Registries.BIOME);
         Optional<ResourceKey<Biome>> key = registry.getResourceKey(biome);
 
         if (key.isEmpty())
             return list;
 
-        for (TagKey<Biome> biomeTagKey : registry.getHolderOrThrow(key.get()).tags().toList())
+        for (TagKey<Biome> biomeTagKey : registry.getOrThrow(key.get()).tags().toList())
             list.add(biomeTagKey.location().toString());
 
         return list;
@@ -102,7 +102,7 @@ public class BiomeAPI {
     @LuaWhitelist
     @LuaMethodDoc("biome.get_precipitation")
     public String getPrecipitation() {
-        return biome.getPrecipitationAt(getBlockPos()).name();
+        return biome.getPrecipitationAt(getBlockPos(), WorldAPI.getCurrentWorld().getSeaLevel()).name();
     }
 
     @LuaWhitelist
@@ -151,13 +151,13 @@ public class BiomeAPI {
     @LuaWhitelist
     @LuaMethodDoc("biome.is_hot")
     public boolean isHot() {
-        return ((BiomeAccessor) (Object) biome).getTheTemperature(getBlockPos()) > 1f;
+        return ((BiomeAccessor) (Object) biome).getTheTemperature(getBlockPos(), WorldAPI.getCurrentWorld().getSeaLevel()) > 1f;
     }
 
     @LuaWhitelist
     @LuaMethodDoc("biome.is_cold")
     public boolean isCold() {
-        return biome.coldEnoughToSnow(getBlockPos());
+        return biome.coldEnoughToSnow(getBlockPos(), WorldAPI.getCurrentWorld().getSeaLevel());
     }
 
     @LuaWhitelist

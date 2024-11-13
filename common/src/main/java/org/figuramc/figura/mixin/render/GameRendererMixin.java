@@ -2,7 +2,7 @@ package org.figuramc.figura.mixin.render;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.resource.CrossFrameResourcePool;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
@@ -10,8 +10,8 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.PostChain;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
@@ -21,16 +21,14 @@ import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.ducks.GameRendererAccessor;
 import org.figuramc.figura.lua.api.ClientAPI;
-import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
-import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.RenderUtils;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Quaternionfc;
-import org.luaj.vm2.LuaError;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -38,13 +36,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin implements GameRendererAccessor {
 
-    @Shadow @Final Minecraft minecraft;
-    @Shadow PostChain postEffect;
-    @Shadow private boolean effectActive;
-    @Shadow private float fov;
+    @Shadow @Final
+    private Minecraft minecraft;
 
-    @Shadow protected abstract double getFov(Camera camera, float tickDelta, boolean changingFov);
-    @Shadow protected abstract void loadEffect(ResourceLocation id);
+    @Shadow private boolean effectActive;
+
+    @Shadow protected abstract float getFov(Camera camera, float tickDelta, boolean changingFov);
+
     @Shadow public abstract void checkEntityPostEffect(Entity entity);
 
     @Shadow protected abstract void bobHurt(PoseStack poseStack, float f);
@@ -55,6 +53,11 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
 
     @Shadow private int confusionAnimationTick;
     @Shadow @Final private Camera mainCamera;
+    @Shadow @Nullable
+    private ResourceLocation postEffectId;
+
+    @Shadow @Final private CrossFrameResourcePool resourcePool;
+    @Shadow private float fovModifier;
     @Unique
     private boolean avatarPostShader = false;
     @Unique
@@ -142,9 +145,10 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
         try {
             avatarPostShader = true;
             this.effectActive = true;
-            if (this.postEffect == null || !this.postEffect.getName().equals(resource.toString()))
+            if (this.postEffectId == null || !this.postEffectId.equals(resource))
                 if (this.getMinecraft().getResourceManager().getResource(resource).isPresent()) {
-                    this.loadEffect(resource);
+                    PostChain postchain = this.minecraft.getShaderManager().getPostChain(resource, LevelTargetBundle.MAIN_TARGETS);
+                    postchain.process(this.minecraft.getMainRenderTarget(), this.resourcePool);
                 }
         } catch (Exception ignored) {
             this.effectActive = false;
@@ -163,7 +167,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
         Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity());
         if (RenderUtils.vanillaModelAndScript(avatar)) {
             Float fov = avatar.luaRuntime.renderer.fov;
-            if (fov != null) this.fov = fov;
+            if (fov != null) this.fovModifier = fov;
         }
     }
 

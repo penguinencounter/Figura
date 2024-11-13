@@ -233,6 +233,7 @@ public abstract class AbstractPanelScreen extends Screen {
 
     // No blur in our screens!
     @Override
-    protected void renderBlurredBackground(float tickDelta) {
+    protected void renderBlurredBackground() {
+
     }
 }

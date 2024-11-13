@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import org.figuramc.figura.avatar.Avatar;
@@ -58,7 +59,7 @@ public class EntityTask extends RenderTask {
             try {
                 Minecraft.getInstance().getEntityRenderDispatcher()
                         .render(
-                                entity, 0.0, 0.0, 0.0, 0.0F, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true), stack, buffer,
+                                entity, 0.0, 0.0, 0.0F, Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true), stack, buffer,
                                 this.customization.light != null ? this.customization.light : light
                         );
             }
@@ -118,7 +119,7 @@ public class EntityTask extends RenderTask {
             }
 
             assert Minecraft.getInstance().level != null;
-            entity = EntityType.loadEntityRecursive(finalNbt, Minecraft.getInstance().level, Function.identity());
+            entity = EntityType.loadEntityRecursive(finalNbt, Minecraft.getInstance().level, EntitySpawnReason.SPAWN_ITEM_USE, Function.identity());
             if (entity == null) {
                 throw new LuaError("Could not create entity");
             }

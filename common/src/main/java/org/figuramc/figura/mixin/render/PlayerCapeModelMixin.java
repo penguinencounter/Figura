@@ -1,10 +1,10 @@
 package org.figuramc.figura.mixin.render;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.PlayerCapeModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.LivingEntity;
-import org.figuramc.figura.ducks.PlayerModelAccessor;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import org.figuramc.figura.ducks.PlayerModelCapeAccessor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.List;
 import java.util.Map;
 
-@Mixin(PlayerModel.class)
-public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidModel<T> implements PlayerModelAccessor {
+@Mixin(PlayerCapeModel.class)
+public abstract class PlayerCapeModelMixin<T extends HumanoidRenderState> extends HumanoidModel<T> implements PlayerModelCapeAccessor {
 
     // Fake cape ModelPart which we set rotations of.
     // This is because the internal cape renderer uses the matrix stack,
@@ -24,15 +24,15 @@ public abstract class PlayerModelMixin<T extends LivingEntity> extends HumanoidM
 
     @Final
     @Shadow
-    private ModelPart cloak;
+    private ModelPart cape;
 
-    public PlayerModelMixin(ModelPart modelPart) {
+    public PlayerCapeModelMixin(ModelPart modelPart) {
         super(modelPart);
     }
 
     @Override
     public ModelPart figura$getCloak() {
-        return cloak;
+        return cape;
     }
 
     @Override

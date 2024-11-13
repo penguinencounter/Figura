@@ -34,7 +34,7 @@
   ],
   "depends": {
     "java": ">=${java_version}",
-    "minecraft":  "<=1.21.1 >=${minecraft_version}",
+    "minecraft":  "<=1.21.4 >=${minecraft_version}",
     "fabricloader": ">=0.15"
   },
   "conflicts": {

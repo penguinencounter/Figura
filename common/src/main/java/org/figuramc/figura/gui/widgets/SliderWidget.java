@@ -1,6 +1,7 @@
 package org.figuramc.figura.gui.widgets;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.utils.FiguraIdentifier;
@@ -85,18 +86,18 @@ public class SliderWidget extends ScrollBarWidget {
         int width = getWidth();
 
         // draw bar
-        gui.blit(SLIDER_TEXTURE, x, y + 3, width, 5, isScrolling ? 10f : 0f, 0f, 5, 5, 33, 16);
+        gui.blit(RenderType::guiTextured, SLIDER_TEXTURE, x, y + 3,  isScrolling ? 10f : 0f, 0f, width, 5,5, 5, 33, 16);
 
         // draw steps
         if (showSteps) {
             for (int i = 0; i < max; i++) {
-                gui.blit(SLIDER_TEXTURE, (int) Math.floor(x + 3 + stepSize * i * (width - 11)), y + 3, 5, 5, isScrolling ? 15f : 5f, 0f, 5, 5, 33, 16);
+                gui.blit(RenderType::guiTextured, SLIDER_TEXTURE, (int) Math.floor(x + 3 + stepSize * i * (width - 11)), y + 3,  isScrolling ? 15f : 5f, 0f, 5, 5,5, 5, 33, 16);
             }
         }
 
         // draw header
         lerpPos(delta);
-        gui.blit(SLIDER_TEXTURE, (int) (x + Math.round(Mth.lerp(scrollPos, 0, width - headWidth))), y, isActive() ? (isHoveredOrFocused() || isScrolling ? headWidth * 2 : headWidth) : 0f, 5f, headWidth, headHeight, 33, 16);
+        gui.blit(RenderType::guiTextured, SLIDER_TEXTURE, (int) (x + Math.round(Mth.lerp(scrollPos, 0, width - headWidth))), y, isActive() ? (isHoveredOrFocused() || isScrolling ? headWidth * 2 : headWidth) : 0f, 5f, headWidth, headHeight, 33, 16);
     }
 
     // -- getters and setters -- // 

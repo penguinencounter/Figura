@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
+import org.figuramc.figura.ducks.NativeImageExtension;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
@@ -196,7 +197,7 @@ public class FiguraTexture extends SimpleTexture {
             value = "texture.get_pixel")
     public FiguraVec4 getPixel(int x, int y) {
         try {
-            return ColorUtils.abgrToRGBA(texture.getPixelRGBA(x, y));
+            return ColorUtils.abgrToRGBA(texture.getPixel(x, y));
         } catch (Exception e) {
             throw new LuaError(e.getMessage());
         }
@@ -223,7 +224,7 @@ public class FiguraTexture extends SimpleTexture {
     public FiguraTexture setPixel(int x, int y, Object r, Double g, Double b, Double a) {
         try {
             backupImage();
-            texture.setPixelRGBA(x, y, ColorUtils.rgbaToIntABGR(parseColor("setPixel", r, g, b, a)));
+            texture.setPixel(x, y, ColorUtils.rgbaToIntABGR(parseColor("setPixel", r, g, b, a)));
             return this;
         } catch (Exception e) {
             throw new LuaError(e.getMessage());
@@ -283,7 +284,7 @@ public class FiguraTexture extends SimpleTexture {
     @LuaMethodDoc("texture.save")
     public String save() {
         try {
-            return Base64.getEncoder().encodeToString(texture.asByteArray());
+            return Base64.getEncoder().encodeToString(((NativeImageExtension)(Object)texture).figura$asByteArray());
         } catch (Exception e) {
             throw new LuaError(e.getMessage());
         }

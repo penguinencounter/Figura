@@ -172,10 +172,10 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_current_effect")
     public static String getCurrentEffect() {
-        if (Minecraft.getInstance().gameRenderer.currentEffect() == null)
+        if (Minecraft.getInstance().gameRenderer.currentPostEffect() == null)
             return null;
 
-        return Minecraft.getInstance().gameRenderer.currentEffect().getName();
+        return Minecraft.getInstance().gameRenderer.currentPostEffect().toString();
     }
 
     @LuaWhitelist
@@ -566,7 +566,7 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_frame_time")
     public static double getFrameTime() {
-        return Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        return Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
     }
 
     @LuaWhitelist
@@ -733,13 +733,13 @@ public class ClientAPI {
     public static List<String> getRegistry(@LuaNotNil String registryName) {
         Registry<?> registry;
         try {
-            registry = BuiltInRegistries.REGISTRY.get(ResourceLocation.parse(registryName));
+            registry = BuiltInRegistries.REGISTRY.getValue(ResourceLocation.parse(registryName));
         } catch (Error e) {
             throw new LuaError("Registry " + registryName + " does not exist");
         }
 
         if (registry != null) {
-            return registry.asLookup().filterFeatures(WorldAPI.getCurrentWorld().enabledFeatures()).listElementIds().map(ResourceKey::location)
+            return registry.filterFeatures(WorldAPI.getCurrentWorld().enabledFeatures()).listElementIds().map(ResourceKey::location)
                     .map(ResourceLocation::toString)
                     .collect(Collectors.toList());
         } else {
