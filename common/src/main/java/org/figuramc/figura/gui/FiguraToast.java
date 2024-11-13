@@ -25,7 +25,7 @@ public class FiguraToast implements Toast {
 
     private final ToastType type;
     private Component title, message;
-
+    private boolean update;
     private long startTime;
     private Visibility visibility;
 
@@ -37,6 +37,7 @@ public class FiguraToast implements Toast {
     public void update(Component title, Component message, boolean update) {
         this.title = Component.empty().setStyle(type.style).append(title);
         this.message = message;
+        this.update = update;
     }
 
     @Override
@@ -77,11 +78,15 @@ public class FiguraToast implements Toast {
     @Override
     public void update(ToastManager toastManager, long startTime) {
         int time = Math.round(Configs.TOAST_TIME.value * 1000);
+        if (this.update) {
+            if (startTime - this.startTime < time)
+                Visibility.SHOW.playSound(Minecraft.getInstance().getSoundManager());
+            this.startTime = startTime;
+            this.update = false;
+        }
+
         long timeDiff = startTime - this.startTime;
 
-        if (timeDiff < time)
-            Visibility.SHOW.playSound(Minecraft.getInstance().getSoundManager());
-        this.startTime = startTime;
 
         visibility = timeDiff < time ? Visibility.SHOW : Visibility.HIDE;
     }
