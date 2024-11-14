@@ -80,52 +80,6 @@ public abstract class LevelRendererMixin {
 
     // TODO: Neo does not boot, complains method must be static but it won't compile if it is, the hell?
     // method_62214 for Fabric, lambda$addMainPass$2 for Neo and lambda$addMainPass$1 for Lex
-    @Inject(method = {"method_62214", "lambda$addMainPass$2", "lambda$addMainPass$1"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V", ordinal = 0))
-    private void renderLevelFirstPerson(FogParameters fogParameters, DeltaTracker deltaTracker, Camera camera, ProfilerFiller profiler, Matrix4f matrix4f, Matrix4f matrix4f2, ResourceHandle<RenderTarget> resourceHandle, ResourceHandle<RenderTarget> resourceHandle2, ResourceHandle<RenderTarget> resourceHandle3, ResourceHandle<RenderTarget> resourceHandle4, boolean bl, Frustum frustum, ResourceHandle<RenderTarget> resourceHandle5, CallbackInfo ci, @Local PoseStack stack) {
-        if (camera.isDetached())
-            return;
-
-        float tickDelta = deltaTracker.getGameTimeDeltaPartialTick(false);
-        Entity e = camera.getEntity();
-        Avatar avatar = AvatarManager.getAvatar(e);
-
-        if (avatar == null || !(e instanceof LivingEntity livingEntity))
-            return;
-
-        EntityRenderer<LivingEntity, LivingEntityRenderState> entityRenderer = (EntityRenderer<LivingEntity, LivingEntityRenderState>) this.entityRenderDispatcher.getRenderer(livingEntity);
-
-        LivingEntityRenderState state = entityRenderer.createRenderState(livingEntity, deltaTracker.getGameTimeDeltaPartialTick(Minecraft.getInstance().level.tickRateManager().isEntityFrozen(e)));
-        // first person world parts
-        MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
-        avatar.firstPersonWorldRender(e, bufferSource, stack, camera, tickDelta);
-
-        // first person matrices
-        if (!Configs.FIRST_PERSON_MATRICES.value)
-            return;
-
-        Avatar.firstPerson = true;
-
-        int size = ((PoseStackAccessor)stack).getPoseStack().size();
-        stack.pushPose();
-
-        Vec3 offset = entityRenderer.getRenderOffset(state);
-        Vec3 cam = camera.getPosition();
-
-        stack.translate(
-                Mth.lerp(tickDelta, livingEntity.xOld, livingEntity.getX()) - cam.x() + offset.x(),
-                Mth.lerp(tickDelta, livingEntity.yOld, livingEntity.getY()) - cam.y() + offset.y(),
-                Mth.lerp(tickDelta, livingEntity.zOld, livingEntity.getZ()) - cam.z() + offset.z()
-        );
-
-
-        entityRenderer.render(state, stack, bufferSource, LightTexture.FULL_BRIGHT);
-
-        do {
-            stack.popPose();
-        } while(((PoseStackAccessor)stack).getPoseStack().size() > size);
-
-        Avatar.firstPerson = false;
-    }
 
     @Inject(method = "renderLevel", at = @At("HEAD"))
     private void onRenderLevel(GraphicsResourceAllocator resourceAllocator, DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightmapTextureManager, Matrix4f modelViewMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
@@ -146,15 +100,5 @@ public abstract class LevelRendererMixin {
             return colorInt;
 
         return ARGB.colorFromFloat((float) color.x, (float) color.y, (float) color.z, (float) color.w);
-    }
-
-    @Inject(method =  {"method_62214", "lambda$addMainPass$2", "lambda$addMainPass$1"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderBuffers;bufferSource()Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;"))
-    public void applyFiguraNormals(FogParameters fogParameters, DeltaTracker tracker, Camera camera, ProfilerFiller profiler, Matrix4f matrix4f, Matrix4f matrix4f2, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, boolean bl, Frustum frustum, ResourceHandle resourceHandle5, CallbackInfo ci, @Local PoseStack poseStack) {
-        Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
-        if (!RenderUtils.vanillaModelAndScript(avatar)) return;
-
-        FiguraMat3 normal = avatar.luaRuntime.renderer.cameraNormal;
-        if (normal != null)
-            poseStack.last().normal().set(normal.toMatrix3f());
     }
 }
