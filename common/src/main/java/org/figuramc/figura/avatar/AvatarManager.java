@@ -152,7 +152,7 @@ public class AvatarManager {
     }
 
     public static Avatar getAvatar(EntityRenderState state) {
-        Entity entity = ((FiguraEntityRenderStateExtension)state).figura$getEntity();
+        Entity entity = Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
         return getAvatar(entity);
     }
 
@@ -264,7 +264,7 @@ public class AvatarManager {
     public static Avatar loadEntityAvatar(EntityRenderState entity, CompoundTag nbt) {
         Avatar targetAvatar = new Avatar(entity);
         targetAvatar.load(nbt);
-        LOADED_CEM.put(((FiguraEntityRenderStateExtension)entity).figura$getEntity().getId(), targetAvatar);
+        LOADED_CEM.put(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), targetAvatar);
         return targetAvatar;
     }
 

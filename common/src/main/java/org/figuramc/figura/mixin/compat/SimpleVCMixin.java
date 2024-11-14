@@ -42,7 +42,8 @@ public class SimpleVCMixin {
     private void figuraScale(PoseStack instance, float x, float y, float z, EntityRenderState state){
         // return on config or high entity distance
         int config = Configs.ENTITY_NAMEPLATE.value;
-        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(((FiguraEntityRenderStateExtension)state).figura$getEntity()) > 4096) {
+        Entity entity = minecraft.level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
+        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(entity) > 4096) {
             instance.scale(x, y, z);
         }
     }
@@ -51,7 +52,8 @@ public class SimpleVCMixin {
     private void figuraPivot(PoseStack instance, double x, double y, double z, EntityRenderState state){
         // return on config or high entity distance
         int config = Configs.ENTITY_NAMEPLATE.value;
-        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(((FiguraEntityRenderStateExtension)state).figura$getEntity()) > 4096) {
+        Entity entity = minecraft.level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
+        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(entity) > 4096) {
             instance.translate(x, y, z);
         }
     }
@@ -60,7 +62,8 @@ public class SimpleVCMixin {
     private void cancelMul(PoseStack instance, Quaternionf quaternionIn, EntityRenderState state){
         // return on config or high entity distance
         int config = Configs.ENTITY_NAMEPLATE.value;
-        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(((FiguraEntityRenderStateExtension)state).figura$getEntity()) > 4096) {
+        Entity entity = minecraft.level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
+        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(entity) > 4096) {
             instance.mulPose(quaternionIn);
         }
     }
@@ -69,7 +72,8 @@ public class SimpleVCMixin {
     private void cancelPush(PoseStack instance, EntityRenderState state){
         // return on config or high entity distance
         int config = Configs.ENTITY_NAMEPLATE.value;
-        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(((FiguraEntityRenderStateExtension)state).figura$getEntity()) > 4096) {
+        Entity entity = minecraft.level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
+        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(entity) > 4096) {
             instance.pushPose();
         }
     }
@@ -78,7 +82,8 @@ public class SimpleVCMixin {
     private void cancelPop(PoseStack instance, EntityRenderState state){
         // return on config or high entity distance
         int config = Configs.ENTITY_NAMEPLATE.value;
-        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(((FiguraEntityRenderStateExtension)state).figura$getEntity()) > 4096) {
+        Entity entity = minecraft.level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
+        if (config == 0 || AvatarManager.panic || minecraft.getEntityRenderDispatcher().distanceToSqr(entity) > 4096) {
             instance.popPose();
         } else {
             // resets the poseStack's y as Simple VC offsets it

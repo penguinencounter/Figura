@@ -3,6 +3,7 @@ package org.figuramc.figura.mixin.render.layers.elytra;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -72,7 +73,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
             }
         }
 
-        figura$avatar.elytraRender(((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntity(), multiBufferSource, poseStack, light, ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getTickDelta(), elytraModel);
+        figura$avatar.elytraRender(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId()), multiBufferSource, poseStack, light, ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getTickDelta(), elytraModel);
 
         if (vanillaPart != null)
             vanillaPart.posTransform(elytraModel);
@@ -85,7 +86,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
             vanillaPart.restore(elytraModel);
         renderedPivot = true;
 
-        renderElytraPivot(humanoidRenderState, poseStack, multiBufferSource, light, (T) ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntity());
+        renderElytraPivot(humanoidRenderState, poseStack, multiBufferSource, light, (T) (Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId())));
         if (renderedPivot) {
             poseStack.popPose();
             ci.cancel();

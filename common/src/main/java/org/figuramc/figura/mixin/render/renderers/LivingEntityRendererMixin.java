@@ -109,7 +109,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         boolean translucent = !showBody && !livingEntityRenderState.isInvisibleToPlayer;
         boolean glowing = !showBody && livingEntityRenderState.appearsGlowing;
         boolean invisible = !translucent && !showBody && !glowing;
-        Entity entity = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntity();
+        Entity entity = Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntityId());
         float tickDelta = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getTickDelta();
 
         // When viewed 3rd person, render all non-world parts.

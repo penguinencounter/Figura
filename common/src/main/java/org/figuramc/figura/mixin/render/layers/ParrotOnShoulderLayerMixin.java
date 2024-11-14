@@ -3,6 +3,7 @@ package org.figuramc.figura.mixin.render.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -56,7 +57,7 @@ public abstract class ParrotOnShoulderLayerMixin<S extends PlayerRenderState> ex
         }
 
         // pivot part
-        CompoundTag compoundTag = leftShoulder ? ((Player)((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntity()).getShoulderEntityLeft() :  ((Player)((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntity()).getShoulderEntityRight();
+        CompoundTag compoundTag = leftShoulder ? ((Player)(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntityId()))).getShoulderEntityLeft() :  ((Player)(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntityId()))).getShoulderEntityRight();
         EntityType.byString(compoundTag.getString("id")).filter((type) -> type == EntityType.PARROT).ifPresent((type) -> {
             VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(variant)));
             if (avatar.pivotPartRender(leftShoulder ? ParentType.LeftParrotPivot : ParentType.RightParrotPivot, stack -> {

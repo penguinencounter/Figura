@@ -46,6 +46,7 @@ import org.figuramc.figura.lua.api.ping.PingFunction;
 import org.figuramc.figura.lua.api.sound.SoundAPI;
 import org.figuramc.figura.lua.api.world.BlockStateAPI;
 import org.figuramc.figura.lua.api.world.ItemStackAPI;
+import org.figuramc.figura.lua.api.world.WorldAPI;
 import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
@@ -159,7 +160,7 @@ public class Avatar {
     }
 
     public Avatar(EntityRenderState entity) {
-        this(((FiguraEntityRenderStateExtension)entity).figura$getEntity());
+        this(WorldAPI.getCurrentWorld().getEntity(((FiguraEntityRenderStateExtension)entity).figura$getEntityId()));
     }
 
     public void load(CompoundTag nbt) {

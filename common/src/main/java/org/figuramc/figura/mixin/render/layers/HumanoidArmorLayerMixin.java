@@ -3,6 +3,7 @@ package org.figuramc.figura.mixin.render.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -116,7 +117,7 @@ public abstract class HumanoidArmorLayerMixin<S extends HumanoidRenderState, M e
     private void figura$tryRenderArmorPart(EquipmentSlot slot, FiguraArmorPartRenderer<S, A> renderer, PoseStack vanillaPoseStack, S state, MultiBufferSource vertexConsumers, int light, ParentType... parentTypes) {
         if (slot == null) return; // ?
 
-        ItemStack itemStack = ((LivingEntity)((FiguraEntityRenderStateExtension)state).figura$getEntity()).getItemBySlot(slot);
+        ItemStack itemStack = ((LivingEntity)(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId()))).getItemBySlot(slot);
 
         // Make sure the item in the equipment slot is actually a piece of armor
         if ((itemStack.getItem() instanceof ArmorItem armorItem && armorItem.components().has(DataComponents.EQUIPPABLE) && armorItem.components().get(DataComponents.EQUIPPABLE).slot() == slot)) {

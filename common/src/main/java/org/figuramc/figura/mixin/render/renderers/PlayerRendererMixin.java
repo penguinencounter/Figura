@@ -112,7 +112,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 
         // badges
         FiguraMod.popPushProfiler("badges");
-        replacement = Badges.appendBadges(replacement, ((FiguraEntityRenderStateExtension)player).figura$getEntity().getUUID(), config > 1);
+        replacement = Badges.appendBadges(replacement, Minecraft.getInstance().level.getEntity(player.id).getUUID(), config > 1);
 
         FiguraMod.popPushProfiler("applyName");
         text = TextUtils.replaceInText(text, "\\b" + Pattern.quote(player.name) + "\\b", replacement);
@@ -135,7 +135,7 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
     private void renderNameTag(PlayerRenderState playerRenderState, Component component, PoseStack matrices, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
         // return on config or high entity distance
         int config = Configs.ENTITY_NAMEPLATE.value;
-        Entity entity = ((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntity();
+        Entity entity = Minecraft.getInstance().level.getEntity(playerRenderState.id);
 
         if (config == 0 || AvatarManager.panic || !(entity instanceof Player player) || this.entityRenderDispatcher.distanceToSqr(player) > 4096)
             return;

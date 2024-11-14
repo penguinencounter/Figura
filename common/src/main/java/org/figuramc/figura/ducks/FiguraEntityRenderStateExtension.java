@@ -6,8 +6,8 @@ import net.minecraft.world.entity.EntityType;
 import java.util.UUID;
 
 public interface FiguraEntityRenderStateExtension {
-    Entity figura$getEntity();
-    void figura$setEntity(Entity entity);
+    int figura$getEntityId();
+    void figura$setEntityId(int id);
     float figura$getTickDelta();
     void figura$setTickDelta(float tickDelta);
 }

@@ -57,7 +57,7 @@ public abstract class EntityRendererMixin<T extends Entity, S extends EntityRend
 
     @Inject(at = @At("HEAD"), method = "extractRenderState")
     private void extractRenderState(T entity, S entityRenderState, float f, CallbackInfo ci) {
-        ((FiguraEntityRenderStateExtension)entityRenderState).figura$setEntity(entity);
+        ((FiguraEntityRenderStateExtension)entityRenderState).figura$setEntityId(entity.getId());
         ((FiguraEntityRenderStateExtension)entityRenderState).figura$setTickDelta(f);
     }
 

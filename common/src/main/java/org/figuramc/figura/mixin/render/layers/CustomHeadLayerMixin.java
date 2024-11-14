@@ -2,6 +2,7 @@ package org.figuramc.figura.mixin.render.layers;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HeadedModel;
 import net.minecraft.client.model.SkullModelBase;
@@ -90,7 +91,7 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
 
                 // set item context
                 SkullBlockRendererAccessor.setItem(itemStack);
-                SkullBlockRendererAccessor.setEntity(((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntity());
+                SkullBlockRendererAccessor.setEntity(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntityId()));
                 SkullBlockRendererAccessor.setRenderMode(SkullBlockRendererAccessor.SkullRenderMode.HEAD);
                 SkullBlockRenderer.renderSkull(null, 0f, f, stack, multiBufferSource, i, skullModelBase, renderType);
             })) {
@@ -109,7 +110,7 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;renderSkull(Lnet/minecraft/core/Direction;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/model/SkullModelBase;Lnet/minecraft/client/renderer/RenderType;)V"), method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V")
     private void renderSkull(PoseStack matrices, MultiBufferSource vertexConsumers, int i, S livingEntityRenderState, float f, float g, CallbackInfo ci) {
         SkullBlockRendererAccessor.setItem(livingEntityRenderState.headItem);
-        SkullBlockRendererAccessor.setEntity(((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntity());
+        SkullBlockRendererAccessor.setEntity(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntityId()));
         SkullBlockRendererAccessor.setRenderMode(SkullBlockRendererAccessor.SkullRenderMode.HEAD);
     }
 }
