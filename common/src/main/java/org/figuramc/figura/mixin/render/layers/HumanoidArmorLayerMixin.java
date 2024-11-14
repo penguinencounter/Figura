@@ -142,7 +142,7 @@ public abstract class HumanoidArmorLayerMixin<S extends HumanoidRenderState, M e
             if (figura$avatar.permissions.get(Permissions.VANILLA_MODEL_EDIT) == 1 && mainPart != null && !mainPart.checkVisible()) return;
 
             // Don't render armor if GeckoLib is already doing the rendering
-            if (!GeckoLibCompat.armorHasCustomModel(itemStack)) {
+            if (!GeckoLibCompat.armorHasCustomModel(itemStack, slot, slot == EquipmentSlot.LEGS ? EquipmentModel.LayerType.HUMANOID_LEGGINGS : EquipmentModel.LayerType.HUMANOID)) {
                 // Go through each parent type needed to render the current piece of armor
                 for (ParentType parentType : parentTypes) {
                         // Skip the part if it's hidden

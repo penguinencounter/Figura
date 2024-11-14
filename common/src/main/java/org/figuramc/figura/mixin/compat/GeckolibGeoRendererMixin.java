@@ -1,10 +1,12 @@
 package org.figuramc.figura.mixin.compat;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.ducks.GeckolibGeoArmorAccessor;
@@ -31,7 +33,7 @@ public interface GeckolibGeoRendererMixin<T extends GeoAnimatable> {
     @Shadow
     void renderRecursively(PoseStack par1, GeoAnimatable par2, GeoBone par3, RenderType par4, MultiBufferSource par5, VertexConsumer par6, boolean par7, float par8, int par9, int par10, int color);
 
-    @Shadow void updateAnimatedTextureFrame(T animatable);
+    @Shadow ResourceLocation getTextureLocation(T animatable);
 
     /**
      * @author UnlikePaladin
@@ -40,7 +42,14 @@ public interface GeckolibGeoRendererMixin<T extends GeoAnimatable> {
      */
     @Overwrite
     default void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int color) {
-        updateAnimatedTextureFrame(animatable);
+        if (buffer == null) {
+            if (renderType == null)
+                return;
+
+            buffer = bufferSource.getBuffer(renderType);
+        }
+
+        RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 
         CallbackInfo callbackInfo = new CallbackInfo("figura$renderPivots", true);
         figura$renderPivots(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, color, callbackInfo);
@@ -131,7 +140,7 @@ public interface GeckolibGeoRendererMixin<T extends GeoAnimatable> {
             ((GeckolibGeoArmorAccessor)armorRenderer).figura$setEntityRenderTranslations(stack.last().pose());
 
             stack.pushPose();
-            /*BakedGeoModel model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(geoAnimatable));
+            BakedGeoModel model = armorRenderer.getGeoModel().getBakedModel(armorRenderer.getGeoModel().getModelResource(geoAnimatable, armorRenderer));
             armorRenderer.scaleModelForBaby(stack, (Item) geoAnimatable, partialTick, isReRender);
             armorRenderer.scaleModelForRender(((GeckolibGeoArmorAccessor) armorRenderer).figura$getScaleWidth(), ((GeckolibGeoArmorAccessor) armorRenderer).figura$getScaleHeight(), stack, geoAnimatable, model, isReRender, partialTick, packedLight, packedOverlay);
 
@@ -141,7 +150,7 @@ public interface GeckolibGeoRendererMixin<T extends GeoAnimatable> {
             ((GeckolibGeoArmorAccessor)armorRenderer).figura$setModelRenderTranslations(stack.last().pose());
             renderRecursively(stack, geoAnimatable, geoBone, renderType, multiBufferSource, vertexConsumer, isReRender, partialTick, packedLight, packedOverlay, color);
             stack.popPose();
-            stack.popPose();*/
+            stack.popPose();
         });
     }
 

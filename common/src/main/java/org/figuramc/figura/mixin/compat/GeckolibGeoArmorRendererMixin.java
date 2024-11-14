@@ -1,6 +1,7 @@
 package org.figuramc.figura.mixin.compat;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +25,7 @@ public abstract class GeckolibGeoArmorRendererMixin implements GeckolibGeoArmorA
     private Avatar figura$avatar;
 
     @Inject(method = "prepForRender", at = @At(value = "HEAD"))
-    private void figura$prepAvatar(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, CallbackInfo ci){
+    private void figura$prepAvatar(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, MultiBufferSource bufferSource, float partialTick, float netHeadYaw, float headPitch, CallbackInfo ci){
         if (entity != null)
             figura$avatar = AvatarManager.getAvatar(entity);
         else {
