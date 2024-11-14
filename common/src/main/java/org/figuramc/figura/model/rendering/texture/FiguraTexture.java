@@ -197,7 +197,7 @@ public class FiguraTexture extends SimpleTexture {
             value = "texture.get_pixel")
     public FiguraVec4 getPixel(int x, int y) {
         try {
-            return ColorUtils.abgrToRGBA(texture.getPixel(x, y));
+            return ColorUtils.abgrToRGBA(((NativeImageExtension)(Object)texture).figura$getPixelABGR(x, y));
         } catch (Exception e) {
             throw new LuaError(e.getMessage());
         }
@@ -224,7 +224,7 @@ public class FiguraTexture extends SimpleTexture {
     public FiguraTexture setPixel(int x, int y, Object r, Double g, Double b, Double a) {
         try {
             backupImage();
-            texture.setPixel(x, y, ColorUtils.rgbaToIntABGR(parseColor("setPixel", r, g, b, a)));
+            ((NativeImageExtension)(Object)texture).figura$setPixelABGR(x, y, ColorUtils.rgbaToIntABGR(parseColor("setPixel", r, g, b, a)));
             return this;
         } catch (Exception e) {
             throw new LuaError(e.getMessage());

@@ -37,7 +37,7 @@ public class BiomeAPI {
     public BiomeAPI(Biome biome, BlockPos pos) {
         this.biome = biome;
         this.pos = pos;
-        this.id = WorldAPI.getCurrentWorld().registryAccess().get(Registries.BIOME).get().value().getKey(biome).toString();
+        this.id = WorldAPI.getCurrentWorld().registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome).toString();
     }
 
     protected BlockPos getBlockPos() {
