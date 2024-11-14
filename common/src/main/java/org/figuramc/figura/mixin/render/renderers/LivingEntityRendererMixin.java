@@ -55,6 +55,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
 
     @Shadow protected abstract float getWhiteOverlayProgress(S arg);
 
+    @Shadow protected abstract boolean isBodyVisible(S livingEntityRenderState);
+
     @Unique
     private Avatar currentAvatar;
     @Unique
@@ -103,8 +105,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
                 part.preTransform(model);
         }
 
-        boolean showBody = livingEntityRenderState.isInvisible;
-        boolean translucent = !showBody && Minecraft.getInstance().player != null && !livingEntityRenderState.isInvisibleToPlayer;
+        boolean showBody = isBodyVisible(livingEntityRenderState);
+        boolean translucent = !showBody && !livingEntityRenderState.isInvisibleToPlayer;
         boolean glowing = !showBody && livingEntityRenderState.appearsGlowing;
         boolean invisible = !translucent && !showBody && !glowing;
         Entity entity = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntity();

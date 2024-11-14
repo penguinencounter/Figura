@@ -30,6 +30,7 @@ import org.figuramc.figura.gui.screens.FiguraConfirmScreen;
 import org.figuramc.figura.gui.widgets.ContextMenu;
 import org.figuramc.figura.gui.widgets.FiguraWidget;
 import org.figuramc.figura.math.vector.FiguraVec4;
+import org.figuramc.figura.mixin.gui.GuiGraphicsAccessor;
 import org.figuramc.figura.model.rendering.EntityRenderMode;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.RenderUtils;
@@ -216,7 +217,6 @@ public final class UIHelper {
         dispatcher.setRenderHitBoxes(false);
         dispatcher.setRenderShadow(false);
         dispatcher.overrideCameraOrientation(quaternion3);
-        MultiBufferSource.BufferSource immediate = minecraft.renderBuffers().bufferSource();
 
         // render
         paperdoll = true;
@@ -227,8 +227,9 @@ public final class UIHelper {
 
         double finalXPos = xPos;
         double finalYPos = yPos;
-        gui.drawSpecial((multiBufferSource -> dispatcher.render(entity, finalXPos, finalYPos, 0d, 1f, pose, immediate, LightTexture.FULL_BRIGHT)));
-        immediate.endBatch();
+        gui.drawSpecial((multiBufferSource -> {
+            dispatcher.render(entity, finalXPos, finalYPos, 0d, 1f, pose, multiBufferSource, LightTexture.FULL_BRIGHT);
+        }));
 
         paperdoll = false;
 
@@ -280,17 +281,14 @@ public final class UIHelper {
     }
 
     public static void renderBackgroundTexture(GuiGraphics gui, ResourceLocation texture, float x, float y, float width, float height, float textureWidth, float textureHeight) {
-        prepareTexture(texture);
 
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        VertexConsumer vertexConsumer = ((GuiGraphicsAccessor)gui).getBufferSource().getBuffer(RenderType.guiTextured(texture));
 
         float u1 = width / textureWidth;
         float v1 = height / textureHeight;
-        quad(bufferBuilder, gui.pose().last().pose(), x, y, width, height, -999f, 0f, u1, 0f, v1);
+        quad(vertexConsumer, gui.pose().last().pose(), x, y, width, height, -999f, 0f, u1, 0f, v1);
 
-        BufferUploader.drawWithShader(bufferBuilder.build());
-
+        ((GuiGraphicsAccessor)gui).getBufferSource().endBatch();
     }
 
     public static void fillRounded(GuiGraphics gui, int x, int y, int width, int height, int color) {
@@ -311,37 +309,35 @@ public final class UIHelper {
     }
 
     public static void blitSliced(GuiGraphics gui, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, ResourceLocation texture) {
-        prepareTexture(texture);
+        VertexConsumer vertexConsumer = ((GuiGraphicsAccessor)gui).getBufferSource().getBuffer(RenderType.guiTextured(texture));
 
         Matrix4f pose = gui.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
         float rWidthThird = regionWidth / 3f;
         float rHeightThird = regionHeight / 3f;
 
         // top left
-        quad(buffer, pose, x, y, rWidthThird, rHeightThird, u, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x, y, rWidthThird, rHeightThird, u, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
         // top middle
-        quad(buffer, pose, x + rWidthThird, y, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x + rWidthThird, y, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
         // top right
-        quad(buffer, pose, x + width - rWidthThird, y, rWidthThird, rHeightThird, u + rWidthThird * 2, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x + width - rWidthThird, y, rWidthThird, rHeightThird, u + rWidthThird * 2, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
 
         // middle left
-        quad(buffer, pose, x, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
         // middle middle
-        quad(buffer, pose, x + rWidthThird, y + rHeightThird, width - rWidthThird * 2, height - rHeightThird * 2, u + rWidthThird, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x + rWidthThird, y + rHeightThird, width - rWidthThird * 2, height - rHeightThird * 2, u + rWidthThird, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
         // middle right
-        quad(buffer, pose, x + width - rWidthThird, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u + rWidthThird * 2, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x + width - rWidthThird, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u + rWidthThird * 2, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
 
         // bottom left
-        quad(buffer, pose, x, y + height - rHeightThird, rWidthThird, rHeightThird, u, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x, y + height - rHeightThird, rWidthThird, rHeightThird, u, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
         // bottom middle
-        quad(buffer, pose, x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
         // bottom right
-        quad(buffer, pose, x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        quad(vertexConsumer, pose, x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
 
-        BufferUploader.drawWithShader(buffer.build());
+        ((GuiGraphicsAccessor)gui).getBufferSource().endBatch();
     }
 
     public static void renderHalfTexture(GuiGraphics gui, int x, int y, int width, int height, int textureWidth, ResourceLocation texture) {
@@ -362,13 +358,14 @@ public final class UIHelper {
     }
 
     public static void renderSprite(GuiGraphics gui, int x, int y, int z, int width, int height, TextureAtlasSprite sprite) {
-        prepareTexture(sprite.atlasLocation());
-        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        quad(bufferBuilder, gui.pose().last().pose(), x, y, width, height, z, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1());
-        BufferUploader.drawWithShader(bufferBuilder.build());
+        VertexConsumer vertexConsumer = ((GuiGraphicsAccessor)gui).getBufferSource().getBuffer(RenderType.guiTextured(sprite.atlasLocation()));
+
+        quad(vertexConsumer, gui.pose().last().pose(), x, y, width, height, z, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1());
+
+        ((GuiGraphicsAccessor)gui).getBufferSource().endBatch();
     }
 
-    private static void quad(BufferBuilder bufferBuilder, Matrix4f pose, float x, float y, float width, float height, float u, float v, float regionWidth, float regionHeight, int textureWidth, int textureHeight) {
+    private static void quad(VertexConsumer bufferBuilder, Matrix4f pose, float x, float y, float width, float height, float u, float v, float regionWidth, float regionHeight, int textureWidth, int textureHeight) {
         float u0 = u / textureWidth;
         float v0 = v / textureHeight;
         float u1 = (u + regionWidth) / textureWidth;
@@ -376,13 +373,13 @@ public final class UIHelper {
         quad(bufferBuilder, pose, x, y, width, height, 0f, u0, u1, v0, v1);
     }
 
-    private static void quad(BufferBuilder bufferBuilder, Matrix4f pose, float x, float y, float width, float height, float z, float u0, float u1, float v0, float v1) {
+    private static void quad(VertexConsumer bufferBuilder, Matrix4f pose, float x, float y, float width, float height, float z, float u0, float u1, float v0, float v1) {
         float x1 = x + width;
         float y1 = y + height;
-        bufferBuilder.addVertex(pose, x, y1, z).setUv(u0, v1);
-        bufferBuilder.addVertex(pose, x1, y1, z).setUv(u1, v1);
-        bufferBuilder.addVertex(pose, x1, y, z).setUv(u1, v0);
-        bufferBuilder.addVertex(pose, x, y, z).setUv(u0, v0);
+        bufferBuilder.addVertex(pose, x, y1, z).setUv(u0, v1).setColor(-1);
+        bufferBuilder.addVertex(pose, x1, y1, z).setUv(u1, v1).setColor(-1);
+        bufferBuilder.addVertex(pose, x1, y, z).setUv(u1, v0).setColor(-1);
+        bufferBuilder.addVertex(pose, x, y, z).setUv(u0, v0).setColor(-1);
     }
 
     public static void renderWithoutScissors(GuiGraphics gui, Consumer<GuiGraphics> toRun) {
