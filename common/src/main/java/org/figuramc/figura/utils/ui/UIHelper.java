@@ -460,7 +460,7 @@ public final class UIHelper {
     }
 
     public static void renderOutlineText(GuiGraphics gui, Font textRenderer, Component text, int x, int y, int color, int outline) {
-        MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
+        MultiBufferSource.BufferSource bufferSource = ((GuiGraphicsAccessor)gui).getBufferSource();
         textRenderer.drawInBatch8xOutline(text.getVisualOrderText(), x, y, color, outline, gui.pose().last().pose(), bufferSource, LightTexture.FULL_BRIGHT);
         bufferSource.endBatch();
     }

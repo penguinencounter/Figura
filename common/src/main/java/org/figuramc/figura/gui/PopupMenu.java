@@ -114,13 +114,13 @@ public class PopupMenu {
 
         UIHelper.enableBlend();
         int frame = Configs.REDUCED_MOTION.value ? 0 : (int) ((FiguraMod.ticks / 5f) % 4);
-        gui.blit(RenderType::guiTextured, BACKGROUND, width / -2, -24, width, 26, 0, frame * 26, width, 26, width, 104);
+        gui.blit(RenderType::guiTexturedOverlay, BACKGROUND, width / -2, -24, 0, frame * 26, width, 26, width, 26, width, 104);
 
         // icons
         pose.translate(0f, 0f, -2f);
         UIHelper.enableBlend();
         for (int i = 0; i < LENGTH; i++)
-            gui.blit(RenderType::guiTextured, ICONS, width / -2 + (18 * i), -24, 18, 18, 18 * i, i == index ? 18 : 0, 18, 18, width, 36);
+            gui.blit(RenderType::guiTexturedOverlay, ICONS, width / -2 + (18 * i), -24, 18 * i, i == index ? 18 : 0, 18, 18, 18, 18, width, 36);
 
         // texts
         Font font = minecraft.font;

@@ -10,19 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(ArrowRenderState.class)
 public class ArrowRenderStateMixin implements FiguraProjectileRenderStateExtension {
     @Unique
-    Projectile figura$arrow;
-    @Unique
     float figura$delta;
-
-    @Override
-    public Projectile figura$getProjectile() {
-        return figura$arrow;
-    }
-
-    @Override
-    public void figura$setProjectile(Projectile arrow) {
-        this.figura$arrow = arrow;
-    }
 
     @Override
     public float figura$getTickDelta() {
