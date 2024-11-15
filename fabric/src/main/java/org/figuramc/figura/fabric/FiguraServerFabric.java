@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import org.figuramc.figura.backend2.FabricNetworking;
+import org.figuramc.figura.commands.fabric.FiguraServerCommandsFabric;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.PayloadWrapper;
 import org.figuramc.figura.server.packets.Packet;
@@ -20,6 +21,7 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
     public void onInitializeServer() {
         init();
         FabricNetworking.init(this::registerHandler, Side.SERVER);
+        FiguraServerCommandsFabric.init();
     }
 
     public <P extends Packet> void registerHandler(CustomPacketPayload.Type<PayloadWrapper<P>> type) {
