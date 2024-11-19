@@ -7,7 +7,6 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,6 +21,7 @@ import org.figuramc.figura.gui.FiguraToast;
 import org.figuramc.figura.gui.widgets.lists.AvatarList;
 import org.figuramc.figura.lua.api.particle.ParticleAPI;
 import org.figuramc.figura.lua.api.sound.SoundAPI;
+import org.figuramc.figura.lua.api.world.WorldAPI;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.FiguraClientCommandSource;
 import org.figuramc.figura.utils.FiguraResourceListener;
@@ -48,6 +48,9 @@ public class AvatarManager {
 
     public static boolean localUploaded = true; // init as true :3
     public static boolean panic = false;
+
+    // Added to reduce look up for entities + fixes trident and arrow that no longer exist in world not being rendered while picked up
+    public static Int2ObjectMap<Entity> ENTITY_CACHE = new Int2ObjectOpenHashMap<>();
 
     // -- panic mode -- // 
 
@@ -83,8 +86,12 @@ public class AvatarManager {
 
         for (int entityId : LOADED_CEM.keySet()) {
             Entity entity = Minecraft.getInstance().level.getEntity(entityId);
-            if (entity != null && entity.isRemoved())
+            if (entity != null && entity.isRemoved()) {
                 toBeRemoved.add(entityId);
+                ENTITY_CACHE.remove(entityId);
+            } else if (entity == null) {
+                ENTITY_CACHE.remove(entityId);
+            }
         }
 
         for (int entity : toBeRemoved)
@@ -220,6 +227,7 @@ public class AvatarManager {
 
         LOADED_USERS.clear();
         FETCHED_USERS.clear();
+        ENTITY_CACHE.clear();
         clearCEMAvatars();
 
         localUploaded = true;
@@ -257,6 +265,7 @@ public class AvatarManager {
         Avatar targetAvatar = new Avatar(entity);
         targetAvatar.load(nbt);
         LOADED_CEM.put(entity.getId(), targetAvatar);
+        AvatarManager.ENTITY_CACHE.putIfAbsent(entity.getId(), entity);
         return targetAvatar;
     }
 
@@ -265,6 +274,7 @@ public class AvatarManager {
         Avatar targetAvatar = new Avatar(entity);
         targetAvatar.load(nbt);
         LOADED_CEM.put(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), targetAvatar);
+        AvatarManager.ENTITY_CACHE.putIfAbsent(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), WorldAPI.getCurrentWorld().getEntity(((FiguraEntityRenderStateExtension)entity).figura$getEntityId()));
         return targetAvatar;
     }
 

@@ -160,7 +160,7 @@ public class Avatar {
     }
 
     public Avatar(EntityRenderState entity) {
-        this(WorldAPI.getCurrentWorld().getEntity(((FiguraEntityRenderStateExtension)entity).figura$getEntityId()));
+        this(AvatarManager.ENTITY_CACHE.computeIfAbsent(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), (id2) -> WorldAPI.getCurrentWorld().getEntity(id2)));
     }
 
     public void load(CompoundTag nbt) {

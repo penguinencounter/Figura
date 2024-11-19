@@ -31,7 +31,8 @@ public abstract class ArrowRendererMixin<T extends AbstractArrow, S extends Arro
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArrowModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"), method = "render(Lnet/minecraft/client/renderer/entity/state/ArrowRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
     private void render(S arrowRenderState, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
-        Projectile arrow = (Projectile) Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)arrowRenderState).figura$getEntityId());
+        int id = ((FiguraEntityRenderStateExtension)arrowRenderState).figura$getEntityId();
+        Projectile arrow = (Projectile) AvatarManager.ENTITY_CACHE.computeIfAbsent(id, (id2) -> Minecraft.getInstance().level.getEntity(id2));
         if (arrow == null)
             return;
 
