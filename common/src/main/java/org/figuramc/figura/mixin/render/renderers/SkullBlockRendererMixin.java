@@ -49,7 +49,8 @@ public abstract class SkullBlockRendererMixin extends BlockEntityRenderer<SkullB
 
     @Inject(at = @At("HEAD"), method = "renderSkull", cancellable = true)
     private static void figura$renderSkull(Direction direction, float yaw, SkullBlock.Type type, GameProfile gameProfile, float animationProgress, PoseStack stack, MultiBufferSource bufferSource, int light, CallbackInfo ci) {
-        RenderType renderType = getRenderType(type, gameProfile);
+        avatar = (gameProfile != null && gameProfile.getId() != null) ? AvatarManager.getAvatarForPlayer(gameProfile.getId()) : null;
+
 
         // parse block and items first, so we can yeet them in case of a missed event
         SkullBlockEntity localBlock = block;
@@ -104,10 +105,5 @@ public abstract class SkullBlockRendererMixin extends BlockEntityRenderer<SkullB
     public boolean shouldRenderOffScreen(SkullBlockEntity blockEntity) {
     	Avatar localAvatar = avatar; // avatar pointer incase avatar variable is set during render.
     	return localAvatar == null || localAvatar.permissions == null ? super.shouldRenderOffScreen(blockEntity) : localAvatar.permissions.get(Permissions.OFFSCREEN_RENDERING) == 1;
-    }
-
-    @Inject(at = @At("HEAD"), method = "getRenderType")
-    private static void figura$getRenderType(SkullBlock.Type type, GameProfile profile, CallbackInfoReturnable<RenderType> cir) {
-        avatar = (profile != null && profile.getId() != null) ? AvatarManager.getAvatarForPlayer(profile.getId()) : null;
     }
 }
