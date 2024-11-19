@@ -32,6 +32,9 @@ public abstract class TridentRendererMixin<T extends ThrownTrident, S extends Th
     @Inject(at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;getFoilBuffer(Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/RenderType;ZZ)Lcom/mojang/blaze3d/vertex/VertexConsumer;"), method = "render(Lnet/minecraft/client/renderer/entity/state/ThrownTridentRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
     private void render(ThrownTridentRenderState thrownTridentRenderState, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
         Projectile trident = (Projectile) Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)thrownTridentRenderState).figura$getEntityId());
+        if (trident == null)
+            return;
+
         float tickDelta = ((FiguraProjectileRenderStateExtension)thrownTridentRenderState).figura$getTickDelta();
 
         Entity owner = trident.getOwner();

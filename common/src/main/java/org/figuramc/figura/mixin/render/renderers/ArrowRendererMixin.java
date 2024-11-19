@@ -32,8 +32,10 @@ public abstract class ArrowRendererMixin<T extends AbstractArrow, S extends Arro
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArrowModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"), method = "render(Lnet/minecraft/client/renderer/entity/state/ArrowRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
     private void render(S arrowRenderState, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
         Projectile arrow = (Projectile) Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)arrowRenderState).figura$getEntityId());
-        float tickDelta = ((FiguraProjectileRenderStateExtension)arrowRenderState).figura$getTickDelta();
+        if (arrow == null)
+            return;
 
+        float tickDelta = ((FiguraProjectileRenderStateExtension)arrowRenderState).figura$getTickDelta();
         Entity owner = arrow.getOwner();
 
         Avatar avatar = AvatarManager.getAvatar(owner);
