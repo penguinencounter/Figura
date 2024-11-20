@@ -6,7 +6,8 @@
   "client": [
     "CommandSuggestionsMixinFabric",
     "GuiMixin",
-    "LevelRendererMixinFabric"
+    "LevelRendererMixinFabric",
+    "HumanoidArmorLayerMixinFabric"
   ],
   "mixins": [
   ],
