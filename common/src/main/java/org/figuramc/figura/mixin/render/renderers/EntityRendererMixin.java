@@ -61,12 +61,13 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
         figura$avatar = AvatarManager.getAvatar(entity);
         figura$custom = figura$avatar == null || figura$avatar.luaRuntime == null ? null : figura$avatar.luaRuntime.nameplate.ENTITY;
         figura$hasCustomNameplate = figura$custom != null && figura$avatar.permissions.get(Permissions.NAMEPLATE_EDIT) == 1;
-        figura$enabled =  Configs.ENTITY_NAMEPLATE.value > 0 && !AvatarManager.panic;
+        figura$enabled =  Configs.ENTITY_NAMEPLATE.value > 0 && !AvatarManager.panic && figura$hasCustomNameplate;
 
 
         figura$textList = TextUtils.splitText(text, "\n");
     }
 
+    // Push pivot transformations when the nametag is being pivoted (set to entity height in vanilla)
     @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(DDD)V"), method = "renderNameTag")
     private void modifyPivot(PoseStack instance, double x, double y, double z, Operation<Void> original) {
         FiguraVec3 pivot = FiguraVec3.of(x, y, z);
@@ -79,6 +80,7 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
         original.call(instance, pivot.x, pivot.y, pivot.z);
     }
 
+    // Push position transformations after the nametag has been rotated to face the camera
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lcom/mojang/math/Quaternion;)V", shift = At.Shift.AFTER), method = "renderNameTag")
     private void modifyPos(T entity, Component text, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
         if (figura$enabled && figura$avatar != null) {
@@ -91,6 +93,7 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
         }
     }
 
+    // push the scale when vanilla does so
     @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V"), method = "renderNameTag")
     private void modifyScale(PoseStack instance, float x, float y, float z, Operation<Void> original) {
         FiguraVec3 scaleVec = FiguraVec3.of(x, y, z);
