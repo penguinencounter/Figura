@@ -33,15 +33,11 @@ import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.FiguraArmorPartRenderer;
 import org.figuramc.figura.utils.RenderUtils;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Stupid Neoforge patches the class and breaks vanilla / common mixins, not even Forge... >:(
 @Mixin(value = HumanoidArmorLayer.class, priority = 900)
 public abstract class HumanoidArmorLayerMixinNeoForge<T extends LivingEntity, M extends HumanoidModel<T>, A extends HumanoidModel<T>> extends RenderLayer<T, M> implements HumanoidArmorLayerAccessor<T, M, A> {
 
@@ -57,6 +53,7 @@ public abstract class HumanoidArmorLayerMixinNeoForge<T extends LivingEntity, M 
 
     @Shadow @Final private A innerModel;
     @Shadow @Final private A outerModel;
+
     @Unique
     private boolean figura$renderingVanillaArmor;
 
@@ -142,7 +139,8 @@ public abstract class HumanoidArmorLayerMixinNeoForge<T extends LivingEntity, M 
 
             boolean allFailed = true;
             VanillaPart mainPart = RenderUtils.partFromSlot(figura$avatar, slot);
-            if (figura$avatar.permissions.get(Permissions.VANILLA_MODEL_EDIT) == 1 && mainPart != null && !mainPart.checkVisible()) return;
+            int armorEditPermission = figura$avatar.permissions.get(Permissions.VANILLA_MODEL_EDIT);
+            if (armorEditPermission == 1 && mainPart != null && !mainPart.checkVisible()) return;
 
             // Don't render armor if GeckoLib is already doing the rendering
             if (!GeckoLibCompat.armorHasCustomModel(itemStack)) {
@@ -150,16 +148,18 @@ public abstract class HumanoidArmorLayerMixinNeoForge<T extends LivingEntity, M 
                 for (ParentType parentType : parentTypes) {
                     // Skip the part if it's hidden
                     VanillaPart part = RenderUtils.pivotToPart(figura$avatar, parentType);
-                    if (figura$avatar.permissions.get(Permissions.VANILLA_MODEL_EDIT) == 1 && part != null && !part.checkVisible()) continue;
-
-                    // Try to render the pivot part
-                    boolean renderedPivot = figura$avatar.pivotPartRender(parentType, stack -> {
-                        stack.pushPose();
-                        figura$prepareArmorRender(stack);
-                        renderer.renderArmorPart(stack, vertexConsumers, light, armorModel, entity, itemStack, slot, armorItem, parentType);
-                        stack.popPose();
-                    });
-
+                    if (armorEditPermission == 1 && part != null && !part.checkVisible()) continue;
+                    boolean renderedPivot = false;
+                    // If the user has no permission disable pivot
+                    if (armorEditPermission == 1) {
+                        // Try to render the pivot part
+                        renderedPivot = figura$avatar.pivotPartRender(parentType, stack -> {
+                            stack.pushPose();
+                            figura$prepareArmorRender(stack);
+                            renderer.renderArmorPart(stack, vertexConsumers, light, armorModel, entity, itemStack, slot, armorItem, parentType);
+                            stack.popPose();
+                        });
+                    }
                     if (renderedPivot) {
                         allFailed = false;
                     }
