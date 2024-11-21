@@ -1,12 +1,15 @@
 package org.figuramc.figura.lua.api.world;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
@@ -193,10 +196,9 @@ public class ItemStackAPI {
     public String toStackString() {
         ItemStack stack = itemStack;
         String ret = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-
-        CompoundTag nbt = NbtToLua.convertToNbt(stack.getComponents());
-        if (nbt != null)
-            ret += nbt.toString();
+        String components = LuaUtils.getItemStackString(stack);
+        if (!components.isEmpty())
+            ret += components;
 
         return ret;
     }
