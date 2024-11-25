@@ -58,12 +58,6 @@ public class ErrorMessageHelper {
         LuaTrace.OpNode errorAt = graph.get(errorFrame.frame().get_pc());
         if (message.contains("attempt to index ? (a nil value)")) {
             helper.attemptIndexNonIndexable("nil", graph, errorAt, errorFrame.p(), !runtime.owner.minify);
-        } else if (message.contains("attempt to index ? (a number value)")) {
-            helper.attemptIndexNonIndexable("number", graph, errorAt, errorFrame.p(), !runtime.owner.minify);
-        } else if (message.contains("attempt to index ? (a boolean value)")) {
-            helper.attemptIndexNonIndexable("boolean", graph, errorAt, errorFrame.p(), !runtime.owner.minify);
-        } else if (message.contains("attempt to index ? (a function value)")) {
-            helper.attemptIndexNonIndexable("function", graph, errorAt, errorFrame.p(), !runtime.owner.minify);
         }
 
         if (!out.isEmpty()) {

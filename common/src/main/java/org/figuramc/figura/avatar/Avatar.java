@@ -428,7 +428,8 @@ public class Avatar {
         boolean rendered = false;
         for (int i = 1; i <= result.narg(); i++) {
             if (result.arg(i).isuserdata(FiguraModelPart.class))
-                rendered |= renderItem(stack, bufferSource, (FiguraModelPart) result.arg(i).checkuserdata(FiguraModelPart.class), light, overlay);
+                rendered |= renderItem(stack, bufferSource,
+                        result.arg(i).checkuserdata(FiguraModelPart.class), light, overlay);
         }
         return rendered;
     }
@@ -465,7 +466,7 @@ public class Avatar {
         String msg = val.isnil(1) ? json : val.arg(1).tojstring();
         Integer color = null;
         if (val.arg(2).isuserdata(FiguraVec3.class))
-            color = ColorUtils.rgbToInt((FiguraVec3) val.arg(2).checkuserdata(FiguraVec3.class));
+            color = ColorUtils.rgbToInt(val.arg(2).checkuserdata(FiguraVec3.class));
 
         return Pair.of(msg, color);
     }

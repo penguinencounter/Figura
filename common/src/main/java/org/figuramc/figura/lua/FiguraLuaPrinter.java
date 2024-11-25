@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class FiguraLuaPrinter {
 
@@ -68,8 +69,9 @@ public class FiguraLuaPrinter {
 
     // print an error, errors should always show up on chat
     public static void sendLuaError(FiguraLuaRuntime source, LuaError error, Avatar owner) {
+        Pattern stripErrorsPattern = Pattern.compile("^org\\.luaj\\.vm2\\.LuaError(?:\\$.*?)?: |^org\\.figuramc\\.figura\\.lua\\.errors\\.Lua\\w*?Error: ");
         // Jank as hell
-        String message = error.toString().replace("org.luaj.vm2.LuaError: ", "")
+        String message = stripErrorsPattern.matcher(error.toString()).replaceAll("")
                 .replace("\n\t[Java]: in ?", "")
                 .replace("'<eos>' expected", "Expected end of script");
 

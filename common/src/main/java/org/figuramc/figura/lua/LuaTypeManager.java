@@ -3,6 +3,7 @@ package org.figuramc.figura.lua;
 import net.minecraft.network.chat.Component;
 import org.figuramc.figura.lua.docs.FiguraDocsManager;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
+import org.figuramc.figura.lua.errors.LuaWrongCallTypeError;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
@@ -138,8 +139,13 @@ public class LuaTypeManager {
             @Override
             public Varargs invoke(Varargs args) {
 
-                if (!isStatic)
-                    caller = args.checkuserdata(1, clazz);
+                if (!isStatic) {
+                    try {
+                        caller = args.checkuserdata(1, clazz);
+                    } catch (LuaError.LuaTypeError failed) {
+                        throw new LuaWrongCallTypeError(failed);
+                    }
+                }
 
                 // dirty hack for QOL of ignoring the first argument if the method is static and the arg matches the class type
                 int offset = isStatic && argumentTypes.length > 0 && !argumentTypes[0].isAssignableFrom(clazz) && args.isuserdata(1) && clazz.isAssignableFrom(args.checkuserdata(1).getClass()) ? 1 : 0;

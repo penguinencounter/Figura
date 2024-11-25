@@ -212,8 +212,8 @@ public class RaycastAPI {
                 throw new LuaError("Illegal argument to AABB at array index "+ i +" at index 2: Expected Vector3, recieved " + max.typename() + " ("+max.toString()+")");
 
             aabbList.add(new AABB(
-                ((FiguraVec3)min.checkuserdata(FiguraVec3.class)).asVec3(), 
-                ((FiguraVec3)max.checkuserdata(FiguraVec3.class)).asVec3()
+                min.checkuserdata(FiguraVec3.class).asVec3(),
+                max.checkuserdata(FiguraVec3.class).asVec3()
             ));
         }
 

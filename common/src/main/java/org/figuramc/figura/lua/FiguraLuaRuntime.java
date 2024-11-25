@@ -417,7 +417,7 @@ public class FiguraLuaRuntime {
         @Override
         public LuaValue call(LuaValue box_message) {
             try {
-                String message = box_message.tojstring();
+                String message = String.format("%s: %s", box_message.getClass().getSimpleName(), box_message.tojstring());
                 CallFrameWrapper frameWrapped = new CallFrameWrapper(debug.getCallFrame(1));
                 LuaFunction f = frameWrapped.get_f();
                 Prototype p = f.isclosure() ? f.checkclosure().p : null;
