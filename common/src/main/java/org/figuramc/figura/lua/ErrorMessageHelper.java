@@ -50,14 +50,14 @@ public class ErrorMessageHelper {
         helper.configureOutput(out);
         MutableComponent result = empty();
 
-        String message = errorFrame.message();
-        if (message == null) return null;
+        LuaError error = errorFrame.error();
         if (errorFrame.p() == null) return null;
 
         List<LuaTrace.OpNode> graph = LuaTrace.traceInstructions(errorFrame.p());
         LuaTrace.OpNode errorAt = graph.get(errorFrame.frame().get_pc());
-        if (message.contains("attempt to index ? (a nil value)")) {
-            helper.attemptIndexNonIndexable("nil", graph, errorAt, errorFrame.p(), !runtime.owner.minify);
+        if (error instanceof LuaError.LuaBadIndexTargetError) {
+            LuaError.LuaBadIndexTargetError it = (LuaError.LuaBadIndexTargetError) error;
+            helper.attemptIndexNonIndexable(it.typename, graph, errorAt, errorFrame.p(), !runtime.owner.minify);
         }
 
         if (!out.isEmpty()) {

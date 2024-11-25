@@ -151,9 +151,6 @@ public class FiguraLuaRuntime {
     }
 
     private void loadExtraLibraries() {
-        // TODO: TESTING ONLY
-        this.setGlobal("handle_error", onerror);
-
         // require
         this.setGlobal("require", require);
 
@@ -361,72 +358,21 @@ public class FiguraLuaRuntime {
         }
     };
 
-    public record ErrorFrame(@Nullable String message, @Nullable Prototype p, @NotNull CallFrameWrapper frame) {
+    public record ErrorFrame(@NotNull LuaError error, @Nullable Prototype p, @NotNull CallFrameWrapper frame) {
     }
 
     public @Nullable ErrorFrame latestError;
 
     // FIXME: temporary location
-    private final LuaValue onerror = new OneArgFunction() {
-        private @Nullable LuaValue resolve(String scopedName, LuaInteger frame) {
-            // check locals
-            int index = 1;
-            Varargs local = getLocalFunction.invoke(frame, LuaInteger.valueOf(index));
-            while (!local.isnil(1)) {
-                LuaString name = local.checkstring(1);
-                LuaValue value = local.arg(2);
-                FiguraMod.LOGGER.info("local: {} = {}", name, value);
-                if (name.tojstring().equals(scopedName)) {
-                    return value;
-                }
-                index++;
-                local = getLocalFunction.invoke(frame, LuaInteger.valueOf(index));
-            }
-
-            // check upvars
-            LuaTable about = getInfoFunction.invoke(frame, LuaString.valueOf("f")).checktable(1);
-            LuaValue fn = about.get("func");
-            LuaValue env = LuaValue.NIL;
-            if (fn.isclosure()) {
-                LuaClosure fnc = fn.checkclosure();
-                int upidx = 1;
-                while (true) {
-                    Varargs upval = getUpvalueFunction.invoke(fnc, LuaInteger.valueOf(upidx));
-                    if (upval.isnil(1)) break;
-                    LuaString name = upval.checkstring(1);
-                    LuaValue value = upval.arg(2);
-                    FiguraMod.LOGGER.info("up: {} = {}", name, value);
-                    if (name.tojstring().equals(scopedName)) {
-                        return value;
-                    }
-                    if (name.tojstring().equals("_ENV")) {
-                        env = value;
-                    }
-                    upidx++;
-                }
-            }
-
-            FiguraMod.LOGGER.info("env: {}", env);
-            // check environment
-            if (env.istable()) {
-                return env.get(scopedName);
-            }
-            return null;
-        }
-
+    private final LuaThread.LuaErrorHandler errorCapture = new LuaThread.LuaErrorHandler() {
         @Override
-        public LuaValue call(LuaValue box_message) {
-            try {
-                String message = String.format("%s: %s", box_message.getClass().getSimpleName(), box_message.tojstring());
-                CallFrameWrapper frameWrapped = new CallFrameWrapper(debug.getCallFrame(1));
-                LuaFunction f = frameWrapped.get_f();
-                Prototype p = f.isclosure() ? f.checkclosure().p : null;
+        public LuaValue handle(String message, LuaError error) {
+            CallFrameWrapper frameWrapped = new CallFrameWrapper(debug.getCallFrame(1));
+            LuaFunction f = frameWrapped.get_f();
+            Prototype p = f.isclosure() ? f.checkclosure().p : null;
 
-                latestError = new ErrorFrame(message, p, frameWrapped);
-            } catch (Exception e) {
-                FiguraMod.LOGGER.error("Error while collecting error information", e);
-            }
-            return box_message;
+            latestError = new ErrorFrame(error, p, frameWrapped);
+            return LuaValue.valueOf(message);
         }
     };
 
@@ -470,7 +416,7 @@ public class FiguraLuaRuntime {
 
         owner.luaRuntime = this;
 
-        userGlobals.running.errorfunc = onerror;
+        userGlobals.running.errorfunc_adv = errorCapture;
 
         try {
             if (autoScripts == null) {
