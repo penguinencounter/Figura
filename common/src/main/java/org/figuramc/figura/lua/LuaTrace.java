@@ -701,6 +701,7 @@ public class LuaTrace {
             return arraylist(Timeline.of(TimelineItem.PRUNE));
         }
         ArrayList<Timeline> timelines = new ArrayList<>();
+        ArrayList<Integer> clobberedSlots = new ArrayList<>();
         // each Timeline goes from first event -> last event (chronological); when traversing backwards, insert all items
         // at the front of the list
         if (endpoint.slotWrites.contains(box)) {

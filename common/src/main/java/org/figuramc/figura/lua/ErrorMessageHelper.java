@@ -57,7 +57,7 @@ public class ErrorMessageHelper {
         LuaTrace.OpNode errorAt = graph.get(errorFrame.frame().get_pc());
         if (error instanceof LuaError.LuaBadIndexTargetError) {
             LuaError.LuaBadIndexTargetError it = (LuaError.LuaBadIndexTargetError) error;
-            helper.attemptIndexNonIndexable(it.typename, graph, errorAt, errorFrame.p(), !runtime.owner.minify);
+            helper.badIndexTarget(it.typename, graph, errorAt, errorFrame.p(), !runtime.owner.minify);
         }
 
         if (!out.isEmpty()) {
@@ -82,11 +82,11 @@ public class ErrorMessageHelper {
         out_to = to;
     }
 
-    public void attemptIndexNonIndexable(String blame,
-                                         List<LuaTrace.OpNode> graph,
-                                         LuaTrace.OpNode errorAt,
-                                         Prototype function,
-                                         boolean doLinesMatch) {
+    public void badIndexTarget(String blame,
+                               List<LuaTrace.OpNode> graph,
+                               LuaTrace.OpNode errorAt,
+                               Prototype function,
+                               boolean doLinesMatch) {
         TopLevelMultilineVisitor lv = new TopLevelMultilineVisitor(function, doLinesMatch);
 
         if (out_to == null) throw new IllegalStateException("Output not configured");
@@ -96,7 +96,7 @@ public class ErrorMessageHelper {
         if (errorAt.opcode == Lua.OP_GETTABUP) {
             LuaString name = function.upvalues[Lua.GETARG_B(errorAt.instruction)].name;
             out_to.add(literal(name.tojstring()).withStyle(UPVALUE));
-            LuaTrace.LOGGER.info("Attempt to index " + blame + " value in upvalue {}", name);
+            LuaTrace.LOGGER.info("Attempt to index {} value in upvalue {}", blame, name);
         } else if (errorAt.opcode == Lua.OP_GETTABLE) {
             int blameSlot = Lua.GETARG_A(errorAt.instruction); // This will be redirected to slot B in the dataflow analysis
             ArrayList<LuaTrace.Timeline> multiverse = LuaTrace.dataFlowTo(graph, errorAt, null, blameSlot);
