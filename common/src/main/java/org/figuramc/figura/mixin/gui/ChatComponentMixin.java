@@ -2,9 +2,11 @@ package org.figuramc.figura.mixin.gui;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.GuiMessage;
+import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -39,9 +41,15 @@ public class ChatComponentMixin {
     @Unique private Integer color;
     @Unique private int currColor;
 
-    @ModifyVariable(index = 1, at = @At(value = "HEAD"), method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", argsOnly = true)
-    private Component modifyQueue(Component value) {
-        return modifyMessage(value);
+    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At("HEAD"), cancellable = true)
+    private void cancelMessage(Component message, MessageSignature signature, GuiMessageTag tag, CallbackInfo ci) {
+        if (modifyMessage(message) == null)
+            ci.cancel();
+    }
+
+    @ModifyVariable(argsOnly = true, method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At("HEAD"), index = 1)
+    private Component modifyQueue(Component message) {
+        return modifyMessage(message); // If it's null, it's already cancelled.
     }
 
     private Component modifyMessage(Component message) {
