@@ -160,6 +160,8 @@ public class AvatarManager {
     }
 
     public static Avatar getAvatar(EntityRenderState state) {
+        if (panic || Minecraft.getInstance().level == null || state == null) return null;
+
         if (state instanceof PlayerRenderState playerRenderState) {
             return getAvatar(Minecraft.getInstance().level.getEntity(playerRenderState.id));
         }
