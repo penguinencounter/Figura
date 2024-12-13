@@ -57,26 +57,22 @@ public abstract class ParrotOnShoulderLayerMixin<S extends PlayerRenderState> ex
         }
 
         // pivot part
-        int id = playerRenderState.id;
-        CompoundTag compoundTag = leftShoulder ? ((Player)(Minecraft.getInstance().level.getEntity(id))).getShoulderEntityLeft() :  ((Player)(Minecraft.getInstance().level.getEntity(id))).getShoulderEntityRight();
-        EntityType.byString(compoundTag.getString("id")).filter((type) -> type == EntityType.PARROT).ifPresent((type) -> {
-            VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(variant)));
-            if (avatar.pivotPartRender(leftShoulder ? ParentType.LeftParrotPivot : ParentType.RightParrotPivot, stack -> {
-                stack.translate(0d, 24d, 0d);
-                float s = 16f;
-                stack.scale(s, s, s);
-                stack.mulPose(Axis.XP.rotationDegrees(180f));
-                stack.mulPose(Axis.YP.rotationDegrees(180f));
-                this.parrotState.ageInTicks = playerRenderState.ageInTicks;
-                this.parrotState.walkAnimationPos = playerRenderState.walkAnimationPos;
-                this.parrotState.walkAnimationSpeed = playerRenderState.walkAnimationSpeed;
-                this.parrotState.yRot = yRot;
-                this.parrotState.xRot = xRot;
-                this.model.setupAnim(this.parrotState);
-                this.model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
-            })) {
-                ci.cancel();
-            }
-        });
+        VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(variant)));
+        if (avatar.pivotPartRender(leftShoulder ? ParentType.LeftParrotPivot : ParentType.RightParrotPivot, stack -> {
+            stack.translate(0d, 24d, 0d);
+            float s = 16f;
+            stack.scale(s, s, s);
+            stack.mulPose(Axis.XP.rotationDegrees(180f));
+            stack.mulPose(Axis.YP.rotationDegrees(180f));
+            this.parrotState.ageInTicks = playerRenderState.ageInTicks;
+            this.parrotState.walkAnimationPos = playerRenderState.walkAnimationPos;
+            this.parrotState.walkAnimationSpeed = playerRenderState.walkAnimationSpeed;
+            this.parrotState.yRot = yRot;
+            this.parrotState.xRot = xRot;
+            this.model.setupAnim(this.parrotState);
+            this.model.renderToBuffer(stack, vertexConsumer, light, OverlayTexture.NO_OVERLAY);
+        })) {
+            ci.cancel();
+        }
     }
 }
