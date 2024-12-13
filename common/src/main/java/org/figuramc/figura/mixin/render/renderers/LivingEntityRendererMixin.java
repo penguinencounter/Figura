@@ -148,7 +148,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
             return;
 
         // Render avatar with params
-        if (currentAvatar.luaRuntime != null && currentAvatar.permissions.get(Permissions.VANILLA_MODEL_EDIT) == 1)
+        if (currentAvatar.luaRuntime != null)
             currentAvatar.luaRuntime.vanilla_model.PLAYER.restore(getModel());
 
         currentAvatar = null;
