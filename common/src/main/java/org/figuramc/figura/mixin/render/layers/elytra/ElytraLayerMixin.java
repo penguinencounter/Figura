@@ -6,29 +6,41 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.equipment.EquipmentModel;
+import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaPart;
+import org.figuramc.figura.mixin.render.layers.EquipmentLayerRendererAccessor;
 import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.PlatformUtils;
 import org.figuramc.figura.utils.RenderUtils;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,6 +48,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
+import java.util.Optional;
 
 @Mixin(WingsLayer.class)
 public abstract class ElytraLayerMixin<T extends LivingEntity, S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
@@ -45,6 +60,14 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
     }
 
     @Shadow @Final private ElytraModel elytraModel;
+
+    @Shadow @Final private EquipmentLayerRenderer equipmentRenderer;
+
+    @Shadow
+    @Nullable
+    private static ResourceLocation getPlayerElytraTexture(HumanoidRenderState humanoidRenderState) {
+        throw new AssertionError();
+    }
 
     @Unique
     private VanillaPart vanillaPart;
@@ -88,16 +111,14 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
         if (vanillaPart != null)
             vanillaPart.restore(elytraModel);
         renderedPivot = true;
-        Integer id = humanoidRenderState instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId();
-        if (id != null)
-            renderElytraPivot(humanoidRenderState, poseStack, multiBufferSource, light, (T) (Minecraft.getInstance().level.getEntity(id)));
+        renderElytraPivot(humanoidRenderState, poseStack, multiBufferSource, light);
         if (renderedPivot) {
             poseStack.popPose();
             ci.cancel();
         }
     }
 
-    public void renderElytraPivot(S state, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, T livingEntity) {
+    public void renderElytraPivot(S state, PoseStack poseStack, MultiBufferSource multiBufferSource, int light) {
 
         ItemStack itemStack = state.chestItem;
         if (!itemStack.is(Items.ELYTRA) && !PlatformUtils.isModLoaded("origins")) {
@@ -107,11 +128,9 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
             // Try to render the pivot part
             this.elytraModel.setupAnim(state);
 
+            ResourceLocation playerTexture =  getPlayerElytraTexture(state);
+
             VanillaPart part = RenderUtils.pivotToPart(figura$avatar, ParentType.LeftElytraPivot);
-
-            ResourceLocation resourceLocation = livingEntity instanceof AbstractClientPlayer abstractClientPlayer ? abstractClientPlayer.getSkin().elytraTexture() != null ? abstractClientPlayer.getSkin().elytraTexture() : (abstractClientPlayer.getSkin().capeTexture() != null && abstractClientPlayer.isModelPartShown(PlayerModelPart.CAPE) ? abstractClientPlayer.getSkin().capeTexture() : ResourceLocation.withDefaultNamespace("elytra")) : ResourceLocation.withDefaultNamespace("elytra");
-            VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(multiBufferSource, RenderType.armorCutoutNoCull(resourceLocation), itemStack.hasFoil());
-
             if (part != null && part.checkVisible()) {
                 boolean leftWing = figura$avatar.pivotPartRender(ParentType.LeftElytraPivot, stack -> {
                     stack.pushPose();
@@ -119,12 +138,11 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
                     stack.mulPose(Axis.XP.rotationDegrees(180f));
                     stack.mulPose(Axis.YP.rotationDegrees(180f));
                     stack.translate(0.0f, 0.0f, 0.125f);
-
-                    ((ElytraModelAccessor)this.elytraModel).getLeftWing().render(stack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, -1);
+                    figura$renderElytraPart(((ElytraModelAccessor)this.elytraModel).getLeftWing(), stack, multiBufferSource, light, itemStack, playerTexture);
                     stack.popPose();
                 });
                 if (!leftWing) {
-                    ((ElytraModelAccessor)this.elytraModel).getLeftWing().render(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, -1);
+                    figura$renderElytraPart(((ElytraModelAccessor)this.elytraModel).getLeftWing(), poseStack, multiBufferSource, light, itemStack, playerTexture);
                 }
             }
             part = RenderUtils.pivotToPart(figura$avatar, ParentType.RightElytraPivot);
@@ -135,14 +153,57 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
                     stack.mulPose(Axis.XP.rotationDegrees(180f));
                     stack.mulPose(Axis.YP.rotationDegrees(180f));
                     stack.translate(0.0f, 0.0f, 0.125f);
-
-                    ((ElytraModelAccessor)this.elytraModel).getRightWing().render(stack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, -1);
+                    figura$renderElytraPart(((ElytraModelAccessor)this.elytraModel).getRightWing(), stack, multiBufferSource, light, itemStack, playerTexture);
                     stack.popPose();
                 });
                 if (!rightWing) {
-                    ((ElytraModelAccessor)this.elytraModel).getRightWing().render(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, -1);
+                    figura$renderElytraPart(((ElytraModelAccessor)this.elytraModel).getRightWing(), poseStack, multiBufferSource, light, itemStack, playerTexture);
                 }
             }
         } else renderedPivot = figura$avatar != null && figura$avatar.luaRuntime != null && figura$avatar.permissions.get(Permissions.VANILLA_MODEL_EDIT) == 1 && !figura$avatar.luaRuntime.vanilla_model.ELYTRA.checkVisible();
+    }
+
+    // rewritten to work with mojang's shiny new layer system
+    @Unique
+    private void figura$renderElytraPart(ModelPart modelPart, PoseStack poseStack, MultiBufferSource vertexConsumers, int light, ItemStack itemStack, @Nullable ResourceLocation playerLocation) {
+        boolean hasGlint = itemStack.hasFoil();
+
+        EquipmentModel.LayerType layerType = EquipmentModel.LayerType.WINGS;
+        Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
+
+        if (equippable == null)
+            return;
+
+        Optional<ResourceLocation> location = equippable.model();
+        if (location.isEmpty())
+            return;
+
+        List<EquipmentModel.Layer> list = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).figura$getModels().get(location.get()).getLayers(layerType);
+
+        int i = itemStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(itemStack, -6265536) : -1;
+
+        for(EquipmentModel.Layer layer : list) {
+            int k = EquipmentLayerRendererAccessor.getColorForLayer(layer, i);
+
+            if (k != 0) {
+                ResourceLocation normalArmorResource = layer.usePlayerTexture() && playerLocation != null ? playerLocation : ((EquipmentLayerRendererAccessor)this.equipmentRenderer).layerTextureLookup().apply(new EquipmentLayerRenderer.LayerTextureKey(layerType, layer));
+                VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(vertexConsumers, RenderType.armorCutoutNoCull(normalArmorResource), hasGlint);
+                modelPart.render(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, k);
+                hasGlint = false;
+            }
+        }
+
+        ArmorTrim trim = itemStack.get(DataComponents.TRIM);
+        if (trim != null) {
+            TextureAtlasSprite textureAtlasSprite = ((EquipmentLayerRendererAccessor)equipmentRenderer).trimSpriteLookup()
+                    .apply(new EquipmentLayerRenderer.TrimSpriteKey(trim, layerType, location.get()));
+
+            VertexConsumer trimConsumer = textureAtlasSprite.wrap(vertexConsumers.getBuffer(Sheets.armorTrimsSheet(false)));
+            modelPart.render(poseStack, trimConsumer, light, OverlayTexture.NO_OVERLAY, -1);
+        }
+
+        if (hasGlint) {
+            modelPart.render(poseStack, vertexConsumers.getBuffer(RenderType.armorEntityGlint()), light, OverlayTexture.NO_OVERLAY, -1);
+        }
     }
 }
