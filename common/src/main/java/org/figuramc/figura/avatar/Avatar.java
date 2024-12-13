@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.sounds.JOrbisAudioStream;
 import net.minecraft.core.Direction;
@@ -167,7 +168,7 @@ public class Avatar {
     }
 
     public Avatar(EntityRenderState entity) {
-        this(AvatarManager.ENTITY_CACHE.computeIfAbsent(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), (id2) -> WorldAPI.getCurrentWorld().getEntity(id2)));
+        this(AvatarManager.ENTITY_CACHE.computeIfAbsent((int)(entity instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)entity).figura$getEntityId()), (id2) -> WorldAPI.getCurrentWorld().getEntity(id2)));
     }
 
     public void load(CompoundTag nbt) {

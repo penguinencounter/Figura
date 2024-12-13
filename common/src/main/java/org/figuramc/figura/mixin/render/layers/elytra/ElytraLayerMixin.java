@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -73,7 +74,9 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
             }
         }
 
-        figura$avatar.elytraRender(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId()), multiBufferSource, poseStack, light, ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getTickDelta(), elytraModel);
+        Integer id = humanoidRenderState instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId();
+        if (id != null)
+            figura$avatar.elytraRender(Minecraft.getInstance().level.getEntity(id), multiBufferSource, poseStack, light, ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getTickDelta(), elytraModel);
 
         if (vanillaPart != null)
             vanillaPart.posTransform(elytraModel);
@@ -85,8 +88,9 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
         if (vanillaPart != null)
             vanillaPart.restore(elytraModel);
         renderedPivot = true;
-
-        renderElytraPivot(humanoidRenderState, poseStack, multiBufferSource, light, (T) (Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId())));
+        Integer id = humanoidRenderState instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)humanoidRenderState).figura$getEntityId();
+        if (id != null)
+            renderElytraPivot(humanoidRenderState, poseStack, multiBufferSource, light, (T) (Minecraft.getInstance().level.getEntity(id)));
         if (renderedPivot) {
             poseStack.popPose();
             ci.cancel();

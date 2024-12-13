@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.figuramc.figura.FiguraMod;
@@ -109,7 +110,10 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         boolean translucent = !showBody && !livingEntityRenderState.isInvisibleToPlayer;
         boolean glowing = !showBody && livingEntityRenderState.appearsGlowing;
         boolean invisible = !translucent && !showBody && !glowing;
-        Entity entity = Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntityId());
+        Integer id = livingEntityRenderState instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntityId();
+        if (id == null) return;
+
+        Entity entity = Minecraft.getInstance().level.getEntity(id);
         float tickDelta = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getTickDelta();
 
         // When viewed 3rd person, render all non-world parts.

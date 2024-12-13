@@ -57,7 +57,8 @@ public abstract class ParrotOnShoulderLayerMixin<S extends PlayerRenderState> ex
         }
 
         // pivot part
-        CompoundTag compoundTag = leftShoulder ? ((Player)(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntityId()))).getShoulderEntityLeft() :  ((Player)(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)playerRenderState).figura$getEntityId()))).getShoulderEntityRight();
+        int id = playerRenderState.id;
+        CompoundTag compoundTag = leftShoulder ? ((Player)(Minecraft.getInstance().level.getEntity(id))).getShoulderEntityLeft() :  ((Player)(Minecraft.getInstance().level.getEntity(id))).getShoulderEntityRight();
         EntityType.byString(compoundTag.getString("id")).filter((type) -> type == EntityType.PARROT).ifPresent((type) -> {
             VertexConsumer vertexConsumer = vertexConsumers.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(variant)));
             if (avatar.pivotPartRender(leftShoulder ? ParentType.LeftParrotPivot : ParentType.RightParrotPivot, stack -> {

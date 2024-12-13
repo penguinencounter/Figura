@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -119,8 +120,9 @@ public abstract class HumanoidArmorLayerMixinForge<S extends HumanoidRenderState
     @Unique
     private void figura$tryRenderArmorPart(EquipmentSlot slot, FiguraArmorPartRenderer<S, A> renderer, PoseStack vanillaPoseStack, S state, MultiBufferSource vertexConsumers, int light, ParentType... parentTypes) {
         if (slot == null) return; // ?
-
-        ItemStack itemStack = ((LivingEntity)(Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId()))).getItemBySlot(slot);
+        Integer id = state instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)state).figura$getEntityId();
+        if (id == null) return;
+        ItemStack itemStack = ((LivingEntity)(Minecraft.getInstance().level.getEntity(id))).getItemBySlot(slot);
 
         // Make sure the item in the equipment slot is actually a piece of armor
         if ((itemStack.getItem() instanceof ArmorItem armorItem && armorItem.components().has(DataComponents.EQUIPPABLE) && armorItem.components().get(DataComponents.EQUIPPABLE).slot() == slot)) {

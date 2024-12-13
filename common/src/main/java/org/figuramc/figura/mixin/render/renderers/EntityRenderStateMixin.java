@@ -13,13 +13,13 @@ import java.util.UUID;
 public class EntityRenderStateMixin implements FiguraEntityRenderStateExtension {
 
     @Unique
-    int figura$entityId;
+    Integer figura$entityId = null;
     @Unique
-    float figura$tickDelta;
+    float figura$tickDelta = 1.0f;
 
 
     @Override
-    public int figura$getEntityId() {
+    public Integer figura$getEntityId() {
         return figura$entityId;
     }
 

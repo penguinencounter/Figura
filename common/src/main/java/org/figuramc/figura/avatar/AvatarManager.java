@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -159,7 +160,11 @@ public class AvatarManager {
     }
 
     public static Avatar getAvatar(EntityRenderState state) {
-        Entity entity = Minecraft.getInstance().level.getEntity(((FiguraEntityRenderStateExtension)state).figura$getEntityId());
+        if (state instanceof PlayerRenderState playerRenderState) {
+            return getAvatar(Minecraft.getInstance().level.getEntity(playerRenderState.id));
+        }
+        Integer id = ((FiguraEntityRenderStateExtension)state).figura$getEntityId();
+        Entity entity = id != null ? Minecraft.getInstance().level.getEntity(id) : null;
         return getAvatar(entity);
     }
 
@@ -273,8 +278,9 @@ public class AvatarManager {
     public static Avatar loadEntityAvatar(EntityRenderState entity, CompoundTag nbt) {
         Avatar targetAvatar = new Avatar(entity);
         targetAvatar.load(nbt);
-        LOADED_CEM.put(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), targetAvatar);
-        AvatarManager.ENTITY_CACHE.putIfAbsent(((FiguraEntityRenderStateExtension)entity).figura$getEntityId(), WorldAPI.getCurrentWorld().getEntity(((FiguraEntityRenderStateExtension)entity).figura$getEntityId()));
+        Integer id = entity instanceof PlayerRenderState playerRenderState ? playerRenderState.id : ((FiguraEntityRenderStateExtension)entity).figura$getEntityId();
+        LOADED_CEM.put(id, targetAvatar);
+        AvatarManager.ENTITY_CACHE.putIfAbsent(id, WorldAPI.getCurrentWorld().getEntity(id));
         return targetAvatar;
     }
 
