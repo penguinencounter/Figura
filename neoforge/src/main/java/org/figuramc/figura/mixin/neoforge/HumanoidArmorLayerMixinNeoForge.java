@@ -30,6 +30,8 @@ import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.equipment.EquipmentModel;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.compat.GeckoLibCompat;
@@ -282,18 +284,23 @@ public abstract class HumanoidArmorLayerMixinNeoForge<S extends HumanoidRenderSt
 
         List<EquipmentModel.Layer> list = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).figura$getModels().get(location.get()).getLayers(layerType);
 
-        int i = itemStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(itemStack, -6265536) : -1;
+        IClientItemExtensions extensions = IClientItemExtensions.of(itemStack);
+        int i = extensions.getDefaultDyeColor(itemStack);
 
+        // need to recreate the custom rendering patches for neo, blegh
+        int idx = 0;
         for(EquipmentModel.Layer layer : list) {
-            int k = EquipmentLayerRendererAccessor.getColorForLayer(layer, i);
+            int k = extensions.getArmorLayerTintColor(itemStack, layer, idx, i);
 
             if (k != 0) {
                 ResourceLocation normalArmorResource = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).layerTextureLookup().apply(new EquipmentLayerRenderer.LayerTextureKey(layerType, layer));
+                normalArmorResource = ClientHooks.getArmorTexture(itemStack, layerType, layer, normalArmorResource);
                 VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(vertexConsumers, RenderType.armorCutoutNoCull(normalArmorResource), hasGlint);
 
                 modelPart.render(poseStack, vertexConsumer, light, OverlayTexture.NO_OVERLAY, k);
                 hasGlint = false;
             }
+            idx++;
         }
 
         ArmorTrim trim = itemStack.get(DataComponents.TRIM);
