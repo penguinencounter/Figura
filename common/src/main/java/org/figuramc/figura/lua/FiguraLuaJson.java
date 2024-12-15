@@ -3,8 +3,8 @@ package org.figuramc.figura.lua;
 import com.google.gson.*;
 import org.figuramc.figura.utils.JsonUtils;
 import org.figuramc.figura.utils.LuaUtils;
-import org.luaj.vm2.*;
-import org.luaj.vm2.lib.VarArgFunction;
+import org.figuramc.luaj.vm2.*;
+import org.figuramc.luaj.vm2.lib.VarArgFunction;
 
 import java.util.Objects;
 import java.util.function.Function;

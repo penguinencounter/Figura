@@ -13,7 +13,7 @@ import org.figuramc.figura.math.matrix.FiguraMatrix;
 import org.figuramc.figura.math.vector.FiguraVector;
 import org.figuramc.figura.utils.IOUtils;
 import org.figuramc.figura.utils.MathUtils;
-import org.luaj.vm2.*;
+import org.figuramc.luaj.vm2.*;
 
 import java.io.BufferedReader;
 import java.io.OutputStream;

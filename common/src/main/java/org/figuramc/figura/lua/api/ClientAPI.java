@@ -38,8 +38,8 @@ import org.figuramc.figura.mixin.gui.PlayerTabOverlayAccessor;
 import org.figuramc.figura.mixin.render.ModelManagerAccessor;
 import org.figuramc.figura.utils.*;
 import org.joml.Vector3f;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaValue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

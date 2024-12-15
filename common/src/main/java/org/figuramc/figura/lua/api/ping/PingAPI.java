@@ -4,7 +4,7 @@ import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
-import org.luaj.vm2.LuaFunction;
+import org.figuramc.luaj.vm2.LuaFunction;
 
 import java.util.HashMap;
 

@@ -33,9 +33,9 @@ import org.figuramc.figura.mixin.EntityAccessor;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.LuaUtils;
 import org.jetbrains.annotations.NotNull;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaValue;
 
 import java.util.ArrayList;
 import java.util.Comparator;

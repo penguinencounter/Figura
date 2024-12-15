@@ -20,12 +20,12 @@ import org.figuramc.figura.lua.api.ping.PingAPI;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaModelAPI;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.PathUtils;
-import org.luaj.vm2.*;
-import org.luaj.vm2.compiler.LuaC;
-import org.luaj.vm2.lib.*;
-import org.luaj.vm2.lib.jse.JseBaseLib;
-import org.luaj.vm2.lib.jse.JseMathLib;
-import org.luaj.vm2.lib.jse.JseStringLib;
+import org.figuramc.luaj.vm2.*;
+import org.figuramc.luaj.vm2.compiler.LuaC;
+import org.figuramc.luaj.vm2.lib.*;
+import org.figuramc.luaj.vm2.lib.jse.JseBaseLib;
+import org.figuramc.luaj.vm2.lib.jse.JseMathLib;
+import org.figuramc.luaj.vm2.lib.jse.JseStringLib;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

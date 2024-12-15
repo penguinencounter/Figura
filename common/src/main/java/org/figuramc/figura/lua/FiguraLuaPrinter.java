@@ -12,8 +12,8 @@ import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.TextUtils;
-import org.luaj.vm2.*;
-import org.luaj.vm2.lib.VarArgFunction;
+import org.figuramc.luaj.vm2.*;
+import org.figuramc.luaj.vm2.lib.VarArgFunction;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -69,7 +69,7 @@ public class FiguraLuaPrinter {
     // print an error, errors should always show up on chat
     public static void sendLuaError(LuaError error, Avatar owner) {
         // Jank as hell
-        String message = error.toString().replace("org.luaj.vm2.LuaError: ", "")
+        String message = error.toString().replace("org.figuramc.luaj.vm2.LuaError: ", "")
                 .replace("\n\t[Java]: in ?", "")
                 .replace("'<eos>' expected", "Expected end of script");
 
@@ -374,7 +374,7 @@ public class FiguraLuaPrinter {
     /**
      * Sends a message making use of the queue
      * @param message to send
-     * @throws org.luaj.vm2.LuaError if the message could not fit in the queue
+     * @throws org.figuramc.luaj.vm2.LuaError if the message could not fit in the queue
      */
     private static void sendLuaChatMessage(Component message) throws LuaError {
         charsQueued += message.getString().length();

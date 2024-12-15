@@ -19,8 +19,8 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.mixin.sound.SoundManagerAccessor;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.LuaUtils;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaTable;
 
 import java.util.Base64;
 import java.util.Set;

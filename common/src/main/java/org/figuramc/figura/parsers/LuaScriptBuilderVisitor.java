@@ -2,10 +2,10 @@ package org.figuramc.figura.parsers;
 
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
-import org.luaj.vm2.Lua;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.ast.*;
+import org.figuramc.luaj.vm2.Lua;
+import org.figuramc.luaj.vm2.LuaString;
+import org.figuramc.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.ast.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;

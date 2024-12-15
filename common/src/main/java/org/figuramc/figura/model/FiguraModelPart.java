@@ -21,7 +21,7 @@ import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.model.rendertasks.*;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
-import org.luaj.vm2.*;
+import org.figuramc.luaj.vm2.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

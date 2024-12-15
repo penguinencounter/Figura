@@ -37,7 +37,7 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.mixin.BlockBehaviourAccessor;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
-import org.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaTable;
 
 import java.util.*;
 

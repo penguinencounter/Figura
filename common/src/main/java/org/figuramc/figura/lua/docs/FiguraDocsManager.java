@@ -61,7 +61,7 @@ import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.model.rendertasks.*;
 import org.figuramc.figura.utils.FiguraClientCommandSource;
 import org.figuramc.figura.utils.FiguraText;
-import org.luaj.vm2.*;
+import org.figuramc.luaj.vm2.*;
 
 import java.io.OutputStream;
 import java.nio.file.Files;

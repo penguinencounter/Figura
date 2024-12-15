@@ -1,8 +1,8 @@
 package org.figuramc.figura.lua;
 
 import net.minecraft.nbt.*;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaValue;
 
 import java.util.HashMap;
 import java.util.function.Function;

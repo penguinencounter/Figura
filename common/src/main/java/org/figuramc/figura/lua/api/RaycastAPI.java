@@ -16,10 +16,10 @@ import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.mixin.AABBInvoker;
 import org.figuramc.figura.utils.LuaUtils;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaFunction;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaValue;
 
 import com.mojang.datafixers.util.Pair;
 

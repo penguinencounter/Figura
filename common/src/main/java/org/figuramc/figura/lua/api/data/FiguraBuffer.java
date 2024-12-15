@@ -7,9 +7,9 @@ import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.permissions.Permissions;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaString;
+import org.figuramc.luaj.vm2.LuaValue;
 
 import java.io.IOException;
 import java.io.InputStream;

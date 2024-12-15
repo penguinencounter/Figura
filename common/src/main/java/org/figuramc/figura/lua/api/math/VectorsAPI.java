@@ -12,7 +12,7 @@ import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.MathUtils;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 @LuaWhitelist
 @LuaTypeDoc(

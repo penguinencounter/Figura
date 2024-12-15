@@ -8,7 +8,7 @@ import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.mixin.input.KeyMappingAccessor;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 import java.util.ArrayList;
 import java.util.Collections;

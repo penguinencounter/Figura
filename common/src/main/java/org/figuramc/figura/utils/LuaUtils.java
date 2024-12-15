@@ -28,10 +28,10 @@ import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.math.vector.FiguraVector;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaString;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaString;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaValue;
 
 public class LuaUtils {
 

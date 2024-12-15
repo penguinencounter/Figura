@@ -19,7 +19,7 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.TextUtils;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 @LuaWhitelist
 @LuaTypeDoc(

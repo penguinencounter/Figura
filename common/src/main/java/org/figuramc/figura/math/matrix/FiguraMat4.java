@@ -11,7 +11,7 @@ import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.utils.LuaUtils;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 @LuaWhitelist
 @LuaTypeDoc(

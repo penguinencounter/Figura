@@ -9,7 +9,7 @@ import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.utils.LuaUtils;
 import org.joml.Matrix3f;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 @LuaWhitelist
 @LuaTypeDoc(

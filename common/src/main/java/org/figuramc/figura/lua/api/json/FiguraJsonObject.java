@@ -8,7 +8,7 @@ import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.utils.LuaUtils;
-import org.luaj.vm2.*;
+import org.figuramc.luaj.vm2.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

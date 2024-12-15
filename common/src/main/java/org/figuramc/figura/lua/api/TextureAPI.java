@@ -17,8 +17,8 @@ import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaTable;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;

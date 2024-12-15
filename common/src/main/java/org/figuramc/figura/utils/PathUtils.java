@@ -2,8 +2,8 @@ package org.figuramc.figura.utils;
 
 import java.nio.file.Path;
 
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaFunction;
+import org.figuramc.luaj.vm2.LuaValue;
 
 public class PathUtils {
 

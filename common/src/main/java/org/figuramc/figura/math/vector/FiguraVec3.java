@@ -9,9 +9,9 @@ import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.MathUtils;
 import org.joml.Vector3f;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaFunction;
+import org.figuramc.luaj.vm2.LuaValue;
 
 @LuaWhitelist
 @LuaTypeDoc(

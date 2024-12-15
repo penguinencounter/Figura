@@ -5,9 +5,9 @@ import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
+import org.figuramc.luaj.vm2.LuaFunction;
+import org.figuramc.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.Varargs;
 
 @LuaWhitelist
 @LuaTypeDoc(

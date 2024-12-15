@@ -14,7 +14,7 @@ import org.figuramc.figura.lua.ReadOnlyLuaTable;
 import org.figuramc.figura.lua.docs.LuaFieldDoc;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
-import org.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaTable;
 
 import java.util.ArrayList;
 import java.util.List;

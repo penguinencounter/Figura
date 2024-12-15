@@ -5,8 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.figuramc.figura.FiguraMod;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaValue;
 
 import java.util.function.Function;
 

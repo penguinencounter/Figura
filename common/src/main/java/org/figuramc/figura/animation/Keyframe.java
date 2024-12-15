@@ -4,9 +4,9 @@ import com.mojang.datafixers.util.Pair;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.math.vector.FiguraVec3;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.Varargs;
 
 public class Keyframe implements Comparable<Keyframe> {
 

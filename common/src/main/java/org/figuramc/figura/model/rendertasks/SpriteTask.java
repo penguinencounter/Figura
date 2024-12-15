@@ -22,7 +22,7 @@ import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 import java.util.ArrayList;
 import java.util.List;

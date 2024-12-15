@@ -1,8 +1,8 @@
 package org.figuramc.figura.lua;
 
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Varargs;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.Varargs;
 
 public class ReadOnlyLuaTable extends LuaTable {
     public ReadOnlyLuaTable(LuaValue table) {

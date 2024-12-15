@@ -24,7 +24,7 @@ import org.figuramc.figura.mixin.LivingEntityAccessor;
 import org.figuramc.figura.model.FiguraModelPart;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaError;
 
 import java.util.OptionalInt;
 import java.util.function.Function;

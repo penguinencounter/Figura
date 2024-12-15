@@ -9,8 +9,8 @@ import org.figuramc.figura.lua.api.data.FiguraOutputStream;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaError;
+import org.figuramc.luaj.vm2.LuaTable;
 
 import java.io.*;
 import java.nio.charset.Charset;

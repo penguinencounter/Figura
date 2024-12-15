@@ -19,10 +19,10 @@ import org.figuramc.figura.lua.api.sound.SoundAPI;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaModelAPI;
 import org.figuramc.figura.lua.api.world.WorldAPI;
 import org.figuramc.figura.model.FiguraModelPart;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaUserdata;
-import org.luaj.vm2.LuaValue;
+import org.figuramc.luaj.vm2.LuaFunction;
+import org.figuramc.luaj.vm2.LuaTable;
+import org.figuramc.luaj.vm2.LuaUserdata;
+import org.figuramc.luaj.vm2.LuaValue;
 
 /**
  * Class only exists to have docs for the global figura
