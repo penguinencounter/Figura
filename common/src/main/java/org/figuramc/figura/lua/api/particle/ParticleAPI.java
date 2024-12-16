@@ -114,7 +114,14 @@ public class ParticleAPI {
                 String num1 = parts[1];
                 String num2 = parts[2];
                 String num3 = parts[3];
-                ret += ("color:[" + num1 + "," + num2 + "," + num3+ "],scale:"+parts[4]+"}");
+                if (!num1.contains("."))
+                    num1 += ".0";
+                if (!num2.contains("."))
+                    num2 += ".0";
+                if (!num3.contains("."))
+                    num3 += ".0";
+
+                ret += ("color:[" + num1 + "," + num2 + "," + num3+ "],scale:"+parts[4]);
             }
 
             ret += "}";
@@ -127,10 +134,23 @@ public class ParticleAPI {
                 String rFrom = parts[1];
                 String gFrom = parts[2];
                 String bFrom = parts[3];
+                if (!rFrom.contains("."))
+                    rFrom += ".0";
+                if (!gFrom.contains("."))
+                    gFrom += ".0";
+                if (!bFrom.contains("."))
+                    bFrom += ".0";
+
                 String scale = parts[4];
                 String rTo = parts[5];
                 String gTo = parts[6];
                 String bTo = parts[7];
+                if (!rTo.contains("."))
+                    rTo += ".0";
+                if (!gTo.contains("."))
+                    gTo += ".0";
+                if (!bTo.contains("."))
+                    bTo += ".0";
                 ret += ("from_color:[" + rFrom + "," + gFrom + "," + bFrom + "],scale:"+scale+",to_color:["+rTo + "," + gTo + "," + bTo + "]");
             }
             ret += "}";

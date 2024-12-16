@@ -6,7 +6,8 @@
   "client": [
     "CommandSuggestionsMixinNeoForge",
     "LevelRendererMixinNeoForge",
-    "HumanoidArmorLayerMixinNeoForge"
+    "HumanoidArmorLayerMixinNeoForge",
+    "ClientCommandSourceMixinNeoForge"
   ],
   "mixins": [
   ],

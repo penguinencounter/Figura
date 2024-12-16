@@ -21,7 +21,7 @@ assets_version="${assets_version}"
 [[dependencies.figura]]
 modId = "neoforge"
 mandatory = true
-versionRange = "[21.0,)"
+versionRange = "[21.3,)"
 ordering = "NONE"
 side = "CLIENT"
 

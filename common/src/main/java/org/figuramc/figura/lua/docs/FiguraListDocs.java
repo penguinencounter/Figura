@@ -208,7 +208,7 @@ public class FiguraListDocs {
                         .append("\n\t")
                         .append(Component.literal("• ")
                                 .append(FiguraText.of("docs.enum." + id))
-                                .withStyle(ColorUtils.Colors.BLUE.style))
+                                .withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                         .append("\n\n")
                         .append(Component.literal("• ")
                                 .append(FiguraText.of("docs.text.entries"))
@@ -282,7 +282,7 @@ public class FiguraListDocs {
                     .append("\n\t")
                     .append(Component.literal("• ")
                             .append(Component.literal("enumerators"))
-                            .withStyle(ColorUtils.Colors.BLUE.style))
+                            .withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
 
                     .append("\n\n")
                     .append(Component.literal("• ")
@@ -292,7 +292,7 @@ public class FiguraListDocs {
                     .append("\n\t")
                     .append(Component.literal("• ")
                             .append(FiguraText.of("docs.enum"))
-                            .withStyle(ColorUtils.Colors.BLUE.style))
+                            .withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
             );
             return 1;
         });
