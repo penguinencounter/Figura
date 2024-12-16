@@ -44,7 +44,7 @@ public class Configs {
     }
 
 
-    // -- categories -- //
+    // -- categories -- // 
 
 
     public static final ConfigType.Category
@@ -64,7 +64,7 @@ public class Configs {
             }};
 
 
-    // -- nameplate -- //
+    // -- nameplate -- // 
 
 
     public static final ConfigType.BoolConfig
@@ -98,7 +98,7 @@ public class Configs {
             }};
 
 
-    // -- script -- //
+    // -- script -- // 
 
 
     public static final ConfigType.EnumConfig
@@ -127,7 +127,7 @@ public class Configs {
     };
 
 
-    // -- RENDERING -- //
+    // -- RENDERING -- // 
 
 
     public static final ConfigType.EnumConfig
@@ -136,7 +136,7 @@ public class Configs {
                 String tooltip = "config.render_debug_parts_pivot.tooltip";
                 this.tooltip = new FiguraText(tooltip,
                         new FiguraText(tooltip + ".cubes").setStyle(ColorUtils.Colors.AWESOME_BLUE.style),
-                        new FiguraText(tooltip + ".groups").setStyle(ColorUtils.Colors.BLUE.style));
+                        new FiguraText(tooltip + ".groups").setStyle(ColorUtils.Colors.FIGURA_BLUE.style));
             }};
     public static final ConfigType.BoolConfig
             ALLOW_FP_HANDS = new ConfigType.BoolConfig("allow_fp_hands", RENDERING, false),
@@ -144,7 +144,7 @@ public class Configs {
             INVENTORY_SCISSOR = new ConfigType.BoolConfig("inventory_scissor", RENDERING, true);
 
 
-    // -- ACTION WHEEL -- //
+    // -- ACTION WHEEL -- // 
 
 
     public static final ConfigType.KeybindConfig
@@ -160,7 +160,7 @@ public class Configs {
             ACTION_WHEEL_DECORATIONS = new ConfigType.BoolConfig("action_wheel_decorations", ACTION_WHEEL, true);
 
 
-    // -- UI -- //
+    // -- UI -- // 
 
 
     public static final ConfigType.BoolConfig
@@ -183,7 +183,7 @@ public class Configs {
             REDUCED_MOTION = new ConfigType.BoolConfig("reduced_motion", UI, false);
 
 
-    // -- PAPERDOLL -- //
+    // -- PAPERDOLL -- // 
 
 
     public static final ConfigType.BoolConfig
@@ -199,7 +199,7 @@ public class Configs {
             PAPERDOLL_YAW = new ConfigType.FloatConfig("paperdoll_yaw", PAPERDOLL, 20);
 
 
-    // -- MISC -- //
+    // -- MISC -- // 
 
 
     public static final ConfigType.KeybindConfig

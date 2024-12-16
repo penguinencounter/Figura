@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  */
 public class FiguraListDocs {
 
-    // -- types --//
+    // -- types --// 
 
     public static final LinkedHashSet<String> KEYBINDS = new LinkedHashSet<>();
     private static final LinkedHashMap<String, List<String>> PARENT_TYPES = new LinkedHashMap<>() {{
@@ -210,7 +210,7 @@ public class FiguraListDocs {
                         .append("\n\t")
                         .append(new TextComponent("• ")
                                 .append(new FiguraText("docs.enum." + id))
-                                .withStyle(ColorUtils.Colors.BLUE.style))
+                                .withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                         .append("\n\n")
                         .append(new TextComponent("• ")
                                 .append(new FiguraText("docs.text.entries"))
@@ -269,7 +269,7 @@ public class FiguraListDocs {
         }
     }
 
-    // -- doc methods -- //
+    // -- doc methods -- // 
 
     public static LiteralArgumentBuilder<FiguraClientCommandSource> getCommand() {
         // self
@@ -284,7 +284,7 @@ public class FiguraListDocs {
                     .append("\n\t")
                     .append(new TextComponent("• ")
                             .append(new TextComponent("enumerators"))
-                            .withStyle(ColorUtils.Colors.BLUE.style))
+                            .withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
 
                     .append("\n\n")
                     .append(new TextComponent("• ")
@@ -294,7 +294,7 @@ public class FiguraListDocs {
                     .append("\n\t")
                     .append(new TextComponent("• ")
                             .append(new FiguraText("docs.enum"))
-                            .withStyle(ColorUtils.Colors.BLUE.style))
+                            .withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
             );
             return 1;
         });
