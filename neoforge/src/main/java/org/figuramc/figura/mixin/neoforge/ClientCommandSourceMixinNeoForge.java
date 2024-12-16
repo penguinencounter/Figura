@@ -3,17 +3,14 @@ package org.figuramc.figura.mixin.neoforge;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientSuggestionProvider;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.client.ClientCommandSourceStack;
 import org.figuramc.figura.utils.FiguraClientCommandSource;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(ClientCommandSourceStack.class)
-abstract class ClientCommandSourceMixin implements FiguraClientCommandSource {
+@Mixin(CommandSourceStack.class)
+abstract class ClientCommandSourceMixinNeoForge implements FiguraClientCommandSource {
 
     @Override
     public void figura$sendFeedback(Component message) {
