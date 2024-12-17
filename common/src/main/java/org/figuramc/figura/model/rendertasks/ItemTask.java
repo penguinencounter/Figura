@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.figuramc.figura.avatar.Avatar;
+import org.figuramc.figura.ducks.FiguraItemRendererExtension;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.api.world.ItemStackAPI;
@@ -85,7 +86,7 @@ public class ItemTask extends RenderTask {
         this.item = LuaUtils.parseItemStack("item", item);
         Minecraft client = Minecraft.getInstance();
         RandomSource random = client.level != null ? client.level.random : RandomSource.create();
-        cachedComplexity = client.getItemRenderer().getModel(this.item, null, null, 0).getQuads(null, null, random).size();
+        cachedComplexity = ((FiguraItemRendererExtension)client.getItemRenderer()).figura$getModelComplexity(this.item, random);
         return this;
     }
 

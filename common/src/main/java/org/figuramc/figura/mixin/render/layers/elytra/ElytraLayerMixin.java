@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -20,15 +19,16 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.equipment.EquipmentModel;
+import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import org.figuramc.figura.avatar.Avatar;
@@ -106,7 +106,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
 
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer;renderLayers(Lnet/minecraft/world/item/equipment/EquipmentModel$LayerType;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/model/Model;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/resources/ResourceLocation;)V"), method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", cancellable = true)
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer;renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/resources/ResourceLocation;)V"), method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", cancellable = true)
     public void cancelVanillaPart(PoseStack poseStack, MultiBufferSource multiBufferSource, int light, S humanoidRenderState, float f, float g, CallbackInfo ci) {
         if (vanillaPart != null)
             vanillaPart.restore(elytraModel);
@@ -120,7 +120,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
 
     public void renderElytraPivot(S state, PoseStack poseStack, MultiBufferSource multiBufferSource, int light) {
 
-        ItemStack itemStack = state.chestItem;
+        ItemStack itemStack = state.chestEquipment;
         if (!itemStack.is(Items.ELYTRA) && !PlatformUtils.isModLoaded("origins")) {
             return;
         }
@@ -168,21 +168,21 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
     private void figura$renderElytraPart(ModelPart modelPart, PoseStack poseStack, MultiBufferSource vertexConsumers, int light, ItemStack itemStack, @Nullable ResourceLocation playerLocation) {
         boolean hasGlint = itemStack.hasFoil();
 
-        EquipmentModel.LayerType layerType = EquipmentModel.LayerType.WINGS;
+        EquipmentClientInfo.LayerType layerType = EquipmentClientInfo.LayerType.WINGS;
         Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
 
         if (equippable == null)
             return;
 
-        Optional<ResourceLocation> location = equippable.model();
+        Optional<ResourceKey<EquipmentAsset>> location = equippable.assetId();
         if (location.isEmpty())
             return;
 
-        List<EquipmentModel.Layer> list = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).figura$getModels().get(location.get()).getLayers(layerType);
+        List<EquipmentClientInfo.Layer> list = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).figura$getAssetsManager().get(location.get()).getLayers(layerType);
 
         int i = itemStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(itemStack, -6265536) : -1;
 
-        for(EquipmentModel.Layer layer : list) {
+        for(EquipmentClientInfo.Layer layer : list) {
             int k = EquipmentLayerRendererAccessor.getColorForLayer(layer, i);
 
             if (k != 0) {

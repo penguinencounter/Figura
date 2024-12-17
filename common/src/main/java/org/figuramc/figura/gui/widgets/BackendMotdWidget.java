@@ -2,17 +2,18 @@ package org.figuramc.figura.gui.widgets;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractScrollWidget;
+import net.minecraft.client.gui.components.AbstractTextAreaWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.figuramc.figura.utils.ClickableTextHelper;
 import org.figuramc.figura.utils.ui.UIHelper;
 
 import java.util.Objects;
 
-public class BackendMotdWidget extends AbstractScrollWidget {
+public class BackendMotdWidget extends AbstractTextAreaWidget {
     private final Font font;
     private final ClickableTextHelper textHelper;
     private int maxWidth;
@@ -117,5 +118,13 @@ public class BackendMotdWidget extends AbstractScrollWidget {
 
     public boolean shouldRender() {
         return getScrollBarHeight() > 0 && this.height >= 48;
+    }
+
+    private int getScrollBarHeight() {
+        return Mth.clamp((int)((float)(this.height * this.height) / (float)this.contentHeight()), 32, this.height);
+    }
+
+    protected boolean withinContentAreaPoint(double d, double e) {
+        return d >= (double)this.getX() && d < (double)(this.getX() + this.width) && e >= (double)this.getY() && e < (double)(this.getY() + this.height);
     }
 }

@@ -1,6 +1,7 @@
 package org.figuramc.figura.utils;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -26,7 +27,7 @@ public class RenderUtils {
             return null;
 
         ResourceLocation layer = avatar.luaRuntime.renderer.fireLayer1;
-        return layer != null ? Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(layer) : null;
+        return layer != null ? Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(layer) : null;
     }
 
     public static TextureAtlasSprite secondFireLayer(Avatar avatar) {
@@ -37,9 +38,9 @@ public class RenderUtils {
         ResourceLocation layer2 = avatar.luaRuntime.renderer.fireLayer2;
 
         if (layer2 != null)
-            return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(layer2);
+            return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(layer2);
         if (layer1 != null)
-            return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(layer1);
+            return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(layer1);
 
         return null;
     }

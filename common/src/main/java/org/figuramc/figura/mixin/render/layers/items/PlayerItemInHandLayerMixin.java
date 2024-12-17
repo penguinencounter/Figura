@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.entity.HumanoidArm;
@@ -38,23 +39,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerItemInHandLayer.class)
 public abstract class PlayerItemInHandLayerMixin <S extends PlayerRenderState, M extends EntityModel<S> & ArmedModel & HeadedModel> extends ItemInHandLayer<S, M> {
 
-    @Shadow @Final private ItemRenderer itemRenderer;
-
-    public PlayerItemInHandLayerMixin(RenderLayerParent<S, M> renderLayerParent, ItemRenderer itemRenderer) {
-        super(renderLayerParent, itemRenderer);
+    public PlayerItemInHandLayerMixin(RenderLayerParent<S, M> renderLayerParent) {
+        super(renderLayerParent);
     }
 
     @Unique
     S figura$renderState;
 
-    @Inject(method = "renderArmWithItem(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
-    void captureState(S playerRenderState, @Nullable BakedModel model, ItemStack stack, ItemDisplayContext itemDisplayContext, HumanoidArm humanoidArm, PoseStack matrices, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
+    @Inject(method = "renderArmWithItem(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"))
+    void captureState(S playerRenderState, ItemStackRenderState itemStackRenderState, HumanoidArm humanoidArm, PoseStack matrices, MultiBufferSource vertexConsumers, int i, CallbackInfo ci) {
         this.figura$renderState = playerRenderState;
     }
 
-    @Inject(method = "renderArmWithSpyglass", at = @At("HEAD"), cancellable = true)
-    private void adjustSpyglassVisibility(BakedModel model, ItemStack itemStack, HumanoidArm humanoidArm, PoseStack poseStack, MultiBufferSource multiBufferSource, int light, CallbackInfo ci) {
-        if (itemStack.isEmpty())
+    @Inject(method = "renderItemHeldToEye", at = @At("HEAD"), cancellable = true)
+    private void adjustSpyglassVisibility(ItemStackRenderState itemStackRenderState, HumanoidArm humanoidArm, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
+        if (itemStackRenderState.isEmpty())
             return;
 
         boolean left = humanoidArm == HumanoidArm.LEFT;
@@ -69,7 +68,7 @@ public abstract class PlayerItemInHandLayerMixin <S extends PlayerRenderState, M
             float s = 10f;
             stack.scale(s, s, s);
             stack.translate(0, 0, 7 / 16f);
-            this.itemRenderer.render(itemStack, ItemDisplayContext.HEAD, false, stack, multiBufferSource, light, OverlayTexture.NO_OVERLAY, model);
+            itemStackRenderState.render(stack, vertexConsumers, light, OverlayTexture.NO_OVERLAY);
         })) {
             ci.cancel();
         }

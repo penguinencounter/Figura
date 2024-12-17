@@ -47,8 +47,8 @@ public abstract class BakedGlyphMixin implements BakedGlyphAccessor {
         }
     }
 
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    public void render(boolean italic, float x, float y, Matrix4f matrix, VertexConsumer vertexConsumer, int light, int color, CallbackInfo ci) {
+    @Inject(method = "render(ZFFFLorg/joml/Matrix4f;Lcom/mojang/blaze3d/vertex/VertexConsumer;IZI)V", at = @At("HEAD"), cancellable = true)
+    public void render(boolean italic, float x, float y, float z, Matrix4f matrix, VertexConsumer vertexConsumer, int light, boolean bold, int color, CallbackInfo ci) {
         if (figura$metadata == null) return;
 
         float h = this.up;
@@ -57,15 +57,16 @@ public abstract class BakedGlyphMixin implements BakedGlyphAccessor {
         float l = y + j;
         float m = italic ? 1.0f - 0.25f * h : 0f;
         float n = italic ? 1.0f - 0.25f * j : 0f;
+        float q = bold ? 0.1F : 0.0F;
 
         final float singleWidth = 8f / ImmediatelyFastCompat.getFontWidthIMF();
         float shift = singleWidth * figura$metadata.getCurrentFrame();
 
         float u = u0 + shift;
-        vertexConsumer.addVertex(matrix, x + m, k, 0.0f).setColor(color).setUv(u, this.v0).setLight(light);
-        vertexConsumer.addVertex(matrix, x + n, l, 0.0f).setColor(color).setUv(u, this.v1).setLight(light);
-        vertexConsumer.addVertex(matrix, x + figura$metadata.width + n, l, 0.0f).setColor(color).setUv(u + singleWidth, this.v1).setLight(light);
-        vertexConsumer.addVertex(matrix, x + figura$metadata.width + m, k, 0.0f).setColor(color).setUv(u + singleWidth, this.v0).setLight(light);
+        vertexConsumer.addVertex(matrix, x + m - q, k - q, z).setColor(color).setUv(u, this.v0).setLight(light);
+        vertexConsumer.addVertex(matrix, x + n - q, l + q, z).setColor(color).setUv(u, this.v1).setLight(light);
+        vertexConsumer.addVertex(matrix, x + figura$metadata.width + n + q, l + q, z).setColor(color).setUv(u + singleWidth, this.v1).setLight(light);
+        vertexConsumer.addVertex(matrix, x + figura$metadata.width + m + q, k - q, z).setColor(color).setUv(u + singleWidth, this.v0).setLight(light);
         ci.cancel();
     }
 }

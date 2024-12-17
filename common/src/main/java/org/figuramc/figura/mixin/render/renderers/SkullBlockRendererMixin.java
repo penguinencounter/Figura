@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -94,8 +95,8 @@ public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<Sku
     	return localAvatar == null || localAvatar.permissions == null ? BlockEntityRenderer.super.shouldRenderOffScreen(blockEntity) : localAvatar.permissions.get(Permissions.OFFSCREEN_RENDERING) == 1;
     }
 
-    @Inject(at = @At("HEAD"), method = "getRenderType")
-    private static void getRenderType(SkullBlock.Type type, ResolvableProfile profile, CallbackInfoReturnable<RenderType> cir) {
+    @Inject(at = @At("HEAD"), method = "getRenderType(Lnet/minecraft/world/level/block/SkullBlock$Type;Lnet/minecraft/world/item/component/ResolvableProfile;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;")
+    private static void getRenderType(SkullBlock.Type type, ResolvableProfile profile, ResourceLocation id, CallbackInfoReturnable<RenderType> cir) {
         avatar = (profile != null && profile != null && profile.gameProfile() != null) ? AvatarManager.getAvatarForPlayer(profile.gameProfile().getId()) : null;
     }
 }

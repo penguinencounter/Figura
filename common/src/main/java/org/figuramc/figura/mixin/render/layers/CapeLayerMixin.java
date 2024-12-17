@@ -46,7 +46,7 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At("HEAD"))
     private void preRender(PoseStack poseStack, MultiBufferSource multiBufferSource, int light, PlayerRenderState playerRenderState, float headYaw, float headPitch, CallbackInfo ci) {
-        ItemStack itemStack = playerRenderState.chestItem;
+        ItemStack itemStack = playerRenderState.chestEquipment;
         if (playerRenderState.isInvisible || itemStack.is(Items.ELYTRA))
             return;
 

@@ -121,7 +121,7 @@ public class HostAPI {
     @LuaMethodDoc("host.clear_title")
     public HostAPI clearTitle() {
         if (isHost())
-            this.minecraft.gui.clear();
+            this.minecraft.gui.clearTitles();
         return this;
     }
 

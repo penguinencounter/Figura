@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.component.DataComponents;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.block.SkullBlock;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.ducks.FiguraEntityRenderStateExtension;
+import org.figuramc.figura.ducks.FiguraItemStackRenderStateExtension;
 import org.figuramc.figura.ducks.SkullBlockRendererAccessor;
 import org.figuramc.figura.lua.api.world.ItemStackAPI;
 import org.figuramc.figura.math.vector.FiguraVec3;
@@ -50,6 +52,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
+import java.util.function.Function;
 
 @Mixin(CustomHeadLayer.class)
 public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M extends EntityModel<S> & HeadedModel> extends RenderLayer<S, M> {
@@ -58,18 +61,18 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
         super(renderLayerParent);
     }
 
-    @Shadow @Final private Map<SkullBlock.Type, SkullModelBase> skullModels;
+    @Shadow @Final private Function<SkullBlock.Type, SkullModelBase> skullModels;
 
-    @Shadow @Final private ItemRenderer itemRenderer;
     @Unique
     private Avatar avatar;
 
     @Inject(at = @At("HEAD"), method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V", cancellable = true)
-    private void render(PoseStack matrices, MultiBufferSource multiBufferSource, int i, S livingEntityRenderState, float f, float g, CallbackInfo ci) {
-        ItemStack itemStack = livingEntityRenderState.headItem;
-        if (itemStack.getItem() instanceof ArmorItem armorItem && armorItem.components().has(DataComponents.EQUIPPABLE) && armorItem.components().get(DataComponents.EQUIPPABLE).slot() == EquipmentSlot.HEAD)
+    private void render(PoseStack matrices, MultiBufferSource multiBufferSource, int light, S livingEntityRenderState, float f, float g, CallbackInfo ci) {
+        ItemStackRenderState itemStackState = livingEntityRenderState.headItem;
+        if (((FiguraItemStackRenderStateExtension)itemStackState).figura$getItemStack() == null || ((FiguraItemStackRenderStateExtension)itemStackState).figura$getItemStack().getItem() instanceof ArmorItem armorItem && armorItem.components().has(DataComponents.EQUIPPABLE) && armorItem.components().get(DataComponents.EQUIPPABLE).slot() == EquipmentSlot.HEAD)
             return;
 
+        ItemStack itemStack = ((FiguraItemStackRenderStateExtension)itemStackState).figura$getItemStack();
         avatar = AvatarManager.getAvatar(livingEntityRenderState);
         if (!RenderUtils.vanillaModel(avatar))
             return;
@@ -89,7 +92,7 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
             }
 
             SkullBlock.Type type = ((AbstractSkullBlock) ((BlockItem) itemStack.getItem()).getBlock()).getType();
-            SkullModelBase skullModelBase = this.skullModels.get(type);
+            SkullModelBase skullModelBase = this.skullModels.apply(type);
             RenderType renderType = SkullBlockRenderer.getRenderType(type, gameProfile);
 
             // render!!
@@ -104,7 +107,7 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
                 if (id != null)
                     SkullBlockRendererAccessor.setEntity(Minecraft.getInstance().level.getEntity(id));
                 SkullBlockRendererAccessor.setRenderMode(SkullBlockRendererAccessor.SkullRenderMode.HEAD);
-                SkullBlockRenderer.renderSkull(null, 0f, f, stack, multiBufferSource, i, skullModelBase, renderType);
+                SkullBlockRenderer.renderSkull(null, 0f, f, stack, multiBufferSource, light, skullModelBase, renderType);
             })) {
                 ci.cancel();
             }
@@ -112,22 +115,22 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
             float s = 10f;
             stack.translate(0d, 4d, 0d);
             stack.scale(s, s, s);
-            this.itemRenderer.render(itemStack, ItemDisplayContext.HEAD, false, stack, multiBufferSource, i, OverlayTexture.NO_OVERLAY, livingEntityRenderState.headItemModel);
+            itemStackState.render(stack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
         })) {
             ci.cancel();
         }
     }
 
-    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;render(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IILnet/minecraft/client/resources/model/BakedModel;)V"))
-    private void figuraItemEvent(ItemRenderer instance, ItemStack stack, ItemDisplayContext itemDisplayContext, boolean leftHanded, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, BakedModel model, Operation<Void> original) {
-        ItemTransform transform = model.getTransforms().getTransform(itemDisplayContext);
-        if (avatar == null || !avatar.itemRenderEvent(ItemStackAPI.verify(stack), itemDisplayContext.name(), FiguraVec3.fromVec3f(transform.translation), FiguraVec3.of(transform.rotation.z, transform.rotation.y, transform.rotation.x), FiguraVec3.fromVec3f(transform.scale), leftHanded, matrices, vertexConsumers, light, overlay))
-            original.call(instance, stack, itemDisplayContext, leftHanded, matrices, vertexConsumers, light, OverlayTexture.NO_OVERLAY, model);
+    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))
+    private void figuraItemEvent(ItemStackRenderState instance, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay, Operation<Void> original) {
+        ItemTransform transform = instance.transform();
+        if (avatar == null || !avatar.itemRenderEvent(ItemStackAPI.verify(((FiguraItemStackRenderStateExtension)instance).figura$getItemStack()), ((FiguraItemStackRenderStateExtension)instance).figura$getDisplayContext().name(), FiguraVec3.fromVec3f(transform.translation), FiguraVec3.of(transform.rotation.z, transform.rotation.y, transform.rotation.x), FiguraVec3.fromVec3f(transform.scale), ((FiguraItemStackRenderStateExtension) instance).figura$isLeftHanded(), matrices, vertexConsumers, light, overlay))
+            original.call(instance, matrices, vertexConsumers, light, overlay);
     }
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;renderSkull(Lnet/minecraft/core/Direction;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/model/SkullModelBase;Lnet/minecraft/client/renderer/RenderType;)V"), method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V")
     private void renderSkull(PoseStack matrices, MultiBufferSource vertexConsumers, int i, S livingEntityRenderState, float f, float g, CallbackInfo ci) {
-        SkullBlockRendererAccessor.setItem(livingEntityRenderState.headItem);
+        SkullBlockRendererAccessor.setItem(((FiguraItemStackRenderStateExtension)livingEntityRenderState.headItem).figura$getItemStack());
         Integer id = ((FiguraEntityRenderStateExtension)livingEntityRenderState).figura$getEntityId();
         if (id != null)
             SkullBlockRendererAccessor.setEntity(Minecraft.getInstance().level.getEntity(id));

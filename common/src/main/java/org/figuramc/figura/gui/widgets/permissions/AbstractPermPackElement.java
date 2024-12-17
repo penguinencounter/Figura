@@ -49,7 +49,7 @@ public class AbstractPermPackElement extends Button implements Comparable<Abstra
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return isMouseOver(mouseX, mouseY);
     }
 

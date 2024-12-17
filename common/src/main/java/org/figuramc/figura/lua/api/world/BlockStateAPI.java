@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -292,7 +293,10 @@ public class BlockStateAPI {
         BlockEntity entity = WorldAPI.getCurrentWorld().getBlockEntity(getBlockPos());
         if (entity != null ){
             ItemStack stack = new ItemStack(entity.getBlockState().getBlock().asItem());
-            entity.saveToItem(stack, WorldAPI.getCurrentWorld().registryAccess());
+            CompoundTag compoundTag = entity.saveCustomOnly(WorldAPI.getCurrentWorld().registryAccess());
+            entity.removeComponentsFromTag(compoundTag);
+            BlockItem.setBlockEntityData(stack, entity.getType(), compoundTag);
+            stack.applyComponents(entity.collectComponents());
             LuaTable componentTable = (LuaTable) NbtToLua.convert(NbtToLua.convertToNbt(stack.getComponents()));
             LuaTable entityTable = (LuaTable) NbtToLua.convert(entity.saveWithoutMetadata(WorldAPI.getCurrentWorld().registryAccess()));
             LuaUtils.addLegacyNbtNames(componentTable, entityTable);
@@ -330,8 +334,6 @@ public class BlockStateAPI {
 
             TextureAtlasSprite particle = blockRenderer.getBlockModelShaper().getParticleIcon(blockState);
             map.put("PARTICLE", Set.of(getTextureName(particle)));
-        } else if (renderShape == RenderShape.ENTITYBLOCK_ANIMATED) {
-            map.put("PARTICLE", Set.of(getTextureName(Minecraft.getInstance().getItemRenderer().getModel(blockState.getBlock().asItem().getDefaultInstance(), WorldAPI.getCurrentWorld(), null, 42).getParticleIcon())));
         }
         return map;
     }

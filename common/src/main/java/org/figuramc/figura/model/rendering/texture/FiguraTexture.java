@@ -6,6 +6,8 @@ import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.renderer.texture.TextureContents;
+import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.figuramc.figura.FiguraMod;
@@ -24,6 +26,7 @@ import org.figuramc.figura.mixin.render.TextureManagerAccessor;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.LuaUtils;
+import org.jetbrains.annotations.NotNull;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaValue;
@@ -93,7 +96,9 @@ public class FiguraTexture extends SimpleTexture {
     }
 
     @Override
-    public void load(ResourceManager manager) throws IOException {}
+    public @NotNull TextureContents loadContents(ResourceManager resourceManager) throws IOException {
+        return new TextureContents(texture, new TextureMetadataSection(false, false));
+    }
 
     @Override
     public void close() {
@@ -108,12 +113,12 @@ public class FiguraTexture extends SimpleTexture {
             backup.close();
 
         this.releaseId();
-        ((TextureManagerAccessor) Minecraft.getInstance().getTextureManager()).getByPath().remove(this.location);
+        ((TextureManagerAccessor) Minecraft.getInstance().getTextureManager()).getByPath().remove(this.getLocation());
     }
 
     public void uploadIfDirty() {
         if (!registered) {
-            Minecraft.getInstance().getTextureManager().register(this.location, this);
+            Minecraft.getInstance().getTextureManager().register(this.getLocation(), this);
             registered = true;
         }
 
@@ -159,7 +164,7 @@ public class FiguraTexture extends SimpleTexture {
     }
 
     public ResourceLocation getLocation() {
-        return this.location;
+        return this.resourceId();
     }
 
 

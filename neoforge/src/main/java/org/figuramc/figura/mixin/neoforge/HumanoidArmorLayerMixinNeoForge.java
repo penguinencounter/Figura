@@ -17,17 +17,16 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.equipment.EquipmentModel;
+import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import net.neoforged.neoforge.client.ClientHooks;
@@ -151,7 +150,7 @@ public abstract class HumanoidArmorLayerMixinNeoForge<S extends HumanoidRenderSt
             if (armorEditPermission == 1 && mainPart != null && !mainPart.checkVisible()) return;
 
             // Don't render armor if GeckoLib is already doing the rendering
-            if (!GeckoLibCompat.armorHasCustomModel(itemStack, slot, slot == EquipmentSlot.LEGS ? EquipmentModel.LayerType.HUMANOID_LEGGINGS : EquipmentModel.LayerType.HUMANOID)) {
+            if (!GeckoLibCompat.armorHasCustomModel(itemStack, slot, slot == EquipmentSlot.LEGS ? EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS : EquipmentClientInfo.LayerType.HUMANOID)) {
                 // Go through each parent type needed to render the current piece of armor
                 for (ParentType parentType : parentTypes) {
                     // Skip the part if it's hidden
@@ -272,24 +271,24 @@ public abstract class HumanoidArmorLayerMixinNeoForge<S extends HumanoidRenderSt
         modelPart.xRot = 0;
         modelPart.yRot = 0;
         modelPart.zRot = 0;
-        EquipmentModel.LayerType layerType = this.usesInnerModel(armorSlot) ? EquipmentModel.LayerType.HUMANOID_LEGGINGS : EquipmentModel.LayerType.HUMANOID;
+        EquipmentClientInfo.LayerType layerType = this.usesInnerModel(armorSlot) ? EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS : EquipmentClientInfo.LayerType.HUMANOID;
         Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
 
         if (equippable == null)
             return;
 
-        Optional<ResourceLocation> location = equippable.model();
+        Optional<ResourceKey<EquipmentAsset>> location = equippable.assetId();
         if (location.isEmpty())
             return;
 
-        List<EquipmentModel.Layer> list = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).figura$getModels().get(location.get()).getLayers(layerType);
+        List<EquipmentClientInfo.Layer> list = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).figura$getAssetsManager().get(location.get()).getLayers(layerType);
 
         IClientItemExtensions extensions = IClientItemExtensions.of(itemStack);
         int i = extensions.getDefaultDyeColor(itemStack);
 
         // need to recreate the custom rendering patches for neo, blegh
         int idx = 0;
-        for(EquipmentModel.Layer layer : list) {
+        for(EquipmentClientInfo.Layer layer : list) {
             int k = extensions.getArmorLayerTintColor(itemStack, layer, idx, i);
 
             if (k != 0) {

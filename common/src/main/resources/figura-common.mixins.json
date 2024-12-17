@@ -89,18 +89,21 @@
     "render.renderers.EntityRenderStateMixin",
     "render.renderers.HandRenderSelectionAccessor",
     "render.renderers.ItemInHandRendererMixin",
+    "render.renderers.ItemModelResolverMixin",
     "render.renderers.ItemRendererMixin",
+    "render.renderers.ItemStackRenderStateMixin",
     "render.renderers.LivingEntityRendererMixin",
     "render.renderers.PlayerRendererMixin",
     "render.renderers.ScreenEffectRendererMixin",
-    "render.renderers.SignRendererMixin",
+    "render.renderers.AbstractSignRendererMixin",
     "render.renderers.SkullBlockRendererMixin",
     "render.renderers.ThrownTridentRenderStateMixin",
     "render.renderers.TridentRendererMixin",
     "sound.ChannelHandleMixin",
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
-    "sound.SubtitleOverlayMixin"
+    "sound.SubtitleOverlayMixin",
+    "render.renderers.ItemStackRenderState$LayerRenderStateAccessor"
   ],
   "server": [
   ],
