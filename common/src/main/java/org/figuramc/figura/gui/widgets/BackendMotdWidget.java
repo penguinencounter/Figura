@@ -82,13 +82,18 @@ public class BackendMotdWidget extends AbstractWidget implements Widget, GuiEven
     }
 
     @Override
+    protected void renderBg(PoseStack poseStack, Minecraft minecraft, int mouseX, int mouseY) {
+        renderBackground(poseStack);
+    }
+
+    @Override
     public void renderButton(PoseStack pose, int mouseX, int mouseY, float delta) {
         if (this.visible) {
             if (!scrollbarVisible()) {
                 renderBackground(pose);
                 renderContents(pose, mouseX, mouseY, delta);
             } else {
-                super.renderButton(pose, mouseX, mouseY, delta);
+                renderBackground(pose);
             }
         }
     }
