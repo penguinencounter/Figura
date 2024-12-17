@@ -53,6 +53,7 @@ import org.figuramc.figura.lua.api.world.WorldAPI;
 import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.mixin.gui.GuiGraphicsAccessor;
 import org.figuramc.figura.model.FiguraModelPart;
 import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.model.PartCustomization;
@@ -776,7 +777,11 @@ public class Avatar {
         int x2 = (int) pos.x + size;
         int y2 = (int) pos.y + size;
 
+        gui.pose().pushPose();
+        gui.pose().setIdentity();
         gui.enableScissor(x1, y1, x2, y2);
+        gui.pose().popPose();
+
         UIHelper.paperdoll = true;
         UIHelper.dollScale = 16f;
 
@@ -785,7 +790,7 @@ public class Avatar {
 
         Lighting.setupForFlatItems();
 
-        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource buffer = ((GuiGraphicsAccessor)gui).getBufferSource();
         int light = LightTexture.FULL_BRIGHT;
 
         renderer.allowPivotParts = false;
