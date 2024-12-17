@@ -139,7 +139,7 @@ public class FileAPI {
             Path p = securityCheck(path);
             File f = p.toFile();
             FileInputStream fis = new FileInputStream(f);
-            return new FiguraInputStream(fis);
+            return new FiguraInputStream(parent, fis);
         } catch (FileNotFoundException e) {
             throw new LuaError(e);
         }
@@ -162,7 +162,7 @@ public class FileAPI {
             }
             File f = p.toFile();
             FileOutputStream fos = new FileOutputStream(f);
-            return new FiguraOutputStream(fos);
+            return new FiguraOutputStream(parent, fos);
         } catch (FileNotFoundException e) {
             throw new LuaError(e);
         }

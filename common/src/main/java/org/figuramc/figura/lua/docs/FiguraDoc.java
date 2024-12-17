@@ -33,7 +33,7 @@ public abstract class FiguraDoc {
         this.description = description;
     }
 
-    // -- Methods -- //
+    // -- Methods -- // 
 
     public abstract int print();
 
@@ -51,17 +51,17 @@ public abstract class FiguraDoc {
         return json;
     }
 
-    // -- Special prints :p -- //
+    // -- Special prints :p -- // 
 
     public static int printRoot() {
         FiguraMod.sendChatMessage(HEADER.copy()
                 .append("\n\n")
-                .append(new FiguraText("docs").withStyle(ColorUtils.Colors.BLUE.style)));
+                .append(new FiguraText("docs").withStyle(ColorUtils.Colors.FIGURA_BLUE.style)));
 
         return 1;
     }
 
-    // -- Subtypes -- //
+    // -- Subtypes -- // 
 
     public static class ClassDoc extends FiguraDoc {
 
@@ -135,7 +135,7 @@ public abstract class FiguraDoc {
 
             // type
             message.append("\n\t")
-                    .append(new TextComponent("• " + name).withStyle(ColorUtils.Colors.BLUE.style));
+                    .append(new TextComponent("• " + name).withStyle(ColorUtils.Colors.FIGURA_BLUE.style));
 
             if (superclass != null) {
                 message.append(" (")
@@ -152,7 +152,7 @@ public abstract class FiguraDoc {
                             .append(":")
                             .withStyle(ColorUtils.Colors.PURPLE.style));
 
-            MutableComponent descText = TextComponent.EMPTY.copy().withStyle(ColorUtils.Colors.BLUE.style);
+            MutableComponent descText = TextComponent.EMPTY.copy().withStyle(ColorUtils.Colors.FIGURA_BLUE.style);
             for (Component component : TextUtils.splitText(new FiguraText("docs." + description), "\n"))
                 descText.append("\n\t").append("• ").append(component);
             message.append(descText);
@@ -243,7 +243,7 @@ public abstract class FiguraDoc {
                             .append(":")
                             .withStyle(ColorUtils.Colors.PURPLE.style))
                     .append("\n\t")
-                    .append(new TextComponent("• " + name).withStyle(ColorUtils.Colors.BLUE.style));
+                    .append(new TextComponent("• " + name).withStyle(ColorUtils.Colors.FIGURA_BLUE.style));
 
             // aliases
             if (aliases.length > 0) {
@@ -257,7 +257,7 @@ public abstract class FiguraDoc {
                     message.append("\n\t")
                             .append(new TextComponent("• ")
                                     .append(alias)
-                                    .withStyle(ColorUtils.Colors.BLUE.style));
+                                    .withStyle(ColorUtils.Colors.FIGURA_BLUE.style));
                 }
             }
 
@@ -272,10 +272,10 @@ public abstract class FiguraDoc {
 
                 // name
                 message.append("\n\t")
-                        .append(new TextComponent("• ").withStyle(ColorUtils.Colors.BLUE.style))
+                        .append(new TextComponent("• ").withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                         .append(new TextComponent("<" + typeName + ">").withStyle(ChatFormatting.YELLOW))
                         .append(new TextComponent(isStatic ? "." : ":").withStyle(ChatFormatting.BOLD))
-                        .append(new TextComponent(name).withStyle(ColorUtils.Colors.BLUE.style))
+                        .append(new TextComponent(name).withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                         .append("(");
 
                 for (int j = 0; j < parameterTypes[i].length; j++) {
@@ -290,7 +290,7 @@ public abstract class FiguraDoc {
 
                 // return
                 message.append(") → ")
-                        .append(new FiguraText("docs.text.returns").append(" ").withStyle(ColorUtils.Colors.BLUE.style))
+                        .append(new FiguraText("docs.text.returns").append(" ").withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                         .append(FiguraDocsManager.getClassText(returnTypes[i]).withStyle(ChatFormatting.YELLOW));
             }
 
@@ -301,7 +301,7 @@ public abstract class FiguraDoc {
                             .append(":")
                             .withStyle(ColorUtils.Colors.PURPLE.style));
 
-            MutableComponent descText = TextComponent.EMPTY.copy().withStyle(ColorUtils.Colors.BLUE.style);
+            MutableComponent descText = TextComponent.EMPTY.copy().withStyle(ColorUtils.Colors.FIGURA_BLUE.style);
             for (Component component : TextUtils.splitText(new FiguraText("docs." + description), "\n"))
                 descText.append("\n\t").append("• ").append(component);
             message.append(descText);
@@ -387,9 +387,9 @@ public abstract class FiguraDoc {
                             .append(":")
                             .withStyle(ColorUtils.Colors.PURPLE.style))
                     .append("\n\t")
-                    .append(new TextComponent("• ").withStyle(ColorUtils.Colors.BLUE.style))
+                    .append(new TextComponent("• ").withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                     .append(FiguraDocsManager.getClassText(type).withStyle(ChatFormatting.YELLOW))
-                    .append(new TextComponent(" " + name).withStyle(ColorUtils.Colors.BLUE.style))
+                    .append(new TextComponent(" " + name).withStyle(ColorUtils.Colors.FIGURA_BLUE.style))
                     .append(new TextComponent(" (")
                             .append(new FiguraText(editable ? "docs.text.editable" : "docs.text.not_editable"))
                             .append(")")
@@ -402,7 +402,7 @@ public abstract class FiguraDoc {
                             .append(":")
                             .withStyle(ColorUtils.Colors.PURPLE.style));
 
-            MutableComponent descText = TextComponent.EMPTY.copy().withStyle(ColorUtils.Colors.BLUE.style);
+            MutableComponent descText = TextComponent.EMPTY.copy().withStyle(ColorUtils.Colors.FIGURA_BLUE.style);
             for (Component component : TextUtils.splitText(new FiguraText("docs." + description), "\n"))
                 descText.append("\n\t").append("• ").append(component);
             message.append(descText);

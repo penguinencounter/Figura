@@ -304,7 +304,7 @@ public class HttpRequestsAPI {
                 if (t != null) future.error(t);
                 else {
                     try {
-                        future.complete(new HttpResponse(new FiguraInputStream(response.getEntity().getContent()),
+                        future.complete(new HttpResponse(new FiguraInputStream(parent.parent.owner, response.getEntity().getContent()),
                                 response.getStatusLine().getStatusCode(), convertHeaders(response.getAllHeaders())));
                     } catch (IOException e) {
                         parent.parent.log(NetworkingAPI.LogSource.HTTP, new TextComponent("Error while trying to read input from stream"));

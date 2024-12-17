@@ -1,6 +1,7 @@
 package org.figuramc.figura.lua.api.data;
 
 import org.apache.commons.io.IOUtils;
+import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
@@ -19,13 +20,16 @@ import java.util.concurrent.CompletableFuture;
 public class FiguraInputStream extends InputStream {
     private final InputStream sourceStream;
     private final boolean asyncOnly;
-    public FiguraInputStream(InputStream sourceStream) {
-        this(sourceStream, false);
+    private final Avatar parent;
+    public FiguraInputStream(Avatar parent, InputStream sourceStream) {
+        this(parent, sourceStream, false);
     }
 
-    public FiguraInputStream(InputStream sourceStream, boolean asyncOnly) {
+    public FiguraInputStream(Avatar parent, InputStream sourceStream, boolean asyncOnly) {
         this.sourceStream = sourceStream;
         this.asyncOnly = asyncOnly;
+        this.parent = parent;
+        parent.openInputStreams.add(this);
     }
 
     @Override
@@ -94,6 +98,7 @@ public class FiguraInputStream extends InputStream {
     @LuaMethodDoc("input_stream.close")
     public void close() throws IOException {
         sourceStream.close();
+        parent.openInputStreams.remove(this);
     }
 
     @Override
