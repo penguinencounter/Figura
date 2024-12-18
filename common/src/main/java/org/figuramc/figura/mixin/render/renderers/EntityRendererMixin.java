@@ -65,6 +65,7 @@ public abstract class EntityRendererMixin<T extends Entity> implements EntityRen
         figura$textList = TextUtils.splitText(text, "\n");
     }
 
+    // Push pivot transformations when the nametag is being pivoted (set to entity height in vanilla)
     @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(DDD)V"), method = "renderNameTag")
     private void modifyPivot(PoseStack instance, double x, double y, double z, Operation<Void> original) {
         FiguraVec3 pivot = FiguraVec3.of(x, y, z);

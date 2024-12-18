@@ -62,10 +62,10 @@ public class ParticleAPI {
                 blockName = blockPart.split("\\[")[0];
                 String properties = id.substring(id.indexOf("[")+1, id.indexOf("]")+1);
                 properties = properties.replaceAll("=", ":\"").replaceAll(",", "\",").replace("]", "\"");
-                ret += ("Name:" + blockName + ",Properties:{" + properties + "}");
+                ret += ("Name:\"" + blockName + "\",Properties:{" + properties + "}");
             } else {
                 blockName = blockPart;
-                ret += ("Name:" + blockName);
+                ret += ("Name:\"" + blockName + "\"");
             }
 
             ret += "}}";
@@ -80,10 +80,10 @@ public class ParticleAPI {
                 blockName = blockPart.split("\\[")[0];
                 String properties = id.substring(id.indexOf("[")+1, id.indexOf("]")+1);
                 properties = properties.replaceAll("=", ":\"").replaceAll(",", "\",").replace("]", "\"");
-                ret += ("Name:" + blockName + ",Properties:{" + properties + "}");
+                ret += ("Name:\"" + blockName + "\",Properties:{" + properties + "}");
             } else {
                 blockName = blockPart;
-                ret += ("Name:" + blockName);
+                ret += ("Name:\"" + blockName + "\"");
             }
 
             ret += "}}";
@@ -98,10 +98,10 @@ public class ParticleAPI {
                 blockName = blockPart.split("\\[")[0];
                 String properties = id.substring(id.indexOf("[")+1, id.indexOf("]")+1);
                 properties = properties.replaceAll("=", ":\"").replaceAll(",", "\",").replace("]", "\"");
-                ret += ("Name:" + blockName + ",Properties:{" + properties + "}");
+                ret += ("Name:\"" + blockName + "\",Properties:{" + properties + "}");
             } else {
                 blockName = blockPart;
-                ret += ("Name:" + blockName);
+                ret += ("Name:\"" + blockName + "\"");
             }
 
             ret += "}}";
@@ -114,7 +114,14 @@ public class ParticleAPI {
                 String num1 = parts[1];
                 String num2 = parts[2];
                 String num3 = parts[3];
-                ret += ("color:[" + num1 + "," + num2 + "," + num3+ "],scale:"+parts[4]+"}");
+                if (!num1.contains("."))
+                    num1 += ".0";
+                if (!num2.contains("."))
+                    num2 += ".0";
+                if (!num3.contains("."))
+                    num3 += ".0";
+
+                ret += ("color:[" + num1 + "," + num2 + "," + num3+ "],scale:"+parts[4]);
             }
 
             ret += "}";
@@ -127,10 +134,23 @@ public class ParticleAPI {
                 String rFrom = parts[1];
                 String gFrom = parts[2];
                 String bFrom = parts[3];
+                if (!rFrom.contains("."))
+                    rFrom += ".0";
+                if (!gFrom.contains("."))
+                    gFrom += ".0";
+                if (!bFrom.contains("."))
+                    bFrom += ".0";
+
                 String scale = parts[4];
                 String rTo = parts[5];
                 String gTo = parts[6];
                 String bTo = parts[7];
+                if (!rTo.contains("."))
+                    rTo += ".0";
+                if (!gTo.contains("."))
+                    gTo += ".0";
+                if (!bTo.contains("."))
+                    bTo += ".0";
                 ret += ("from_color:[" + rFrom + "," + gFrom + "," + bFrom + "],scale:"+scale+",to_color:["+rTo + "," + gTo + "," + bTo + "]");
             }
             ret += "}";
@@ -159,7 +179,7 @@ public class ParticleAPI {
             id = id.replaceFirst("minecraft:", "");
             String[] parts = id.split(" ");
             String ret = "shriek{";
-            if (Objects.equals(parts[0], "shriek ")) {
+            if (Objects.equals(parts[0], "shriek")) {
                 String delay = parts[1];
                 ret += ("delay:"+delay);
             }
@@ -178,8 +198,9 @@ public class ParticleAPI {
             }
             ret += "}";
             id = ret;
-        } else if (id.contains("entity_effect") && !id.contains("{")) {
-            id += "{color:[0.0,0.0,0.0,1.0]}";
+        } else if (id.contains("entity_effect")) {
+            if (!id.contains("{"))
+                id += "{color:[0.0,0.0,0.0,1.0]}";
         }
         return id;
     }
