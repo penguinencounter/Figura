@@ -5,15 +5,16 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.arguments.SlotArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.TagParser;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.TypedDataComponent;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
 import net.minecraft.world.entity.player.Inventory;
@@ -417,6 +418,41 @@ public class LuaUtils {
             return new Object[]{new BlockStateAPI(WorldAPI.getCurrentWorld().getBlockState(pos), pos), FiguraVec3.fromVec3(blockHit.getLocation()), blockHit.getDirection().getName()};
         }
         return null;
+    }
+
+    // Converts an item stack into a valid stack string that can be turned back into an item with a command
+    public static String getItemStackString(ItemStack stack) {
+        StringBuilder builder = new StringBuilder();
+        DynamicOps<Tag> dynamicOps = WorldAPI.getCurrentWorld().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        DataComponentMap map = stack.getComponents();
+        Iterator<TypedDataComponent<?>> iterator = map.iterator();
+
+        // the code is literally disgusting, loops through all components
+        while (iterator.hasNext()) {
+            // uses an iterator to avoid extra ,
+
+            TypedDataComponent<?> typedDataComponent = iterator.next();
+            Optional<Tag> optional = typedDataComponent.encodeValue(dynamicOps).result();
+            ResourceLocation resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
+            if (optional.isPresent() && resourceLocation != null){
+                builder.append(resourceLocation).append("=");
+                String op = optional.get().getAsString();
+                // minecraft gets super picky if you give it a resource location so this check has to be added, ew
+                ResourceLocation flag = ResourceLocation.tryParse(op);
+                if (optional.get().getType() == StringTag.TYPE && flag != null) {
+                    builder.append("\"").append(optional.get().getAsString()).append("\"");
+                } else {
+                    builder.append(optional.get().getAsString());
+                }
+                if (iterator.hasNext()) {
+                    builder.append(",");
+                }
+            }
+        }
+        if (builder.isEmpty())
+            return "";
+
+        return "[" + builder + "]";
     }
 
     public static int parseSlot(Object slot, Inventory inventory) {

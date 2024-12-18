@@ -117,12 +117,14 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         return text;
     }
 
+    // Push for scoreboard rendering
     @Inject(method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V"))
     private void pushProfilerForRender(AbstractClientPlayer player, Component text, PoseStack stack, MultiBufferSource multiBufferSource, int light, float delta, CallbackInfo ci) {
         FiguraMod.popPushProfiler("render");
         FiguraMod.pushProfiler("scoreboard");
     }
 
+    // Pop the profiler after everything's done
     @Inject(method = "renderNameTag(Lnet/minecraft/client/player/AbstractClientPlayer;Lnet/minecraft/network/chat/Component;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IF)V", at = @At(value = "TAIL"))
     private void popProfiler(AbstractClientPlayer player, Component text, PoseStack stack, MultiBufferSource multiBufferSource, int light, float delta, CallbackInfo ci) {
         FiguraMod.popProfiler(5);
