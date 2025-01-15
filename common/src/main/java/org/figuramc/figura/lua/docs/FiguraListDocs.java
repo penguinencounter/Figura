@@ -125,7 +125,7 @@ public class FiguraListDocs {
         for (SoundSource value : SoundSource.values())
             add(value.name());
     }};
-    private static final LinkedHashSet<String> WRITE_OVERFLOW_STRETEGIES = new LinkedHashSet<>() {{
+    private static final LinkedHashSet<String> WRITE_OVERFLOW_STRETEGIES = new LinkedHashSet<String>() {{
         for (FiguraTexture.WriteOverflowStrategy strategy : FiguraTexture.WriteOverflowStrategy.values())
             add(strategy.primaryName);
     }};
