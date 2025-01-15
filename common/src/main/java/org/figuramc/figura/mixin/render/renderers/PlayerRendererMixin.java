@@ -112,7 +112,9 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
 
         // badges
         FiguraMod.popPushProfiler("badges");
-        replacement = Badges.appendBadges(replacement, Minecraft.getInstance().level.getEntity(player.id).getUUID(), config > 1);
+        if (Minecraft.getInstance().level.getEntity(player.id) != null) { // null while dead
+			replacement = Badges.appendBadges(replacement, Minecraft.getInstance().level.getEntity(player.id).getUUID(), config > 1);
+		}
 
         FiguraMod.popPushProfiler("applyName");
         text = TextUtils.replaceInText(text, "\\b" + Pattern.quote(player.name) + "\\b", replacement);
