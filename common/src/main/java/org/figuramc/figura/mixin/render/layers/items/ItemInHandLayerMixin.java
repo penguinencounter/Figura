@@ -55,7 +55,10 @@ public abstract class ItemInHandLayerMixin<S extends ArmedEntityRenderState, M e
             final float s = 16f;
             stack.scale(s, s, s);
             stack.mulPose(Axis.XP.rotationDegrees(-90f));
-            itemStackRenderState.render(stack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
+            // sorta have to do this manually otherwise itemRenderEvent isn't called
+            ItemTransform transform = itemStackRenderState.transform();
+            if (avatar == null || !avatar.itemRenderEvent(ItemStackAPI.verify(((FiguraItemStackRenderStateExtension)itemStackRenderState).figura$getItemStack()), ((FiguraItemStackRenderStateExtension)itemStackRenderState).figura$getDisplayContext().name(), FiguraVec3.fromVec3f(transform.translation), FiguraVec3.of(transform.rotation.z, transform.rotation.y, transform.rotation.x), FiguraVec3.fromVec3f(transform.scale), ((FiguraItemStackRenderStateExtension)itemStackRenderState).figura$isLeftHanded(), stack, multiBufferSource, light, OverlayTexture.NO_OVERLAY))
+                itemStackRenderState.render(stack, multiBufferSource, light, OverlayTexture.NO_OVERLAY);
         })) {
             ci.cancel();
         }
