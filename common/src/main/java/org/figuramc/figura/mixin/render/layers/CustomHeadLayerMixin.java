@@ -84,14 +84,11 @@ public abstract class CustomHeadLayerMixin<S extends LivingEntityRenderState, M 
         }
 
         // pivot part
-        if (itemStack.getItem() instanceof BlockItem block && block.getBlock() instanceof AbstractSkullBlock) {
+        if (livingEntityRenderState.wornHeadType != null) {
             // fetch skull data
-            ResolvableProfile gameProfile = null;
-            if (itemStack.getComponents().has(DataComponents.PROFILE)) {
-                    gameProfile = itemStack.get(DataComponents.PROFILE);
-            }
+            ResolvableProfile gameProfile = livingEntityRenderState.wornHeadProfile;
 
-            SkullBlock.Type type = ((AbstractSkullBlock) ((BlockItem) itemStack.getItem()).getBlock()).getType();
+            SkullBlock.Type type = livingEntityRenderState.wornHeadType;
             SkullModelBase skullModelBase = this.skullModels.apply(type);
             RenderType renderType = SkullBlockRenderer.getRenderType(type, gameProfile);
 
