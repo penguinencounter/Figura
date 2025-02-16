@@ -170,6 +170,16 @@ public class AvatarManager {
         return getAvatar(entity);
     }
 
+    public static Entity getEntity(EntityRenderState state) {
+        if (Minecraft.getInstance().level == null || state == null) return null;
+
+        if (state instanceof PlayerRenderState playerRenderState) {
+            return Minecraft.getInstance().level.getEntity(playerRenderState.id);
+        }
+        Integer id = ((FiguraEntityRenderStateExtension)state).figura$getEntityId();
+        return id != null ? Minecraft.getInstance().level.getEntity(id) : null;
+    }
+
     // tries to get data from an entity
     public static Avatar getAvatar(Entity entity) {
         if (panic || Minecraft.getInstance().level == null || entity == null)
