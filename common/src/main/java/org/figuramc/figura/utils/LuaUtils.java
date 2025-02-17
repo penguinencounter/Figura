@@ -12,6 +12,7 @@ import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
@@ -434,6 +435,9 @@ public class LuaUtils {
             TypedDataComponent<?> typedDataComponent = iterator.next();
             Optional<Tag> optional = typedDataComponent.encodeValue(dynamicOps).result();
             ResourceLocation resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
+            if (typedDataComponent.type() == DataComponents.ITEM_NAME && optional.isPresent() && optional.get().getAsString().contains("translate"))
+                continue;
+
             if (optional.isPresent() && resourceLocation != null){
                 builder.append(resourceLocation).append("=");
                 String op = optional.get().getAsString();
