@@ -37,6 +37,9 @@ public abstract class BakedGlyphMixin implements BakedGlyphAccessor {
     @Shadow
     @Final
     private float v1;
+    @Shadow @Final private float left;
+    @Shadow @Final private float right;
+    @Shadow @Final private float u1;
     @Unique
     EmojiMetadata figura$metadata;
 
@@ -48,7 +51,7 @@ public abstract class BakedGlyphMixin implements BakedGlyphAccessor {
     }
 
     @Inject(method = "render(ZFFFLorg/joml/Matrix4f;Lcom/mojang/blaze3d/vertex/VertexConsumer;IZI)V", at = @At("HEAD"), cancellable = true)
-    public void render(boolean italic, float x, float y, float z, Matrix4f matrix, VertexConsumer vertexConsumer, int light, boolean bold, int color, CallbackInfo ci) {
+    public void render(boolean italic, float x, float y, float z, Matrix4f matrix, VertexConsumer vertexConsumer, int color, boolean bold, int light, CallbackInfo ci) {
         if (figura$metadata == null) return;
 
         float h = this.up;
