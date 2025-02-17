@@ -5,9 +5,10 @@
   "minVersion": "0.8",
   "client": [
     "CommandSuggestionsMixinFabric",
+    "ElytraLayerAccessor",
     "GuiMixin",
-    "LevelRendererMixinFabric",
-    "HumanoidArmorLayerMixinFabric"
+    "HumanoidArmorLayerMixinFabric",
+    "LevelRendererMixinFabric"
   ],
   "mixins": [
   ],

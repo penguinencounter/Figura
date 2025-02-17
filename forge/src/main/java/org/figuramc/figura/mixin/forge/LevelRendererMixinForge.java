@@ -40,7 +40,7 @@ public class LevelRendererMixinForge {
     @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = {"lambda$addMainPass$1"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V", ordinal = 0))
-    private void renderLevelFirstPerson(FogParameters fogParameters, DeltaTracker deltaTracker, Camera camera, ProfilerFiller profiler, Matrix4f matrix4f, Matrix4f matrix4f2, ResourceHandle<RenderTarget> resourceHandle, ResourceHandle<RenderTarget> resourceHandle2, ResourceHandle<RenderTarget> resourceHandle3, ResourceHandle<RenderTarget> resourceHandle4, boolean bl, Frustum frustum, ResourceHandle<RenderTarget> resourceHandle5, CallbackInfo ci, @Local PoseStack stack) {
+    private void renderLevelFirstPerson(FogParameters fogParameters, DeltaTracker deltaTracker, Camera camera, ProfilerFiller profiler, Matrix4f matrix4f, Matrix4f matrix4f2, ResourceHandle<RenderTarget> resourceHandle, ResourceHandle<RenderTarget> resourceHandle2, ResourceHandle<RenderTarget> resourceHandle3, ResourceHandle<RenderTarget> resourceHandle4, Frustum frustum, boolean bl, ResourceHandle<RenderTarget> resourceHandle5, CallbackInfo ci, @Local PoseStack stack) {
         if (camera.isDetached())
             return;
 
@@ -88,7 +88,7 @@ public class LevelRendererMixinForge {
 
 
     @Inject(method =  {"lambda$addMainPass$1"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderBuffers;bufferSource()Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;"))
-    public void applyFiguraNormals(FogParameters fogParameters, DeltaTracker tracker, Camera camera, ProfilerFiller profiler, Matrix4f matrix4f, Matrix4f matrix4f2, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, boolean bl, Frustum frustum, ResourceHandle resourceHandle5, CallbackInfo ci, @Local PoseStack poseStack) {
+    public void applyFiguraNormals(FogParameters fogParameters, DeltaTracker tracker, Camera camera, ProfilerFiller profiler, Matrix4f matrix4f, Matrix4f matrix4f2, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, Frustum frustum, boolean bl, ResourceHandle resourceHandle5, CallbackInfo ci, @Local PoseStack poseStack) {
         Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
         if (!RenderUtils.vanillaModelAndScript(avatar)) return;
 

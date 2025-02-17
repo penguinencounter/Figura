@@ -145,11 +145,11 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
         try {
             avatarPostShader = true;
             this.effectActive = true;
-            if (this.postEffectId == null || !this.postEffectId.equals(resource))
-                if (this.getMinecraft().getResourceManager().getResource(resource).isPresent()) {
-                    PostChain postchain = this.minecraft.getShaderManager().getPostChain(resource, LevelTargetBundle.MAIN_TARGETS);
+            if (this.postEffectId == null || !this.postEffectId.equals(resource)) {
+                PostChain postchain = this.minecraft.getShaderManager().getPostChain(resource, LevelTargetBundle.MAIN_TARGETS);
+                if (postchain != null)
                     postchain.process(this.minecraft.getMainRenderTarget(), this.resourcePool);
-                }
+            }
         } catch (Exception ignored) {
             this.effectActive = false;
             avatar.luaRuntime.renderer.postShader = null;
