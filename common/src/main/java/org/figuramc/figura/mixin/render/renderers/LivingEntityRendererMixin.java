@@ -11,8 +11,11 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -58,6 +61,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
 
     @Shadow protected abstract boolean isBodyVisible(S livingEntityRenderState);
 
+    @Shadow @Final protected ItemModelResolver itemModelResolver;
     @Unique
     private Avatar currentAvatar;
     @Unique
@@ -167,6 +171,12 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
             else if (Configs.NAMEPLATE_RENDER.value == 2 || (Configs.NAMEPLATE_RENDER.value == 1 && livingEntity != FiguraMod.extendedPickEntity))
                 cir.setReturnValue(false);
         }
+    }
+
+    // Add the skull item back in after it being cleared
+    @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;clear()V", ordinal = 0, shift = At.Shift.AFTER))
+    private void shouldShowName(T entity, S livingEntityRenderState, float f, CallbackInfo ci) {
+       this.itemModelResolver.updateForLiving(livingEntityRenderState.headItem, entity.getItemBySlot(EquipmentSlot.HEAD), ItemDisplayContext.HEAD, false, entity);
     }
 
     @Inject(method = "isEntityUpsideDown", at = @At("HEAD"), cancellable = true)
