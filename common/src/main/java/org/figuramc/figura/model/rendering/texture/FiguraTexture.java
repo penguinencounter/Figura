@@ -101,6 +101,11 @@ public class FiguraTexture extends SimpleTexture {
     }
 
     @Override
+    public void apply(TextureContents textureContents) {
+        uploadIfDirty();
+    }
+
+    @Override
     public void close() {
         // Make sure it doesn't close twice (minecraft tries to close the texture when reloading textures
         if (isClosed) return;
