@@ -63,12 +63,6 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
 
     @Shadow @Final private EquipmentLayerRenderer equipmentRenderer;
 
-    @Shadow
-    @Nullable
-    private static ResourceLocation getPlayerElytraTexture(HumanoidRenderState humanoidRenderState) {
-        throw new AssertionError();
-    }
-
     @Unique
     private VanillaPart vanillaPart;
     @Unique
@@ -128,7 +122,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, S extends Humanoi
             // Try to render the pivot part
             this.elytraModel.setupAnim(state);
 
-            ResourceLocation playerTexture =  getPlayerElytraTexture(state);
+            ResourceLocation playerTexture =  RenderUtils.getPlayerSkinTexture((WingsLayer<?, ?>) (Object)this, state);
 
             VanillaPart part = RenderUtils.pivotToPart(figura$avatar, ParentType.LeftElytraPivot);
             if (part != null && part.checkVisible()) {

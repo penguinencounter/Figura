@@ -6,9 +6,10 @@
   "client": [
     "ClientCommandSourceMixinForge",
     "CommandSuggestionsMixinForge",
+    "ElytraLayerAccessor",
     "GuiMixin",
-    "LevelRendererMixinForge",
-    "HumanoidArmorLayerMixinForge"
+    "HumanoidArmorLayerMixinForge",
+    "LevelRendererMixinForge"
   ],
   "mixins": [
   ],
