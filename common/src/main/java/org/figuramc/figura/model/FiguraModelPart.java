@@ -1490,7 +1490,8 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             ),
             value = "model_part.copy"
     )
-    public FiguraModelPart copy(@LuaNotNil String name) {
+    public FiguraModelPart copy(String name) {
+		if (name == null) name = this.name;
         PartCustomization customization = new PartCustomization();
         this.customization.copyTo(customization);
         FiguraModelPart result = new FiguraModelPart(owner, name, customization, copyVertices(), new ArrayList<>(children));
