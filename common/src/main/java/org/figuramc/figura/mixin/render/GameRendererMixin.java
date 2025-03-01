@@ -74,7 +74,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     )
     private void addShaders(ResourceProvider factory, CallbackInfo ci, @Local(ordinal = 1) List<Pair<ShaderInstance, Consumer<ShaderInstance>>> list2) throws IOException {
         list2.add(
-                Pair.of(new ShaderInstance(factory,"rendertype_no_shading", DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> FiguraShaderStorage.rendertypeNoShadingShader = shaderInstance)
+                Pair.of(new ShaderInstance(factory,"figura_rendertype_no_shading", DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> FiguraShaderStorage.rendertypeNoShadingShader = shaderInstance)
         );
     }
 

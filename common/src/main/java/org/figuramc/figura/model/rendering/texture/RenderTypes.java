@@ -93,7 +93,7 @@ public enum RenderTypes {
             super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
         }
 
-        private static final ShaderStateShard RENDERTYPE_NO_SHADING_SHADER = new RenderStateShard.ShaderStateShard(
+        private static final ShaderStateShard FIGURA_RENDERTYPE_NO_SHADING_SHADER = new RenderStateShard.ShaderStateShard(
                 FiguraShaderStorage::getRendertypeNoShadingShader
         );
 
@@ -125,7 +125,7 @@ public enum RenderTypes {
                         blurry,
                         true,
                         CompositeState.builder()
-                                .setShaderState(RENDERTYPE_NO_SHADING_SHADER)
+                                .setShaderState(FIGURA_RENDERTYPE_NO_SHADING_SHADER)
                                 .setTextureState(new TextureStateShard(texture, blurry, false))
                                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                                 .setCullState(cull)
@@ -140,7 +140,6 @@ public enum RenderTypes {
         public static final Function<ResourceLocation, RenderType> NO_SHADING_CULL = createNoShadingFunction(false, CULL);
         public static final Function<ResourceLocation, RenderType> NO_SHADING_BLURRY = createNoShadingFunction(true, NO_CULL);
         public static final Function<ResourceLocation, RenderType> NO_SHADING_BLURRY_CULL = createNoShadingFunction(true, CULL);
-
 
         private static final BiFunction<ResourceLocation, Boolean, RenderType> CUTOUT_EMISSIVE_SOLID = Util.memoize(
                 (texture, affectsOutline) ->
