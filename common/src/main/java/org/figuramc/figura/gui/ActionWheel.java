@@ -253,11 +253,11 @@ public class ActionWheel {
             if (!bakedModel.usesBlockLight()) {
                 Lighting.setupForFlatItems();
             }
+            // this fixes the item tasks rendering darkly, i hate it, thank item tasks for scaling stuff negatively :/
             gui.pose().last().normal().scale(-1.0F, 1.0F, -1.0F);
         } else if (task instanceof EntityTask) {
             Lighting.setupForEntityInInventory();
         }
-        // this fixes the item tasks rendering darkly, i hate
 
         // if i don't give it a figura customization stack it won't use the render task translations >:(
         PartCustomization customization = new PartCustomization();
