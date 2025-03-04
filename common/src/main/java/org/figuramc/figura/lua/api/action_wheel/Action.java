@@ -11,6 +11,8 @@ import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
+import org.figuramc.figura.model.rendertasks.ItemTask;
+import org.figuramc.figura.model.rendertasks.RenderTask;
 import org.figuramc.figura.utils.LuaUtils;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaFunction;
@@ -26,11 +28,15 @@ public class Action {
     public static final FiguraVec3 TOGGLE_COLOR = FiguraVec3.of(0, 1, 0);
 
     protected String title, toggleTitle;
-    protected ItemStack item, hoverItem, toggleItem;
+    protected RenderTask task, hoverTask, toggleTask;
     protected FiguraVec3 color, hoverColor, toggleColor;
     protected TextureData texture, hoverTexture, toggleTexture;
     protected boolean toggled = false;
+    private Avatar owner;
 
+    public Action(Avatar owner) {
+        this.owner = owner;
+    }
 
     // -- function fields -- // 
 
@@ -80,14 +86,14 @@ public class Action {
             avatar.run(scroll, avatar.tick, delta, this);
     }
 
-    public ItemStack getItem(boolean selected) {
-        ItemStack ret = null;
+    public RenderTask getTask(boolean selected) {
+        RenderTask ret = null;
         if (selected)
-            ret = hoverItem;
+            ret = hoverTask;
         if (ret == null && toggled)
-            ret = toggleItem;
+            ret = toggleTask;
         if (ret == null)
-            ret = item;
+            ret = task;
         return ret;
     }
 
@@ -221,7 +227,9 @@ public class Action {
             value = "wheel_action.set_item"
     )
     public Action setItem(Object item) {
-        this.item = LuaUtils.parseItemStack("item", item);
+        this.task = new ItemTask(title+"_task", owner, null)
+                .setItem(LuaUtils.parseItemStack("item", item))
+                .displayMode("gui").setLight(15d, 15d);
         return this;
     }
 
@@ -246,7 +254,9 @@ public class Action {
             value = "wheel_action.set_hover_item"
     )
     public Action setHoverItem(Object item) {
-        this.hoverItem = LuaUtils.parseItemStack("hoverItem", item);
+        this.hoverTask = new ItemTask(title+"_hover_task", owner, null)
+                .setItem(LuaUtils.parseItemStack("hoverItem", item))
+                .displayMode("gui").setLight(15d, 15d);
         return this;
     }
 
@@ -254,6 +264,50 @@ public class Action {
     public Action hoverItem(Object item) {
         return setHoverItem(item);
     }
+
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(
+                            argumentTypes = RenderTask.class,
+                            argumentNames = "task"
+                    )
+            },
+            aliases = "task",
+            value = "wheel_action.set_task"
+    )
+    public Action setTask(RenderTask task) {
+        this.task = task;
+        return this;
+    }
+
+    @LuaWhitelist
+    public Action task(RenderTask task) {
+        return setTask(task);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(
+                            argumentTypes = RenderTask.class,
+                            argumentNames = "task"
+                    )
+            },
+            aliases = "hoverTask",
+            value = "wheel_action.set_hover_task"
+    )
+    public Action setHoverTask(RenderTask task) {
+        this.hoverTask = task;
+        return this;
+    }
+
+    @LuaWhitelist
+    public Action hoverTask(RenderTask task) {
+        return setHoverTask(task);
+    }
+
 
     @LuaWhitelist
     @LuaMethodDoc(
@@ -496,13 +550,36 @@ public class Action {
             value = "wheel_action.set_toggle_item"
     )
     public Action setToggleItem(Object item) {
-        this.toggleItem = LuaUtils.parseItemStack("toggleItem", item);
+        this.toggleTask = new ItemTask(title+"_hover_task", owner, null)
+                .setItem(LuaUtils.parseItemStack("toggleItem", item))
+                .displayMode("gui").setLight(15d, 15d);
         return this;
     }
 
     @LuaWhitelist
     public Action toggleItem(Object item) {
         return setToggleItem(item);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(
+                            argumentTypes = RenderTask.class,
+                            argumentNames = "task"
+                    )
+            },
+            aliases = "toggleTask",
+            value = "wheel_action.set_toggle_task"
+    )
+    public Action setToggleTask(RenderTask task) {
+        this.toggleTask = task;
+        return this;
+    }
+
+    @LuaWhitelist
+    public Action toggleTask(RenderTask task) {
+        return setToggleTask(task);
     }
 
     @LuaWhitelist

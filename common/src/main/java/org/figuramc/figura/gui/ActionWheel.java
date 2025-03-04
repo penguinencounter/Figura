@@ -1,5 +1,6 @@
 package org.figuramc.figura.gui;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,6 +9,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -19,11 +23,19 @@ import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.api.action_wheel.Action;
 import org.figuramc.figura.lua.api.action_wheel.Page;
+import org.figuramc.figura.math.matrix.FiguraMat3;
+import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.model.PartCustomization;
+import org.figuramc.figura.model.rendertasks.EntityTask;
+import org.figuramc.figura.model.rendertasks.ItemTask;
+import org.figuramc.figura.model.rendertasks.RenderTask;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.TextUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 import java.util.List;
 import java.util.function.Function;
@@ -212,16 +224,58 @@ public class ActionWheel {
                         texture.texture.getWidth(), texture.texture.getHeight());
             }
 
-            // no item, no render
-            ItemStack item = action.getItem(isSelected);
-            if (item == null || item.isEmpty())
+            // no task, no render
+            RenderTask task = action.getTask(isSelected);
+            if (task == null || !task.shouldRender())
                 continue;
 
             // render
-            gui.renderItem(item, (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
-            if (Configs.ACTION_WHEEL_DECORATIONS.value)
-                gui.renderItemDecorations(minecraft.font, item, (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+            renderTask(gui, task, (float) xOff, (float) yOff);
+
+            if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
         }
+    }
+
+    private static void renderTask(GuiGraphics gui, RenderTask task, float xOff, float yOff) {
+        int x = Math.round(xOff - 8);
+        int y = Math.round(yOff - 8);
+
+        gui.pose().pushPose();
+        gui.pose().translate((float)(x + 8), (float)(y + 8), (float)(150));
+
+        // need special handling to replicate gui transforms for item tasks, blegh
+        BakedModel bakedModel = null;
+        gui.pose().scale(-1.0F, -1.0F, -1.0F);
+
+        if (task instanceof ItemTask) {
+            bakedModel = minecraft.getItemRenderer().getModel(((ItemTask) task).getItem(), minecraft.level, minecraft.player, 0);
+            if (!bakedModel.usesBlockLight()) {
+                Lighting.setupForFlatItems();
+            }
+            gui.pose().last().normal().scale(-1.0F, 1.0F, -1.0F);
+        } else if (task instanceof EntityTask) {
+            Lighting.setupForEntityInInventory();
+        }
+        // this fixes the item tasks rendering darkly, i hate
+
+        // if i don't give it a figura customization stack it won't use the render task translations >:(
+        PartCustomization customization = new PartCustomization();
+        customization.setPositionMatrix(new FiguraMat4().set(gui.pose().last().pose()));
+        customization.setNormalMatrix(new FiguraMat3().set(gui.pose().last().normal()));
+
+        PartCustomization.PartCustomizationStack stack = new PartCustomization.PartCustomizationStack();
+        stack.push(customization);
+        task.render(stack, gui.bufferSource(), LightTexture.FULL_BRIGHT, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
+        stack.pop();
+
+        gui.flush();
+        // reset light to 3d light
+        if (bakedModel != null && !bakedModel.usesBlockLight()) {
+            Lighting.setupFor3DItems();
+        }
+
+        gui.pose().popPose();
     }
 
     private static void renderTexts(GuiGraphics gui, Page page) {
