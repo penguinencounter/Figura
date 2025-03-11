@@ -26,7 +26,12 @@ import org.figuramc.figura.lua.api.action_wheel.Page;
 import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.model.FiguraModelPart;
 import org.figuramc.figura.model.PartCustomization;
+import org.figuramc.figura.model.TextureCustomization;
+import org.figuramc.figura.model.rendering.ImmediateAvatarRenderer;
+import org.figuramc.figura.model.rendering.PartFilterScheme;
+import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
 import org.figuramc.figura.model.rendertasks.EntityTask;
 import org.figuramc.figura.model.rendertasks.ItemTask;
 import org.figuramc.figura.model.rendertasks.RenderTask;
@@ -224,20 +229,20 @@ public class ActionWheel {
                         texture.texture.getWidth(), texture.texture.getHeight());
             }
 
-            // no task, no render
-            RenderTask task = action.getTask(isSelected);
-            if (task == null || !task.shouldRender())
+            // no part, no render
+            FiguraModelPart part = action.getTask(isSelected);
+            if (part == null || !part.getVisible())
                 continue;
 
             // render
-            renderTask(gui, task, (float) xOff, (float) yOff);
+            renderTask(gui, action, part, (float) xOff, (float) yOff, minecraft.getDeltaFrameTime());
 
-            if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
-                gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+         //   if (Configs.ACTION_WHEEL_DECORATIONS.value && part instanceof ItemTask itemTask)
+           //     gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
         }
     }
 
-    private static void renderTask(GuiGraphics gui, RenderTask task, float xOff, float yOff) {
+    private static void renderTask(GuiGraphics gui, Action action, FiguraModelPart part, float xOff, float yOff, float tickDelta) {
         int x = Math.round(xOff - 8);
         int y = Math.round(yOff - 8);
 
@@ -245,9 +250,34 @@ public class ActionWheel {
         gui.pose().translate((float)(x + 8), (float)(y + 8), (float)(150));
 
         // need special handling to replicate gui transforms for item tasks, blegh
-        BakedModel bakedModel = null;
         gui.pose().scale(-1.0F, -1.0F, -1.0F);
+        gui.pose().last().normal().scale(-1.0F, 1.0F, -1.0F);
 
+        Avatar avatar = action.owner;
+
+        int[] prev = new int[]{avatar.complexity.remaining};;
+        avatar.renderer.entity = minecraft.player;
+
+        avatar.renderer.setupRenderer(PartFilterScheme.MODEL, gui.bufferSource(), gui.pose(), tickDelta, LightTexture.FULL_BRIGHT, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
+
+        PartCustomization customization = new PartCustomization();
+        customization.setPositionMatrix(new FiguraMat4().set(gui.pose().last().pose()));
+        customization.setNormalMatrix(new FiguraMat3().set(gui.pose().last().normal()));
+        customization.light = LightTexture.FULL_BRIGHT;
+        customization.alpha = 1f;
+        customization.overlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
+
+        customization.primaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.PRIMARY, null);
+        customization.secondaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.SECONDARY, null);
+
+        avatar.renderer.pushToCustomizationStack(customization);
+        Lighting.setupForFlatItems();
+
+        avatar.renderer.renderPart(part, prev, false);
+
+        avatar.renderer.popCustomizationStack();
+
+        /*
         if (task instanceof ItemTask) {
             bakedModel = minecraft.getItemRenderer().getModel(((ItemTask) task).getItem(), minecraft.level, minecraft.player, 0);
             if (!bakedModel.usesBlockLight()) {
@@ -260,21 +290,14 @@ public class ActionWheel {
         }
 
         // if i don't give it a figura customization stack it won't use the render task translations >:(
-        PartCustomization customization = new PartCustomization();
-        customization.setPositionMatrix(new FiguraMat4().set(gui.pose().last().pose()));
-        customization.setNormalMatrix(new FiguraMat3().set(gui.pose().last().normal()));
-
-        PartCustomization.PartCustomizationStack stack = new PartCustomization.PartCustomizationStack();
-        stack.push(customization);
-        task.render(stack, gui.bufferSource(), LightTexture.FULL_BRIGHT, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY);
-        stack.pop();
 
         gui.flush();
         // reset light to 3d light
         if (bakedModel != null && !bakedModel.usesBlockLight()) {
             Lighting.setupFor3DItems();
         }
-
+*/
+        gui.flush();
         gui.pose().popPose();
     }
 
