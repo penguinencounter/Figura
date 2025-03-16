@@ -52,6 +52,7 @@
     "gui.SuggestionsListMixin",
     "gui.books.BookViewScreenMixin",
     "gui.books.LineInfoMixin",
+    "gui.BossHealthOverlayAccessor",
     "input.InputConstantsTypeMixin",
     "input.KeyboardHandlerMixin",
     "input.KeyMappingAccessor",
