@@ -1,7 +1,9 @@
 package org.figuramc.figura.model;
 
+import com.mojang.datafixers.util.Either;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.UUIDUtil;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
@@ -24,6 +26,8 @@ import org.figuramc.figura.utils.ui.UIHelper;
 import org.jetbrains.annotations.Nullable;
 import org.luaj.vm2.*;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,6 +41,8 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     private final Avatar owner;
 
     public final String name;
+    @Nullable public final String uuid;
+    private int cloneSeed;
     public FiguraModelPart parent;
 
     public final PartCustomization customization;
@@ -74,9 +80,10 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     @LuaFieldDoc("model_part.post_render")
     public LuaFunction postRender; // after children
 
-    public FiguraModelPart(Avatar owner, String name, PartCustomization customization, Map<Integer, List<Vertex>> vertices, List<FiguraModelPart> children, String @Nullable[] collections, byte[] collectionInfo) {
+    public FiguraModelPart(Avatar owner, String name, @Nullable String uuid, PartCustomization customization, Map<Integer, List<Vertex>> vertices, List<FiguraModelPart> children, String @Nullable[] collections, byte[] collectionInfo) {
         this.owner = owner;
         this.name = name;
+        this.uuid = uuid;
         this.customization = customization;
         this.vertices = vertices;
         this.children = children;
@@ -1412,6 +1419,12 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     }
 
     @LuaWhitelist
+    @LuaMethodDoc("model_part.get_uuid")
+    public @Nullable String getUUID() {
+        return uuid;
+    }
+
+    @LuaWhitelist
     @LuaMethodDoc(
             overloads = @LuaMethodOverload(
                     argumentTypes = FiguraModelPart.class,
@@ -1500,7 +1513,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
 		if (name == null) name = this.name;
         PartCustomization customization = new PartCustomization();
         this.customization.copyTo(customization);
-        FiguraModelPart result = new FiguraModelPart(owner, name, customization, copyVertices(), new ArrayList<>(children), null, null);
+        FiguraModelPart result = new FiguraModelPart(owner, name, uuid != null ? UUID.nameUUIDFromBytes((uuid + ":" + cloneSeed++).getBytes(StandardCharsets.UTF_8)).toString() : null, customization, copyVertices(), new ArrayList<>(children), null, null);
         result.facesByTexture = new ArrayList<>(facesByTexture);
         result.textures = new ArrayList<>(textures);
         result.parentType = parentType;
@@ -1540,7 +1553,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             value = "model_part.new_part"
     )
     public FiguraModelPart newPart(@LuaNotNil String name, String parentType) {
-        FiguraModelPart newer = new FiguraModelPart(owner, name, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
+        FiguraModelPart newer = new FiguraModelPart(owner, name, null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
         newer.facesByTexture = new ArrayList<>();
         newer.textures = new ArrayList<>();
 
