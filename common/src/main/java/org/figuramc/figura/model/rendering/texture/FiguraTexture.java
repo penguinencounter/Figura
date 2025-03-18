@@ -1121,6 +1121,13 @@ public class FiguraTexture extends SimpleTexture {
     }
 
     @LuaWhitelist
+    @LuaMethodDoc(
+            value = "texture.remap_colors",
+            overloads = @LuaMethodOverload(
+                    argumentNames = { "from", "to" },
+                    argumentTypes = { LuaTable.class, LuaTable.class }
+            )
+    )
     public FiguraTexture remapColors(LuaTable from, LuaTable to) {
         // Expect a sequence-like `from`
         int size = from.length();
