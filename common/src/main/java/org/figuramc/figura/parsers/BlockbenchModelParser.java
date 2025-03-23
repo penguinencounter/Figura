@@ -426,13 +426,26 @@ public class BlockbenchModelParser {
 
     private static void readVectors(String[] vertexNames, Map<String, Integer> nameToIndex, ListTag vertices) {
         int i = nameToIndex.get(vertexNames[0]);
-        v1.set(vertices.getFloat(3*i), vertices.getFloat(3*i+1), vertices.getFloat(3*i+2));
+        float f0, f1, f2;
+        f0 = vertices.getFloat(3*i).get();
+        f1 = vertices.getFloat(3*i+1).get();
+        f2 = vertices.getFloat(3*i+2).get();
+        v1.set(f0, f1, f2);
         i = nameToIndex.get(vertexNames[1]);
-        v2.set(vertices.getFloat(3*i), vertices.getFloat(3*i+1), vertices.getFloat(3*i+2));
+        f0 = vertices.getFloat(3*i).get();
+        f1 = vertices.getFloat(3*i+1).get();
+        f2 = vertices.getFloat(3*i+2).get();
+        v2.set(f0, f1, f2);
         i = nameToIndex.get(vertexNames[2]);
-        v3.set(vertices.getFloat(3*i), vertices.getFloat(3*i+1), vertices.getFloat(3*i+2));
+        f0 = vertices.getFloat(3*i).get();
+        f1 = vertices.getFloat(3*i+1).get();
+        f2 = vertices.getFloat(3*i+2).get();
+        v3.set(f0, f1, f2);
         i = nameToIndex.get(vertexNames[3]);
-        v4.set(vertices.getFloat(3 * i), vertices.getFloat(3 * i + 1), vertices.getFloat(3 * i + 2));
+        f0 = vertices.getFloat(3*i).get();
+        f1 = vertices.getFloat(3*i+1).get();
+        f2 = vertices.getFloat(3*i+2).get();
+        v4.set(f0, f1, f2);
     }
 
     private static final FiguraVec3
@@ -628,7 +641,7 @@ public class BlockbenchModelParser {
                 if (elementMap.containsKey(key)) {
                     CompoundTag elementNbt = elementMap.get(key);
                     //fix children visibility (very jank)
-                    if (elementNbt.contains("vsb") && elementNbt.getBoolean("vsb") == parentVsb)
+                    if (elementNbt.contains("vsb") && elementNbt.getBooleanOr("vsb", false) == parentVsb)
                         elementNbt.remove("vsb");
                     children.add(elementNbt);
                 }
