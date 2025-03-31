@@ -21,6 +21,7 @@ import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.model.rendertasks.*;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
+import org.jetbrains.annotations.Nullable;
 import org.luaj.vm2.*;
 
 import java.util.*;
@@ -44,7 +45,9 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     public PartCustomization playerCustomization;
 
     private final Map<String, FiguraModelPart> childCache = new HashMap<>();
+    private final Map<String, List<FiguraModelPart>> collections = new HashMap<>();
     public final List<FiguraModelPart> children;
+    private final byte[] collectionInfo;
 
     public List<Integer> facesByTexture;
 
@@ -71,12 +74,24 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     @LuaFieldDoc("model_part.post_render")
     public LuaFunction postRender; // after children
 
-    public FiguraModelPart(Avatar owner, String name, PartCustomization customization, Map<Integer, List<Vertex>> vertices, List<FiguraModelPart> children) {
+    public FiguraModelPart(Avatar owner, String name, PartCustomization customization, Map<Integer, List<Vertex>> vertices, List<FiguraModelPart> children, String @Nullable[] collections, byte[] collectionInfo) {
         this.owner = owner;
         this.name = name;
         this.customization = customization;
         this.vertices = vertices;
         this.children = children;
+        this.collectionInfo = collectionInfo;
+        if (collections != null) {
+            for (String n: collections) this.collections.put(n, new ArrayList<>());
+            walkCollections(this.collections, collections);
+        }
+    }
+
+    private void walkCollections(Map<String, List<FiguraModelPart>> root, String names[]) {
+        if (collectionInfo != null)
+        for (byte b: collectionInfo)
+        root.get(names[b]).add(this);
+        for (var c: children) c.walkCollections(root, names);
     }
 
     public boolean pushVerticesImmediate(ImmediateAvatarRenderer avatarRenderer, int[] remainingComplexity) {
@@ -1485,7 +1500,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
 		if (name == null) name = this.name;
         PartCustomization customization = new PartCustomization();
         this.customization.copyTo(customization);
-        FiguraModelPart result = new FiguraModelPart(owner, name, customization, copyVertices(), new ArrayList<>(children));
+        FiguraModelPart result = new FiguraModelPart(owner, name, customization, copyVertices(), new ArrayList<>(children), null, null);
         result.facesByTexture = new ArrayList<>(facesByTexture);
         result.textures = new ArrayList<>(textures);
         result.parentType = parentType;
@@ -1513,7 +1528,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             value = "model_part.new_part"
     )
     public FiguraModelPart newPart(@LuaNotNil String name, String parentType) {
-        FiguraModelPart newer = new FiguraModelPart(owner, name, new PartCustomization(), new HashMap<>(), new ArrayList<>());
+        FiguraModelPart newer = new FiguraModelPart(owner, name, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
         newer.facesByTexture = new ArrayList<>();
         newer.textures = new ArrayList<>();
 
