@@ -19,7 +19,9 @@
     "LivingEntityAccessor",
     "LivingEntityMixin",
     "MinecraftMixin",
+    "PlayerSocialManagerMixin",
     "ReloadableResourceManagerMixin",
+    "ServerDataMixin",
     "SkullBlockEntityAccessor",
     "SNIHelperMixin",
     "TextDisplayMixin",
@@ -35,6 +37,7 @@
     "gui.ChatScreenMixin",
     "gui.ClickEventActionMixin",
     "gui.DebugScreenOverlayMixin",
+    "gui.EditServerScreenMixin",
     "gui.GuiAccessor",
     "gui.GuiMessageLineMixin",
     "gui.GuiMessageMixin",
@@ -84,19 +87,25 @@
     "render.renderers.HandRenderSelectionAccessor",
     "render.renderers.ItemInHandRendererMixin",
     "render.renderers.ItemRendererMixin",
+    "render.renderers.ItemEntityRendererMixin",
     "render.renderers.LivingEntityRendererMixin",
     "render.renderers.PlayerRendererMixin",
     "render.renderers.ScreenEffectRendererMixin",
     "render.renderers.SignRendererMixin",
     "render.renderers.SkullBlockRendererMixin",
+    "render.renderers.StuckArrowsFeatureRendererMixin",
     "render.renderers.TridentRendererMixin",
     "render.PoseStackAccessor",
     "sound.ChannelHandleMixin",
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
-    "sound.SubtitleOverlayMixin"
+    "sound.SubtitleOverlayMixin",
+    "sound.OggAudioStreamMixin",
+    "sound.OutputConcatAccessor"
   ],
   "server": [
+    "network.server.PlayerListMixin",
+    "CommandSourceStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1
