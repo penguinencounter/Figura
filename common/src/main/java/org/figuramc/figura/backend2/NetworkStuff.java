@@ -112,6 +112,9 @@ public class NetworkStuff {
             while ((h = fsb.nextReadyAvatar()) != null) {
                 fsbAvatarUploadCompleted(h.avatarId, h.ref);
             }
+            if (fsb.pollAvatarDeleted()) {
+                fsbDeleteAvatarCompleted();
+            }
         }
 
         //pings counter
@@ -440,6 +443,10 @@ public class NetworkStuff {
 
     public static void uploadAvatar(Avatar avatar) {
         uploadAvatar(avatar, Destination.FSB_OR_BACKEND);
+    }
+
+    public static void fsbDeleteAvatarCompleted() {
+        FiguraToast.sendToast(FiguraText.of("backend.delete_success"));
     }
 
     public static void deleteAvatar(String avatar, Destination destination) {

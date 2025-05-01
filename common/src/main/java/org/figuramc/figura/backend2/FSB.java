@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class FSB {
     private static FSB instance;
@@ -39,6 +40,7 @@ public abstract class FSB {
 
     private final HashSet<UUID> connectedPlayers = new HashSet<>();
     private final ConcurrentLinkedDeque<S2CAvatarReadyPacket> uploadCompletedAvatars = new ConcurrentLinkedDeque<>();
+    private final AtomicBoolean hasDeletedAvatar = new AtomicBoolean(false);
 
     private int handshakeTick = 0;
     private int handshakeAttempts = 0;
@@ -180,6 +182,14 @@ public abstract class FSB {
 
     public @Nullable S2CAvatarReadyPacket nextReadyAvatar() {
         return uploadCompletedAvatars.poll();
+    }
+
+    public void handleAvatarDeleted() {
+        hasDeletedAvatar.set(true);
+    }
+
+    public boolean pollAvatarDeleted() {
+        return hasDeletedAvatar.getAndSet(false);
     }
 
     public void reset(UUID id) {
