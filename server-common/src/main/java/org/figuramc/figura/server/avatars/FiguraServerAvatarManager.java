@@ -7,8 +7,10 @@ import org.figuramc.figura.server.events.avatars.*;
 import org.figuramc.figura.server.exceptions.HashNotMatchingException;
 import org.figuramc.figura.server.packets.AvatarDataPacket;
 import org.figuramc.figura.server.packets.CloseIncomingStreamPacket;
+import org.figuramc.figura.server.packets.s2c.S2CAvatarReadyPacket;
 import org.figuramc.figura.server.packets.s2c.S2CInitializeAvatarStreamPacket;
 import org.figuramc.figura.server.utils.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -249,6 +251,7 @@ public final class FiguraServerAvatarManager {
     }
 
     private void saveMetadata(Hash avatarHash, AvatarMetadata metadata) {
+        if (metadata == null) return;
         if (Events.call(new StoreAvatarMetadataEvent(avatarHash, metadata)).isCancelled()) return;
         var file = parent.getAvatarMetadata(avatarHash.get()).toFile();
         try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -270,7 +273,7 @@ public final class FiguraServerAvatarManager {
     private class AvatarHandle {
         private final Hash hash;
         private AvatarData data;
-        private AvatarMetadata metadata;
+        private @Nullable AvatarMetadata metadata;
         private final ArrayList<AvatarOutcomingStream> streams = new ArrayList<>();
         private boolean markedForDeletion = false;
 
@@ -370,6 +373,7 @@ public final class FiguraServerAvatarManager {
             var s = streams.get(key);
             if (s.acceptDataChunk(data, finalChunk)) {
                 streams.entrySet().removeIf(e -> e.getValue().isFinished());
+                parent.sendPacket(uuid, new S2CAvatarReadyPacket(s.avatarId, new EHashPair(s.hash, s.ehash)));
             }
         }
 
