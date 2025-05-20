@@ -742,7 +742,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             value = "model_part.no_shading",
             overloads = @LuaMethodOverload(
                     argumentTypes = Boolean.class,
-                    argumentNames = "noShade"
+                    argumentNames = "noShading"
             ),
             aliases = "noShade"
     )
