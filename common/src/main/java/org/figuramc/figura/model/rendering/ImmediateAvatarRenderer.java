@@ -197,6 +197,8 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         customization.primaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.PRIMARY, null);
         customization.secondaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.SECONDARY, null);
 
+        customization.shade = shade;
+
         return customization;
     }
 
@@ -528,8 +530,6 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
             ret.renderType = types.get(id);
         }
 
-        ret.shade = customization.shade;
-
         return ret;
     }
 
@@ -544,7 +544,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
 
         int overlay = customization.overlay;
         int light = vertexData.fullBright ? LightTexture.FULL_BRIGHT : customization.light;
-        boolean shade = vertexData.shade;
+        boolean shade = customization.shade != null && customization.shade;
 
         VERTEX_BUFFER.getBufferFor(vertexData.renderType, vertexData.primary, vertexConsumer -> {
             for (int i = 0; i < vertCount; i++) {
@@ -581,7 +581,6 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         public float vertexOffset;
         public FiguraVec3 color;
         public boolean primary;
-        public boolean shade;
     }
 
     private static class VertexBuffer {

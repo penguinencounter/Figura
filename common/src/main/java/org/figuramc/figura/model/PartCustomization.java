@@ -45,7 +45,7 @@ public class PartCustomization {
     public final FiguraVec3 stackScale = FiguraVec3.of(1, 1, 1);
     public final FiguraVec3 color = FiguraVec3.of(1, 1, 1);
     public final FiguraVec3 color2 = FiguraVec3.of(1, 1, 1);
-    public boolean shade = true;
+    public Boolean shade = null;
 
     public Float alpha = null;
     public Integer light = null;
@@ -378,6 +378,9 @@ public class PartCustomization {
                 alpha = other.alpha;
         }
 
+        if (other.shade != null)
+            shade = other.shade;
+
         stackScale.multiply(other.stackScale);
         color.multiply(other.color);
         color2.multiply(other.color2);
@@ -386,7 +389,6 @@ public class PartCustomization {
             primaryTexture = other.primaryTexture;
         if (other.secondaryTexture != null)
             secondaryTexture = other.secondaryTexture;
-        shade = other.shade;
 
         needsMatrixRecalculation = false;
     }
