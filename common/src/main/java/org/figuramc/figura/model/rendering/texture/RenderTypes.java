@@ -2,13 +2,13 @@ package org.figuramc.figura.model.rendering.texture;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import org.figuramc.figura.lua.api.ClientAPI;
 
 import java.util.OptionalDouble;
 import java.util.function.BiFunction;
@@ -79,7 +79,7 @@ public enum RenderTypes {
         public static ShaderInstance rendertypeNoShadingShader;
 
         public static ShaderInstance getRendertypeNoShadingShader() {
-            if (IrisApi.getInstance().isShaderPackInUse()) {
+            if (ClientAPI.hasShaderPack()) {
                 return (GameRenderer.getRendertypeEntityCutoutShader());
             } else {
                 return rendertypeNoShadingShader;
