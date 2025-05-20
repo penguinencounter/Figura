@@ -315,7 +315,7 @@ public class PartCustomization {
     public void shade(boolean shade) {
         this.shade = shade;
     }
-    public boolean getShade() {
+    public boolean isShaded() {
         return shade;
     }
 
