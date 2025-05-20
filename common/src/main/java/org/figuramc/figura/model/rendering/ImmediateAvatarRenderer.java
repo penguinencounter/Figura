@@ -528,6 +528,8 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
             ret.renderType = types.get(id);
         }
 
+        ret.shade = customization.shade;
+
         return ret;
     }
 
@@ -542,6 +544,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
 
         int overlay = customization.overlay;
         int light = vertexData.fullBright ? LightTexture.FULL_BRIGHT : customization.light;
+        boolean shade = vertexData.shade;
 
         VERTEX_BUFFER.getBufferFor(vertexData.renderType, vertexData.primary, vertexConsumer -> {
             for (int i = 0; i < vertCount; i++) {
@@ -550,8 +553,12 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
                 pos.set(vertex.x, vertex.y, vertex.z, 1);
                 pos.transform(customization.positionMatrix);
                 pos.add(pos.normalized().scale(vertexData.vertexOffset));
-                normal.set(vertex.nx, vertex.ny, vertex.nz);
-                normal.transform(customization.normalMatrix);
+                if (shade) {
+                    normal.set(vertex.nx, vertex.ny, vertex.nz);
+                    normal.transform(customization.normalMatrix);
+                } else {
+                    normal.set(0f, 1f, 0f);
+                }
                 uv.set(vertex.u, vertex.v, 1);
                 uv.divide(uvFixer);
                 uv.transform(customization.uvMatrix);
@@ -574,6 +581,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         public float vertexOffset;
         public FiguraVec3 color;
         public boolean primary;
+        public boolean shade;
     }
 
     private static class VertexBuffer {
