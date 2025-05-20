@@ -1,11 +1,9 @@
 package org.figuramc.figura.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
-import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
 import org.figuramc.figura.model.rendering.texture.RenderTypes;
 
 import java.util.Stack;
@@ -314,7 +312,7 @@ public class PartCustomization {
         return secondaryRenderType;
     }
 
-    public void setShade(boolean shade) {
+    public void shade(boolean shade) {
         this.shade = shade;
     }
     public boolean getShade() {

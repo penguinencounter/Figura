@@ -724,17 +724,24 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
                     argumentTypes = Boolean.class,
                     argumentNames = "shade"
             ),
-            aliases = "setShading",
-            value = "model_part.set_secondary_render_type"
+            value = "model_part.shading"
     )
-    public FiguraModelPart setShade(boolean shade) {
-        this.customization.setShade(shade);
+    public FiguraModelPart shading(boolean shade) {
+        this.customization.shade(shade);
         return this;
     }
 
     @LuaWhitelist
     public FiguraModelPart shade(boolean shade) {
-        return setShade(shade);
+        return shading(shade);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            value = "model_part.no_shading"
+    )
+    public FiguraModelPart noShading(boolean noShading) {
+        return shading(!noShading);
     }
 
     @LuaWhitelist
