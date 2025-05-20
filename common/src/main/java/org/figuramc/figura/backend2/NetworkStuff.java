@@ -21,9 +21,10 @@ import org.figuramc.figura.backend2.websocket.C2SMessageHandler;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.gui.FiguraToast;
-import org.figuramc.figura.permissions.PermissionManager;
-import org.figuramc.figura.permissions.Permissions;
+import org.figuramc.figura.server.avatars.EHashPair;
 import org.figuramc.figura.server.packets.c2s.C2SPingPacket;
+import org.figuramc.figura.server.packets.s2c.S2CAvatarReadyPacket;
+import org.figuramc.figura.server.utils.Hash;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.RefilledNumber;
 import org.figuramc.figura.utils.TextUtils;
@@ -37,10 +38,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
@@ -106,6 +104,18 @@ public class NetworkStuff {
         //process requests
         if (isConnected())
             processRequests();
+
+        // process FSB uploaded avatars
+        FSB fsb = fsb();
+        if (fsb.connected()) {
+            S2CAvatarReadyPacket h;
+            while ((h = fsb.nextReadyAvatar()) != null) {
+                fsbAvatarUploadCompleted(h.avatarId, h.ref);
+            }
+            if (fsb.pollAvatarDeleted()) {
+                fsbDeleteAvatarCompleted();
+            }
+        }
 
         //pings counter
         if (lastPing > 0 && FiguraMod.ticks - lastPing >= 20)
@@ -370,6 +380,20 @@ public class NetworkStuff {
         });
     }
 
+    protected static Set<Hash> hashesAwaitingUpload = new HashSet<>();
+
+    public static void fsbAvatarUploadCompleted(String avatarId, EHashPair target) {
+        // something about a server->client attack vector?
+        if (!hashesAwaitingUpload.contains(target.hash())) return;
+        hashesAwaitingUpload.remove(target.hash());
+        FSB fsb = fsb();
+        if (fsb.connected()) {
+            FiguraToast.sendToast(FiguraText.of("backend.upload_success"));
+            fsb.equipAvatar(List.of(Pair.of(avatarId, target.hash())));
+            AvatarManager.localUploaded = true;
+        }
+    }
+
     // TODO: multiple modes of upload (Backend, FSB, Backend + FSB)
     public static void uploadAvatar(Avatar avatar, Destination destination) {
         if (avatar == null || avatar.nbt == null)
@@ -385,6 +409,7 @@ public class NetworkStuff {
 
             if (destination.allowFSB()) {
                 fsb().uploadAvatar(id, baos.toByteArray());
+                hashesAwaitingUpload.add(getHash(baos.toByteArray()));
             }
 
             if (destination.allowBackend()) {
@@ -393,9 +418,11 @@ public class NetworkStuff {
 
                     if (code == 200) {
                         //TODO - profile screen
-                        if (fsb().connected()) fsb().equipAvatar(List.of(Pair.of(id, getHash(baos.toByteArray()))));
-                        else equipAvatar(List.of(Pair.of(avatar.owner, id)));
-                        AvatarManager.localUploaded = true;
+                        if (!destination.allowFSB()) {
+                            // use uploaded main backend only if not also uploading to FSB
+                            equipAvatar(List.of(Pair.of(avatar.owner, id)));
+                            AvatarManager.localUploaded = true;
+                        }
                     }
 
                     //feedback
@@ -416,6 +443,10 @@ public class NetworkStuff {
 
     public static void uploadAvatar(Avatar avatar) {
         uploadAvatar(avatar, Destination.FSB_OR_BACKEND);
+    }
+
+    public static void fsbDeleteAvatarCompleted() {
+        FiguraToast.sendToast(FiguraText.of("backend.delete_success"));
     }
 
     public static void deleteAvatar(String avatar, Destination destination) {
