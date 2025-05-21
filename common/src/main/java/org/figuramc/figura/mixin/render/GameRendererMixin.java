@@ -33,10 +33,6 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.io.FileNotFoundException;
-import net.minecraft.server.ChainedJsonException;
-
-
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -48,7 +44,6 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     @Shadow PostChain postEffect;
     @Shadow private boolean effectActive;
     @Shadow private float fov;
-
 
     @Shadow protected abstract double getFov(Camera camera, float tickDelta, boolean changingFov);
     @Shadow abstract void loadEffect(ResourceLocation id);
@@ -78,11 +73,9 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             )
     )
     private void addShaders(ResourceProvider factory, CallbackInfo ci, @Local(ordinal = 1) List<Pair<ShaderInstance, Consumer<ShaderInstance>>> list2) throws IOException {
-        try{
-            list2.add(
-                    Pair.of(new ShaderInstance(factory,"figura_rendertype_no_shading", DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> FiguraShaderStorage.rendertypeNoShadingShader = shaderInstance)
-            );
-        }catch(FileNotFoundException | ChainedJsonException ignored){FiguraMod.LOGGER.error("Error adding shaders. Game probably crashed! " + ignored.toString());}
+        list2.add(
+                Pair.of(new ShaderInstance(factory,"rendertype_no_shading", DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> FiguraShaderStorage.rendertypeNoShadingShader = shaderInstance)
+        );
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.BEFORE))

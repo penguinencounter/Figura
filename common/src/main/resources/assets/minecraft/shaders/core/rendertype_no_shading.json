@@ -4,7 +4,7 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "figura_rendertype_no_shading",
+  "vertex": "rendertype_no_shading",
   "fragment": "rendertype_entity_cutout",
   "attributes": [
     "Position",
