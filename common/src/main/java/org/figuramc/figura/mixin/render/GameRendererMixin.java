@@ -72,10 +72,9 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
                     )
             )
     )
-    private void addShaders(ResourceProvider factory, CallbackInfo ci, @Local(ordinal = 1) List<Pair<ShaderInstance, Consumer<ShaderInstance>>> list2) throws IOException {
-        list2.add(
-                Pair.of(new ShaderInstance(factory,"rendertype_no_shading", DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> FiguraShaderStorage.rendertypeNoShadingShader = shaderInstance)
-        );
+    private void reloadShaders(ResourceProvider factory, CallbackInfo ci, @Local(ordinal = 1) List<Pair<ShaderInstance, Consumer<ShaderInstance>>> list2) throws IOException {
+        FiguraMod.debug("Adding Figura shaders");
+        list2.add(Pair.of(new ShaderInstance(factory, "rendertype_no_shading", DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> FiguraShaderStorage.rendertypeNoShadingShader = shaderInstance));
     }
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.BEFORE))
