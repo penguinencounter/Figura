@@ -3,12 +3,9 @@ package org.figuramc.figura.model.rendering.texture;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import org.figuramc.figura.lua.api.ClientAPI;
 
 import java.util.OptionalDouble;
 import java.util.function.BiFunction;
@@ -40,11 +37,6 @@ public enum RenderTypes {
     LINES_STRIP(t -> RenderType.lineStrip(), false),
     SOLID(t -> FiguraRenderType.SOLID, false),
 
-    NO_SHADING(FiguraRenderType.NO_SHADING),
-    NO_SHADING_CULL(FiguraRenderType.NO_SHADING_CULL),
-    NO_SHADING_BLURRY(FiguraRenderType.NO_SHADING_BLURRY),
-    NO_SHADING_BLURRY_CULL(FiguraRenderType.NO_SHADING_BLURRY_CULL),
-
     BLURRY(FiguraRenderType.BLURRY);
 
     private final Function<ResourceLocation, RenderType> func;
@@ -75,27 +67,11 @@ public enum RenderTypes {
         return id == null || func == null ? null : func.apply(id);
     }
 
-    public static class FiguraShaderStorage {
-        public static ShaderInstance rendertypeNoShadingShader;
-
-        public static ShaderInstance getRendertypeNoShadingShader() {
-            if (ClientAPI.hasShaderPack()) {
-                return (GameRenderer.getRendertypeEntityCutoutShader());
-            } else {
-                return rendertypeNoShadingShader;
-            }
-        }
-    }
-
     private static class FiguraRenderType extends RenderType {
 
         public FiguraRenderType(String name, VertexFormat vertexFormat, VertexFormat.Mode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction) {
             super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
         }
-
-        private static final ShaderStateShard FIGURA_RENDERTYPE_NO_SHADING_SHADER = new RenderStateShard.ShaderStateShard(
-                FiguraShaderStorage::getRendertypeNoShadingShader
-        );
 
         public static final RenderType SOLID = create(
                 "figura_solid",
@@ -113,34 +89,6 @@ public enum RenderTypes {
                         .createCompositeState(false)
         );
 
-        private static Function<ResourceLocation, RenderType> createNoShadingFunction(boolean blurry, CullStateShard cull) {
-            return Util.memoize(texture -> {
-                String name = "figura_no_shading" + (blurry ? "_blurry" : "") + (cull == CULL ? "_cull" : "");
-
-                return create(
-                        name,
-                        DefaultVertexFormat.NEW_ENTITY,
-                        VertexFormat.Mode.QUADS,
-                        256,
-                        blurry,
-                        true,
-                        CompositeState.builder()
-                                .setShaderState(FIGURA_RENDERTYPE_NO_SHADING_SHADER)
-                                .setTextureState(new TextureStateShard(texture, blurry, false))
-                                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                                .setCullState(cull)
-                                .setLightmapState(LIGHTMAP)
-                                .setOverlayState(OVERLAY)
-                                .createCompositeState(true)
-                );
-            });
-        }
-
-        public static final Function<ResourceLocation, RenderType> NO_SHADING = createNoShadingFunction(false, NO_CULL);
-        public static final Function<ResourceLocation, RenderType> NO_SHADING_CULL = createNoShadingFunction(false, CULL);
-        public static final Function<ResourceLocation, RenderType> NO_SHADING_BLURRY = createNoShadingFunction(true, NO_CULL);
-        public static final Function<ResourceLocation, RenderType> NO_SHADING_BLURRY_CULL = createNoShadingFunction(true, CULL);
-
         private static final BiFunction<ResourceLocation, Boolean, RenderType> CUTOUT_EMISSIVE_SOLID = Util.memoize(
                 (texture, affectsOutline) ->
                         create("figura_cutout_emissive_solid", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, true, true,
@@ -151,9 +99,7 @@ public enum RenderTypes {
                                         .setCullState(NO_CULL)
                                         .setWriteMaskState(COLOR_DEPTH_WRITE)
                                         .setOverlayState(OVERLAY)
-                                        .createCompositeState(affectsOutline)
-                        )
-        );
+                                        .createCompositeState(affectsOutline)));
 
 
         public static final Function<ResourceLocation, RenderType> TEXTURED_PORTAL = Util.memoize(
