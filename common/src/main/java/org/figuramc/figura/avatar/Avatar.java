@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.sounds.FiniteAudioStream;
 import net.minecraft.client.sounds.JOrbisAudioStream;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -60,6 +61,7 @@ import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.permissions.PermissionManager;
 import org.figuramc.figura.permissions.PermissionPack;
 import org.figuramc.figura.permissions.Permissions;
+import org.figuramc.figura.sound.OpusAudioStream;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.PathUtils;
@@ -1124,7 +1126,8 @@ public class Avatar {
 
     public void loadSound(String name, byte[] data) throws Exception {
         if (SoundAPI.getSoundEngine().figura$isEngineActive()) {
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data); JOrbisAudioStream oggAudioStream = new JOrbisAudioStream(inputStream)) {
+            ByteArrayInputStream stream = new ByteArrayInputStream(data);
+            try (FiniteAudioStream oggAudioStream = OpusAudioStream.hasOpusHeader(stream) ? new OpusAudioStream(stream) : new JOrbisAudioStream(stream)) {
                 SoundBuffer sound = new SoundBuffer(oggAudioStream.readAll(), oggAudioStream.getFormat());
                 this.customSounds.put(name, sound);
             }
