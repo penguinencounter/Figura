@@ -93,7 +93,7 @@
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
     "sound.SubtitleOverlayMixin",
-    "sound.SoundLoaderMixin"
+    "sound.SoundBufferLibraryMixin"
   ],
   "server": [
   ],

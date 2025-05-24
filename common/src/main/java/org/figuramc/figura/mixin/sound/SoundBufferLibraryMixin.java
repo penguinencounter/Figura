@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Mixin(SoundBufferLibrary.class)
-public class SoundLoaderMixin {
+public class SoundBufferLibraryMixin {
 
     @ModifyExpressionValue(
             method = "method_19747",
