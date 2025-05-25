@@ -1,5 +1,6 @@
 package org.figuramc.figura.lua;
 
+import com.google.common.collect.MapMaker;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
@@ -15,9 +16,11 @@ import org.figuramc.figura.lua.api.keybind.KeybindAPI;
 import org.figuramc.figura.lua.api.nameplate.NameplateAPI;
 import org.figuramc.figura.lua.api.ping.PingAPI;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaModelAPI;
+import org.figuramc.figura.lua.errors.LuaErrorCapture;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.PathUtils;
 import net.minecraft.nbt.ByteArrayTag;
+import org.jetbrains.annotations.Nullable;
 import org.luaj.vm2.*;
 import org.luaj.vm2.compiler.LuaC;
 import org.luaj.vm2.lib.*;
@@ -31,8 +34,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 /**
@@ -66,6 +71,14 @@ public class FiguraLuaRuntime {
     private final Stack<String> loadingScripts = new Stack<>();
     public final LuaTypeManager typeManager = new LuaTypeManager();
 
+    // Error collection ----
+
+    // inverse lookup utility so that we don't have to do a mixin into Globals to get at error information,
+    // but with weak values so we don't keep all the Runtimes pinned for the entire game lifetime
+    private static final ConcurrentMap<Globals, FiguraLuaRuntime> globalsToRuntime = new MapMaker().weakValues().makeMap();
+
+    public LuaErrorCapture lastError = null;
+
     public FiguraLuaRuntime(Avatar avatar, Map<String, String> scripts) {
         this.owner = avatar;
         this.scripts.putAll(scripts);
@@ -94,6 +107,7 @@ public class FiguraLuaRuntime {
         LuaTable figuraMetatables = new LuaTable();
         typeManager.dumpMetatables(figuraMetatables);
         setGlobal("figuraMetatables", figuraMetatables);
+        globalsToRuntime.put(userGlobals, this);
     }
 
     public void registerClass(Class<?> clazz) {
@@ -570,5 +584,9 @@ public class FiguraLuaRuntime {
 
         // failsafe return
         return null;
+    }
+
+    public static @Nullable FiguraLuaRuntime getForGlobals(Globals query) {
+        return globalsToRuntime.get(query);
     }
 }
