@@ -655,6 +655,12 @@ public class NetworkStuff {
 
 
     public static boolean isConnected() {
+        // when FSB is connected, it will handle all requests
+        // so we don't need to check the connection to the backend
+        // some code checks isConnected() to determine if it's ok to send packets
+        if (fsb().connected()) {
+            return true;
+        }
         return api != null && checkWS();
     }
 
