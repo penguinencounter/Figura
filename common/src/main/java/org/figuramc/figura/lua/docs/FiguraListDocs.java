@@ -149,7 +149,7 @@ public class FiguraListDocs {
         FLUID_RAYCAST_TYPE(() -> FiguraListDocs.FLUID_RAYCAST_TYPE, "FluidRaycastTypes", "fluid_raycast_types", 1),
         HEIGHTMAP_TYPE(() -> FiguraListDocs.HEIGHTMAP_TYPE, "HeightmapTypes", "heightmap_types", 1),
         REGISTRIES(() -> FiguraListDocs.REGISTRIES, "Registries", "registries", 1),
-        FIGURA_CONFIGS(() -> FiguraListDocs.FIGURA_CONFIGS, "FiguraConfigs", "figura_config", 1),
+        FIGURA_CONFIGS(() -> FiguraListDocs.FIGURA_CONFIGS, "FiguraConfigs", "figura_configs", 1),
         SOUND_SOURCES(() -> FiguraListDocs.SOUND_SOURCES, "SoundSources", "sound_sources", 2);
 
         private final Supplier<Object> supplier;
