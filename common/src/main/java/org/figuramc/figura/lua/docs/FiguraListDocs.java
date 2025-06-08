@@ -10,6 +10,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.animation.Animation;
+import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.mixin.input.KeyMappingAccessor;
 import org.figuramc.figura.mixin.render.GameRendererAccessor;
 import org.figuramc.figura.model.ParentType;
@@ -118,6 +120,14 @@ public class FiguraListDocs {
         for (ResourceLocation resourceLocation : BuiltInRegistries.REGISTRY.keySet())
             add(resourceLocation.getPath());
     }};
+    private static final LinkedHashSet<String> FIGURA_CONFIGS = new LinkedHashSet<>() {{
+        for (Object value : Configs.REGISTRY.keySet())
+            add(value.toString());
+        }};
+    private static final LinkedHashSet<String> SOUND_SOURCES = new LinkedHashSet<>() {{
+        for (SoundSource value : SoundSource.values())
+            add(value.name());
+    }};
 
     private enum ListDoc {
         KEYBINDS(() -> FiguraListDocs.KEYBINDS, "Keybinds", "keybinds", 2),
@@ -138,7 +148,9 @@ public class FiguraListDocs {
         BLOCK_RAYCAST_TYPE(() -> FiguraListDocs.BLOCK_RAYCAST_TYPE, "BlockRaycastTypes", "block_raycast_types", 1),
         FLUID_RAYCAST_TYPE(() -> FiguraListDocs.FLUID_RAYCAST_TYPE, "FluidRaycastTypes", "fluid_raycast_types", 1),
         HEIGHTMAP_TYPE(() -> FiguraListDocs.HEIGHTMAP_TYPE, "HeightmapTypes", "heightmap_types", 1),
-        REGISTRIES(() -> FiguraListDocs.REGISTRIES, "Registries", "registries", 1);
+        REGISTRIES(() -> FiguraListDocs.REGISTRIES, "Registries", "registries", 1),
+        FIGURA_CONFIGS(() -> FiguraListDocs.FIGURA_CONFIGS, "FiguraConfigs", "figura_config", 1),
+        SOUND_SOURCES(() -> FiguraListDocs.SOUND_SOURCES, "SoundSources", "sound_sources", 2);
 
         private final Supplier<Object> supplier;
         private final String name, id;

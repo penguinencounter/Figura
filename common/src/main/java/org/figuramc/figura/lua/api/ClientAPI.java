@@ -773,7 +773,12 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_figura_config")
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "key"),
+            },
+            value = "client.get_figura_config"
+    )
     public static Object getFiguraConfig(String key) {
         if (key == null)
             return Configs.REGISTRY;
@@ -785,8 +790,13 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_volume")
-    public static Object getVolume(String source) {
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "source"),
+            },
+            value = "client.get_volume"
+    )
+    public static float getVolume(String source) {
         Minecraft minecraft = Minecraft.getInstance();
         if (source == null)
             return minecraft.options.getSoundSourceVolume(SoundSource.MASTER);
@@ -800,7 +810,7 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_mouse_sensitivity")
     public static double getMouseSensitivity() {
-        return Minecraft.getInstance().options.sensitivity().get();
+        return Math.pow(Minecraft.getInstance().options.sensitivity().get() * 0.6 + 0.2, 3) * 8;
     }
 
     @LuaWhitelist
@@ -838,7 +848,7 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("host.get_focused_chat_height")
+    @LuaMethodDoc("host.get_unfocused_chat_height")
     public static Double getUnfocusedChatHeight() {
         // 0 -> 20
         // 1 -> 180
