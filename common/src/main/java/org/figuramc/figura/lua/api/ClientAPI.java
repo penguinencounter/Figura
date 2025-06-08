@@ -810,6 +810,7 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_mouse_sensitivity")
     public static double getMouseSensitivity() {
+        // https://www.spigotmc.org/threads/determining-a-players-sensitivity.468373/#post-3976392
         return Math.pow(Minecraft.getInstance().options.sensitivity().get() * 0.6 + 0.2, 3) * 8;
     }
 
