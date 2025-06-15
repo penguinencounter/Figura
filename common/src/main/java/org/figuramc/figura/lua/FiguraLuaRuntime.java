@@ -409,12 +409,12 @@ public class FiguraLuaRuntime {
 			)));
 			String scriptNameNbt = scriptName.replace('/','.');
 
-            String modifySide = side.isnil() ? "both" : side.checkjstring().toLowerCase();
-            if (!("both".equals(modifySide) || "runtime".equals(modifySide) || "nbt".equals(modifySide))) {
-                throw new LuaError("Argument \"side\" must be one of \"both\", \"nbt\", \"runtime\", or nil.");
-            }
+			String modifySide = side.isnil() ? "both" : side.checkjstring().toLowerCase();
+			if (!("both".equals(modifySide) || "runtime".equals(modifySide) || "nbt".equals(modifySide))) {
+				throw new LuaError("Argument \"side\" must be one of \"both\", \"nbt\", \"runtime\", or nil.");
+			}
 
-            if (!modifySide.equals("nbt")) loadedScripts.remove(scriptName);
+			if (!modifySide.equals("nbt")) loadedScripts.remove(scriptName);
 			if(contents.isnil()){
 				if (!modifySide.equals("runtime")) owner.nbt.getCompound("scripts").remove(scriptNameNbt);
 				if (!modifySide.equals("nbt")) scripts.remove(scriptName);
