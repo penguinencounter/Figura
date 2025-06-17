@@ -67,7 +67,7 @@ public class FiguraLuaPrinter {
     }
 
     // print an error, errors should always show up on chat
-    public static void sendLuaError(LuaError error, Avatar owner) {
+    public static void sendLuaError(LuaError error, Avatar owner, Component trailers) {
         // Jank as hell
         String message = error.toString().replace("org.luaj.vm2.LuaError: ", "")
                 .replace("\n\t[Java]: in ?", "")
@@ -110,6 +110,8 @@ public class FiguraLuaPrinter {
                 .append(Component.literal("[error] ").withStyle(ColorUtils.Colors.LUA_ERROR.style))
                 .append(Component.literal(owner.entityName))
                 .append(Component.literal(" : " + message).withStyle(ColorUtils.Colors.LUA_ERROR.style))
+                .append(Component.literal("\n"));
+        if (trailers != null) component.append(trailers)
                 .append(Component.literal("\n"));
 
         owner.errorText = TextUtils.replaceTabs(Component.literal(message).withStyle(ColorUtils.Colors.LUA_ERROR.style));

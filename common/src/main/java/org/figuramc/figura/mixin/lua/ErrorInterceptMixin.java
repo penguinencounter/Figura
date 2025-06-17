@@ -26,9 +26,10 @@ public abstract class ErrorInterceptMixin {
         if (globals == null) return; // something's gone wrong here
         DebugLib debug = globals.debuglib;
         FiguraLuaRuntime runtime = FiguraLuaRuntime.getForGlobals(globals);
+        LuaClosure that = (LuaClosure) (Object) this;
         if (runtime == null) return;
         if (debug == null) {
-            runtime.lastError = LuaErrorCapture.capturePartial(le, p, pc);
+            runtime.lastError = LuaErrorCapture.capturePartial(le, that, pc);
         } else {
             List<DebugLib.CallFrame> frames = new ArrayList<>();
             int n = 1;

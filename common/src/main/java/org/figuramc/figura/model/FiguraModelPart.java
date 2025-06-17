@@ -6,7 +6,9 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.UUIDUtil;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
+import org.figuramc.figura.lua.LuaTypeManager;
 import org.figuramc.figura.lua.LuaWhitelist;
+import org.figuramc.figura.lua.SupportsPureIndex;
 import org.figuramc.figura.lua.docs.LuaFieldDoc;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
@@ -36,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
         name = "ModelPart",
         value = "model_part"
 )
-public class FiguraModelPart implements Comparable<FiguraModelPart> {
+public class FiguraModelPart implements Comparable<FiguraModelPart>, SupportsPureIndex.Auto {
 
     private final Avatar owner;
 
@@ -1629,6 +1631,11 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
             case "postRender" -> postRender;
             default -> null;
         };
+    }
+
+    @Override
+    public LuaTypeManager getTypeManager() {
+        return owner.luaRuntime.typeManager;
     }
 
     @LuaWhitelist

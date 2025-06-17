@@ -3,6 +3,7 @@ package org.figuramc.figura.lua;
 import com.google.common.collect.MapMaker;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
@@ -16,6 +17,7 @@ import org.figuramc.figura.lua.api.keybind.KeybindAPI;
 import org.figuramc.figura.lua.api.nameplate.NameplateAPI;
 import org.figuramc.figura.lua.api.ping.PingAPI;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaModelAPI;
+import org.figuramc.figura.lua.errors.AnalysisTools;
 import org.figuramc.figura.lua.errors.LuaErrorCapture;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.PathUtils;
@@ -506,7 +508,11 @@ public class FiguraLuaRuntime {
     // error ^-^ //
 
     public void error(Throwable e) {
-        FiguraLuaPrinter.sendLuaError(parseError(e), owner);
+        Component analysis = null;
+        if (lastError != null) {
+            analysis = AnalysisTools.analyze(lastError);
+        }
+        FiguraLuaPrinter.sendLuaError(parseError(e), owner, analysis);
         owner.scriptError = true;
         owner.luaRuntime = null;
         owner.clearParticles();
