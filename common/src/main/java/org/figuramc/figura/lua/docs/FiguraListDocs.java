@@ -31,7 +31,6 @@ import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.FiguraClientCommandSource;
 import org.figuramc.figura.utils.FiguraText;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -63,6 +62,7 @@ public class FiguraListDocs {
         for (FiguraTextureSet.OverrideType value : FiguraTextureSet.OverrideType.values())
             add(value.name());
     }};
+    private static final Set<String> KEY_IDS = KeyMappingAccessor.getAll().keySet();
     private static final LinkedHashSet<String> ENTITY_POSES = new LinkedHashSet<>() {{
         for (Pose value : Pose.values())
             add(value.name());
@@ -86,9 +86,8 @@ public class FiguraListDocs {
         for (Animation.LoopMode value : Animation.LoopMode.values())
             add(value.name());
     }};
-    private static final LinkedHashMap<String, List<String>> COLORS = new LinkedHashMap<>() {{
-        for (ColorUtils.Colors value : ColorUtils.Colors.values())
-            put(value.name(), List.of(value.name()));
+    private static final Set<String> COLORS = new LinkedHashSet<>() {{
+        for (ColorUtils.Colors value : ColorUtils.Colors.values()) add(value.name());
     }};
     private static final LinkedHashSet<String> PLAYER_MODEL_PARTS = new LinkedHashSet<>() {{
         for (PlayerModelPart value : PlayerModelPart.values()) {
@@ -120,10 +119,7 @@ public class FiguraListDocs {
         for (ResourceLocation resourceLocation : BuiltInRegistries.REGISTRY.keySet())
             add(resourceLocation.getPath());
     }};
-    private static final LinkedHashSet<String> FIGURA_CONFIGS = new LinkedHashSet<>() {{
-        for (Object value : Configs.REGISTRY.keySet())
-            add(value.toString());
-        }};
+    private static final Set<String> FIGURA_CONFIGS = Configs.REGISTRY.keySet();
     private static final LinkedHashSet<String> SOUND_SOURCES = new LinkedHashSet<>() {{
         for (SoundSource value : SoundSource.values())
             add(value.name());
@@ -134,7 +130,7 @@ public class FiguraListDocs {
         PARENT_TYPES(() -> FiguraListDocs.PARENT_TYPES, "ParentTypes", "parent_types", 1),
         RENDER_TYPES(() -> FiguraListDocs.RENDER_TYPES, "RenderTypes", "render_types", 1),
         TEXTURE_TYPES(() -> FiguraListDocs.TEXTURE_TYPES, "TextureTypes", "texture_types", 1),
-        KEY_IDS(() -> new LinkedHashSet<>() {{this.addAll(KeyMappingAccessor.getAll().keySet());}}, "KeyIDs", "key_ids", 2),
+        KEY_IDS(() -> FiguraListDocs.KEY_IDS, "KeyIDs", "key_ids", 2),
         ENTITY_POSES(() -> FiguraListDocs.ENTITY_POSES, "EntityPoses", "entity_poses", 2),
         ITEM_RENDER_TYPES(() -> FiguraListDocs.ITEM_DISPLAY_MODES, "ItemDisplayModes", "item_display_modes", 1),
         POST_EFFECTS(() -> FiguraListDocs.POST_EFFECTS, "PostEffects", "post_effects", 2),
@@ -165,7 +161,7 @@ public class FiguraListDocs {
 
         private Collection<?> get() {
             Object obj = supplier.get();
-            if (obj instanceof LinkedHashSet<?> set)
+            if (obj instanceof Set<?> set)
                 return set;
             else if (obj instanceof Map<?, ?> map)
                 return map.entrySet();
