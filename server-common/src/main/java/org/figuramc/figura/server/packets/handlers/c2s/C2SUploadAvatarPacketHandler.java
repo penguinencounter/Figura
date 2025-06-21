@@ -1,5 +1,6 @@
 package org.figuramc.figura.server.packets.handlers.c2s;
 
+import org.figuramc.figura.server.FiguraPermissionNodes;
 import org.figuramc.figura.server.FiguraServer;
 import org.figuramc.figura.server.FiguraUser;
 import org.figuramc.figura.server.avatars.EHashPair;
@@ -18,7 +19,7 @@ public class C2SUploadAvatarPacketHandler extends AuthorizedC2SPacketHandler<C2S
     @Override
     protected void handle(FiguraUser sender, C2SUploadAvatarPacket packet) {
         boolean avatarExists = parent.avatarManager().avatarExists(packet.hash());
-        if (getNewAvatarsCount(sender, packet.avatarId()) > parent.config().avatarsCountLimit()) {
+        if (getNewAvatarsCount(sender, packet.avatarId()) > Math.min(parent.config().avatarsCountLimit(), Integer.parseInt(parent.getOption(sender.uuid(), FiguraPermissionNodes.FIGURA_AVATARS_COUNTLIMIT).orElse(parent.config().avatarsCountLimit() + "")))) {
             sender.sendPacket(new CloseIncomingStreamPacket(packet.streamId(), StatusCode.TOO_MANY_AVATARS));
         }
         if (avatarExists) {

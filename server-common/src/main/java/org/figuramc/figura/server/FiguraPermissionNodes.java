@@ -1,0 +1,28 @@
+package org.figuramc.figura.server;
+
+public enum FiguraPermissionNodes {
+    FIGURA_AVATARS_IMMORTALIZE("figura.avatars.immortalize"),
+
+    FIGURA_AVATARS_SET("figura.avatars.set"),
+
+    FIGURA_AVATARS_CLEAR("figura.avatars.clear"),
+
+    FIGURA_PINGS_RATELIMIT("figura.pings.ratelimit"),
+
+    FIGURA_PINGS_SIZELIMIT("figura.pings.sizelimit"),
+
+    FIGURA_AVATARS_SIZELIMIT("figura.avatars.send"),
+
+    FIGURA_AVATARS_COUNTLIMIT("figura.avatars.countlimit");
+
+
+    private final String node;
+
+    FiguraPermissionNodes(String node) {
+        this.node = node;
+    }
+
+    public String toString() {
+        return node;
+    }
+}

@@ -1,5 +1,6 @@
 package org.figuramc.figura.server.avatars;
 
+import org.figuramc.figura.server.FiguraPermissionNodes;
 import org.figuramc.figura.server.FiguraServer;
 import org.figuramc.figura.server.FiguraUser;
 import org.figuramc.figura.server.events.Events;
@@ -413,7 +414,7 @@ public final class FiguraServerAvatarManager {
             private boolean acceptDataChunk(byte[] chunk, boolean finalChunk) {
                 size += chunk.length;
                 // In case if avatar size is exceeded - closing the stream and removing it from handler.
-                if (size > parent.config().avatarSizeLimit() &&
+                if (size > Math.min(parent.config().avatarSizeLimit(), Integer.parseInt(parent.getOption(uploader, FiguraPermissionNodes.FIGURA_AVATARS_SIZELIMIT).orElse(parent.config().avatarSizeLimit() + ""))) &&
                     !Events.call(new AvatarUploadSizeExceedEvent(uploader, size)).isCancelled()) {
                     close(StatusCode.MAX_AVATAR_SIZE_EXCEEDED);
                     return true;
