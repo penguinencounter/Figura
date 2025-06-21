@@ -17,7 +17,7 @@ public interface FiguraServerCommandSource {
         return uuid != null ? getServer().userManager().getUser(uuid) : null;
     }
     default boolean permission(String permission) {
-        return getServer().getPermission(getExecutorUUID(), FiguraPermissionNodes.valueOf(permission));
+        return getServer().getPermission(getExecutorUUID(), FiguraPermissionNodes.fromString(permission));
     }
     default void sendComponent(JsonObject message) {
         getServer().sendMessage(getExecutorUUID(), message);

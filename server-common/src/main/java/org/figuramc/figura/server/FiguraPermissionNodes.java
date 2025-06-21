@@ -25,4 +25,13 @@ public enum FiguraPermissionNodes {
     public String toString() {
         return node;
     }
+
+    public static FiguraPermissionNodes fromString(String node) {
+        for (FiguraPermissionNodes permissionNode : values()) {
+            if (permissionNode.node.equalsIgnoreCase(node)) {
+                return permissionNode;
+            }
+        }
+        throw new IllegalArgumentException("No permission node found for: " + node);
+    }
 }
