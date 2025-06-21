@@ -153,10 +153,10 @@ public abstract class FiguraServer {
         ArrayList<UUID> connectedUsers = new ArrayList<>();
         userManager.forEachUser(user -> connectedUsers.add(user.uuid()));
         return new S2CBackendHandshakePacket(
-                Math.min(config.pingsRateLimit(), Integer.parseInt(getOption(newUser, FiguraPermissionNodes.FIGURA_PINGS_RATELIMIT).orElse(config.pingsRateLimit() + ""))),
-                Math.min(config.pingsSizeLimit(), Integer.parseInt(getOption(newUser, FiguraPermissionNodes.FIGURA_PINGS_SIZELIMIT).orElse(config.pingsSizeLimit() + ""))),
-                Math.min(config.avatarSizeLimit(), Integer.parseInt(getOption(newUser, FiguraPermissionNodes.FIGURA_AVATARS_SIZELIMIT).orElse(config.avatarSizeLimit() + ""))),
-                Math.min(config.avatarsCountLimit(), Integer.parseInt(getOption(newUser, FiguraPermissionNodes.FIGURA_AVATARS_COUNTLIMIT).orElse(config.avatarsCountLimit() + ""))),
+                config.pingsRateLimit(this, newUser),
+                config.pingsSizeLimit(this, newUser),
+                config.avatarSizeLimit(this, newUser),
+                config.avatarsCountLimit(this, newUser),
                 connectedUsers
         );
     }
