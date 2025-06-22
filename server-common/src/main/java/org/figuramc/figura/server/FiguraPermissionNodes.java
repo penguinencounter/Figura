@@ -11,7 +11,7 @@ public enum FiguraPermissionNodes {
 
     FIGURA_PINGS_SIZELIMIT("figura.pings.sizelimit"),
 
-    FIGURA_AVATARS_SIZELIMIT("figura.avatars.send"),
+    FIGURA_AVATARS_SIZELIMIT("figura.avatars.sizelimit"),
 
     FIGURA_AVATARS_COUNTLIMIT("figura.avatars.countlimit");
 
