@@ -135,7 +135,14 @@ public class LocalAvatarLoader {
 
                 // metadata
                 loadState = LoadState.METADATA;
-                String _meta = IOUtils.readFile(finalPath.resolve("avatar.json"));
+                Path avatarJsonc = finalPath.resolve("avatar.jsonc");
+                Path avatarJson = finalPath.resolve("avatar.json");
+                String _meta = null;
+                if (Files.exists(avatarJsonc)) {
+                    _meta = IOUtils.readFile(avatarJsonc);
+                } else {
+                    _meta = IOUtils.readFile(avatarJson);
+                }
 				var metadata = AvatarMetadataParser.read(_meta);
 
 				CompoundTag metaNBT = AvatarMetadataParser.parse(metadata,_meta, IOUtils.getFileNameOrEmpty(finalPath));
