@@ -49,7 +49,7 @@ public class AnalysisTools {
             if (above == null) return null; // 'main chunk'
             if (above.c == null) return null; // Java functions (e.g. applyFunc)
             LuaClosure callingClosure = above.c;
-            Instruction callLike = Instruction.of(above.pc, callingClosure.p.code[above.pc]);
+            Instruction callLike = Instruction.of(above.pc, callingClosure.p.lineinfo[above.pc], callingClosure.p.code[above.pc]);
             if (callLike instanceof Instruction.Call) {
                 Instruction.Call call = (Instruction.Call) callLike;
                 if (call.argc == -1) return null; // Varargs are nasty stuff tbh
@@ -118,7 +118,7 @@ public class AnalysisTools {
             return cap.getTop().c != null;
         }
 
-        private Component singleBlame(String rationale) {
+        private Component singleBlame(String rationale, Instruction at) {
             return Component.empty().withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
                     .append(
                             Component.literal("Analysis: ")
@@ -126,6 +126,10 @@ public class AnalysisTools {
                             Component.literal(rationale).withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN))
                     ).append(
                             Component.literal(" could not be found.")
+                    ).append(
+                            Component.literal(" [line ").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
+                                    .append(String.valueOf(at.line))
+                                    .append("]")
                     );
         }
 
@@ -147,7 +151,7 @@ public class AnalysisTools {
                     Instruction.TableAccess casted = (Instruction.TableAccess) previous;
                     if (casted.isIndexConstant()) {
                         String reason = p.k[casted.getIndexValue()].tojstring();
-                        return singleBlame(reason);
+                        return singleBlame(reason, (Instruction) casted);
                     } else {
                         // uhhh don't want to resolve variables here...
                     }
@@ -155,7 +159,7 @@ public class AnalysisTools {
             } else if (errorCause instanceof Instruction.GetTabUp) {
                 Upvaldesc upv = p.upvalues[((Instruction.GetTabUp) errorCause).upval];
                 String reason = upv.name.tojstring();
-                return singleBlame(reason);
+                return singleBlame(reason, errorCause);
             }
 
             return null;

@@ -11,6 +11,14 @@ import org.luaj.vm2.LuaValue;
  * and interfaces with the existing {@code __index} instead.
  */
 public interface SupportsPureIndex {
+    /**
+     * <p>
+     * Helper mixin interface for building pure-index types.
+     * </p>
+     * <p>
+     * Assumes a custom {@code __index} method exists and is trusted, and a {@link LuaTypeManager} is available.
+     * </p>
+     */
     interface Auto extends SupportsPureIndex {
         Object __index(String key);
         LuaTypeManager getTypeManager();

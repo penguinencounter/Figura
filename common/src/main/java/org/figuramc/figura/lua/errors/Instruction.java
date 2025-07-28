@@ -12,6 +12,7 @@ import static org.luaj.vm2.Lua.*;
 
 public abstract class Instruction {
     public final int pc;
+    public final int line;
 
     public final Set<Integer> inbound = new HashSet<>();
 
@@ -39,8 +40,8 @@ public abstract class Instruction {
         public final int from;
         public final int to;
 
-        public Move(int pc, int i) {
-            super(pc);
+        public Move(int pc, int line, int i) {
+            super(pc, line);
             from = GETARG_B(i);
             to = GETARG_A(i);
         }
@@ -62,8 +63,8 @@ public abstract class Instruction {
     }
 
     public static abstract class LoadInstr extends Instruction {
-        public LoadInstr(int pc) {
-            super(pc);
+        public LoadInstr(int pc, int line) {
+            super(pc, line);
         }
 
         @Override
@@ -77,8 +78,8 @@ public abstract class Instruction {
         public final int k;
         public final int to;
 
-        public LoadK(int pc, int i) {
-            super(pc);
+        public LoadK(int pc, int line, int i) {
+            super(pc, line);
             k = GETARG_Bx(i);
             to = GETARG_A(i);
         }
@@ -98,8 +99,8 @@ public abstract class Instruction {
     public static class LoadKX extends LoadInstr {
         public final int to;
 
-        public LoadKX(int pc, int i) {
-            super(pc);
+        public LoadKX(int pc, int line, int i) {
+            super(pc, line);
             to = GETARG_A(i);
         }
 
@@ -126,8 +127,8 @@ public abstract class Instruction {
         public final boolean value;
         public final boolean skipNext;
 
-        public LoadBool(int pc, int i) {
-            super(pc);
+        public LoadBool(int pc, int line, int i) {
+            super(pc, line);
             to = GETARG_A(i);
             value = GETARG_B(i) != 0;
             skipNext = GETARG_C(i) != 0;
@@ -160,8 +161,8 @@ public abstract class Instruction {
         public final int basis;
         private final Set<Integer> span = new HashSet<>();
 
-        public LoadNil(int pc, int i) {
-            super(pc);
+        public LoadNil(int pc, int line, int i) {
+            super(pc, line);
             basis = GETARG_A(i);
             count = GETARG_B(i);
             int x = basis;
@@ -186,8 +187,8 @@ public abstract class Instruction {
         public final int to;
         public final int upval;
 
-        public GetUpVal(int pc, int i) {
-            super(pc);
+        public GetUpVal(int pc, int line, int i) {
+            super(pc, line);
             to = GETARG_A(i);
             upval = GETARG_B(i);
         }
@@ -210,8 +211,8 @@ public abstract class Instruction {
         public final int rk;
         public final boolean isk;
 
-        public GetTabUp(int pc, int i) {
-            super(pc);
+        public GetTabUp(int pc, int line, int i) {
+            super(pc, line);
             to = GETARG_A(i);
             upval = GETARG_B(i);
             int rk_actual = GETARG_C(i);
@@ -252,8 +253,8 @@ public abstract class Instruction {
         public final int rk;
         public final boolean isk;
 
-        public GetTable(int pc, int i) {
-            super(pc);
+        public GetTable(int pc, int line, int i) {
+            super(pc, line);
             to = GETARG_A(i);
             src = GETARG_B(i);
             int actual_rk = GETARG_C(i);
@@ -291,8 +292,8 @@ public abstract class Instruction {
         public final boolean closeUpvalues;
         public final int pcoffset;
 
-        public Jmp(int pc, int i) {
-            super(pc);
+        public Jmp(int pc, int line, int i) {
+            super(pc, line);
             pcoffset = GETARG_sBx(i);
             closeUpvalues = GETARG_A(i) != 0;
         }
@@ -328,8 +329,8 @@ public abstract class Instruction {
 
         private final Set<Integer> inputs = new HashSet<>();
 
-        public CompareInstr(int pc, int i) {
-            super(pc);
+        public CompareInstr(int pc, int line, int i) {
+            super(pc, line);
 
             int rk1_actual = GETARG_B(i);
             isk1 = ISK(rk1_actual);
@@ -364,8 +365,8 @@ public abstract class Instruction {
 
     /// Check if [#rk1] is equal to [#rk2]. If the result matches [#expected], increment pc.
     public static class Eq extends CompareInstr {
-        public Eq(int pc, int i) {
-            super(pc, i);
+        public Eq(int pc, int line, int i) {
+            super(pc, line, i);
         }
 
         @Override
@@ -376,8 +377,8 @@ public abstract class Instruction {
 
     /// Check if [#rk1] is less than [#rk2]. If the result matches [#expected], increment pc.
     public static class Lt extends CompareInstr {
-        public Lt(int pc, int i) {
-            super(pc, i);
+        public Lt(int pc, int line, int i) {
+            super(pc, line, i);
         }
 
         @Override
@@ -388,8 +389,8 @@ public abstract class Instruction {
 
     /// Check if [#rk1] is less than or equal to [#rk2]. If the result matches [#expected], increment pc.
     public static class Le extends CompareInstr {
-        public Le(int pc, int i) {
-            super(pc, i);
+        public Le(int pc, int line, int i) {
+            super(pc, line, i);
         }
 
         @Override
@@ -403,8 +404,8 @@ public abstract class Instruction {
         public final int source;
         public final boolean expected;
 
-        public Test(int pc, int i) {
-            super(pc);
+        public Test(int pc, int line, int i) {
+            super(pc, line);
             source = GETARG_A(i);
             expected = GETARG_C(i) != 0;
         }
@@ -439,8 +440,8 @@ public abstract class Instruction {
         public final int dest;
         public final boolean expected;
 
-        public TestSet(int pc, int i) {
-            super(pc);
+        public TestSet(int pc, int line, int i) {
+            super(pc, line);
             dest = GETARG_A(i);
             cmp = GETARG_B(i);
             expected = GETARG_C(i) != 0;
@@ -475,8 +476,8 @@ public abstract class Instruction {
         public final int argc;
         private final Set<Integer> reads = new HashSet<>();
 
-        public CallInstr(int pc, int i) {
-            super(pc);
+        public CallInstr(int pc, int line, int i) {
+            super(pc, line);
             function = GETARG_A(i);
             argc = GETARG_B(i) - 1;
             reads.add(function);
@@ -497,8 +498,8 @@ public abstract class Instruction {
         public final int retc;
         private final Set<Integer> writes = new HashSet<>();
 
-        public Call(int pc, int i) {
-            super(pc, i);
+        public Call(int pc, int line, int i) {
+            super(pc, line, i);
             retc = GETARG_C(i) - 1;
             if (retc > 0) {
                 for (int a = function; a <= function + argc - 1; a++) {
@@ -519,8 +520,8 @@ public abstract class Instruction {
     }
 
     public static class TailCall extends CallInstr {
-        public TailCall(int pc, int i) {
-            super(pc, i);
+        public TailCall(int pc, int line, int i) {
+            super(pc, line, i);
         }
 
         @Override
@@ -541,8 +542,8 @@ public abstract class Instruction {
         // may not be accurate on vararg returns
         private final Set<Integer> inputs = new HashSet<>();
 
-        public Return(int pc, int i) {
-            super(pc);
+        public Return(int pc, int line, int i) {
+            super(pc, line);
             start = GETARG_A(i);
             int b = GETARG_B(i);
             isVar = b == 0;
@@ -582,8 +583,8 @@ public abstract class Instruction {
         public final int input;
         public final int pcoffset;
 
-        public TForLoop(int pc, int i) {
-            super(pc);
+        public TForLoop(int pc, int line, int i) {
+            super(pc, line);
             output = GETARG_A(i);
             input = output + 1;
             pcoffset = GETARG_sBx(i);
@@ -616,8 +617,8 @@ public abstract class Instruction {
     public static class ExtraArg extends Instruction {
         public final int k;
 
-        public ExtraArg(int pc, int i) {
-            super(pc);
+        public ExtraArg(int pc, int line, int i) {
+            super(pc, line);
             k = GETARG_Ax(i);
         }
 
@@ -643,8 +644,8 @@ public abstract class Instruction {
     }
 
     public static class Unknown extends Instruction {
-        public Unknown(int pc) {
-            super(pc);
+        public Unknown(int pc, int line) {
+            super(pc, line);
         }
 
         @Override
@@ -668,59 +669,60 @@ public abstract class Instruction {
         }
     }
 
-    public static Instruction of(int pc, int i) {
+    public static Instruction of(int pc, int line, int i) {
         switch (GET_OPCODE(i)) {
             case OP_MOVE:
-                return new Move(pc, i);
+                return new Move(pc, line, i);
             case OP_LOADK:
-                return new LoadK(pc, i);
+                return new LoadK(pc, line, i);
             case OP_LOADKX:
-                return new LoadKX(pc, i);
+                return new LoadKX(pc, line, i);
             case OP_LOADBOOL:
-                return new LoadBool(pc, i);
+                return new LoadBool(pc, line, i);
             case OP_LOADNIL:
-                return new LoadNil(pc, i);
+                return new LoadNil(pc, line, i);
             case OP_GETUPVAL:
-                return new GetUpVal(pc, i);
+                return new GetUpVal(pc, line, i);
             case OP_GETTABUP:
-                return new GetTabUp(pc, i);
+                return new GetTabUp(pc, line, i);
             case OP_GETTABLE:
-                return new GetTable(pc, i);
+                return new GetTable(pc, line, i);
             case OP_JMP:
-                return new Jmp(pc, i);
+                return new Jmp(pc, line, i);
             case OP_EQ:
-                return new Eq(pc, i);
+                return new Eq(pc, line, i);
             case OP_LT:
-                return new Lt(pc, i);
+                return new Lt(pc, line, i);
             case OP_LE:
-                return new Le(pc, i);
+                return new Le(pc, line, i);
             case OP_TEST:
-                return new Test(pc, i);
+                return new Test(pc, line, i);
             case OP_TESTSET:
-                return new TestSet(pc, i);
+                return new TestSet(pc, line, i);
             case OP_CALL:
-                return new Call(pc, i);
+                return new Call(pc, line, i);
             case OP_TAILCALL:
-                return new TailCall(pc, i);
+                return new TailCall(pc, line, i);
             case OP_RETURN:
-                return new Return(pc, i);
+                return new Return(pc, line, i);
             case OP_TFORLOOP:
-                return new TForLoop(pc, i);
+                return new TForLoop(pc, line, i);
             case OP_EXTRAARG:
-                return new ExtraArg(pc, i);
+                return new ExtraArg(pc, line, i);
         }
-        return new Unknown(pc);
+        return new Unknown(pc, line);
     }
 
-    public Instruction(int pc) {
+    public Instruction(int pc, int line) {
         this.pc = pc;
+        this.line = line;
     }
 
     public static Map<Integer, Instruction> scanProto(Prototype p) {
         Map<Integer, Instruction> instrMap = new HashMap<>();
         int pc = 0;
         for (int op : p.code) {
-            instrMap.put(pc, Instruction.of(pc, op));
+            instrMap.put(pc, Instruction.of(pc, p.lineinfo[pc], op));
             pc++;
         }
         for (Instruction instr : instrMap.values()) {

@@ -16,7 +16,7 @@ public class ProtoCache {
         this.EOF = p.code.length;
 
         for (int pc = 0; pc < p.code.length; pc++) {
-            decoded.put(pc, Instruction.of(pc, p.code[pc]));
+            decoded.put(pc, Instruction.of(pc, p.lineinfo[pc], p.code[pc]));
         }
         for (Instruction i : decoded.values()) {
             i.markOutgoing(decoded);
