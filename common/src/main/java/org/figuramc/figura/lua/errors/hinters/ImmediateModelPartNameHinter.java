@@ -6,6 +6,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import org.figuramc.figura.lua.errors.AnalysisTools;
 import org.figuramc.figura.lua.errors.LuaErrorCapture;
+import org.figuramc.figura.lua.errors.LuaRendering;
 import org.figuramc.figura.model.FiguraModelPart;
 import org.figuramc.figura.utils.ColorUtils;
 import org.jetbrains.annotations.Nullable;
@@ -102,14 +103,19 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
         if (capitalization.isEmpty() && otherOptions.isEmpty()) return null;
 
         // TODO: if there's only one option, mix it into the error message
-        // TODO: color the base part name
         MutableComponent builder = Component.literal("")
                 .withStyle(Style.EMPTY.withColor(ColorUtils.Colors.FIGURA_BLUE.hex));
         // TODO: if anything this should be the line that is localized
-        builder.append(String.format("Did you mean one of these other parts in %s?", thePart.name)).append("\n");
+        builder.append(
+                Component.literal("Did you mean one of these other parts in ")
+                        .append(Component.literal(thePart.name).withStyle(ChatFormatting.GREEN))
+                        .append("?\n")
+        );
 
         Style prominent = Style.EMPTY.withColor(0xb0ffb0);
+        Style prominentScaffolding = Style.EMPTY.withColor(0x709070);
         Style secondary = Style.EMPTY.withColor(0x608060);
+        Style secondaryScaffolding = Style.EMPTY.withColor(0x204020);
 //        Style prominent = Style.EMPTY.withColor(0xd3fc7e);
 //        Style secondary = Style.EMPTY.withColor(0x99e65f);
         Style gray = Style.EMPTY.withColor(ChatFormatting.GRAY);
@@ -120,7 +126,7 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
             if (!isFirst)
                 builder.append("\n");
             MutableComponent row = Component.literal(" • ").withStyle(gray);
-            row.append(Component.literal(item.getKey()).withStyle(prominent));
+            row.append(LuaRendering.indexString(item.getKey()).toComponent(prominentScaffolding, prominent));
             row.append(" ");
             row.append(item.getValue());
             builder.append(row);
@@ -135,6 +141,7 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
             MutableComponent everythingElse = Component.literal(isStandalone ? " • " : " • other options: ")
                     .withStyle(isStandalone ? gray : grayer);
             Style elementStyle = isStandalone ? prominent : secondary;
+            Style scaffoldStyle = isStandalone ? prominentScaffolding : secondaryScaffolding;
 
             boolean listIsFirst = true;
             List<Map.Entry<String, Integer>> sortable = new ArrayList<>(otherOptions.entrySet());
@@ -149,7 +156,7 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
                     break;
                 }
                 if (!listIsFirst) everythingElse.append(", ");
-                everythingElse.append(Component.literal(item.getKey()).withStyle(elementStyle));
+                everythingElse.append(LuaRendering.indexString(item.getKey()).toComponent(scaffoldStyle, elementStyle));
                 listIsFirst = false;
             }
             builder.append(everythingElse);
