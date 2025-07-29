@@ -2,8 +2,12 @@ package org.figuramc.figura.lua.errors;
 
 import org.figuramc.figura.lua.SupportsPureIndex;
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
+/**
+ * Collection of methods for interacting with lua types while hopefully not running any user Lua code.
+ */
 public class SafeLuaInteractions {
     public static final int MAX_META_DEPTH = 32;
 
@@ -18,7 +22,7 @@ public class SafeLuaInteractions {
     private static LuaValue safeIndex(LuaValue target, LuaValue key, int depth) {
         if (depth >= MAX_META_DEPTH) return null;
         LuaValue result;
-        if ((result = target.rawget(key)) != null) return result;
+        if (target instanceof LuaTable && (result = target.rawget(key)) != null) return result;
         LuaValue index = target.metatag(LuaValue.INDEX);
         if (index.isnil()) return LuaValue.NIL;
         if (index.istable() || index.isuserdata()) return safeIndex(index, key, depth + 1);

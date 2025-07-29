@@ -2,18 +2,24 @@ package org.figuramc.figura.lua.errors;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import org.figuramc.figura.lua.errors.hinters.ImmediateModelPartNameHinter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.luaj.vm2.*;
+import org.luaj.vm2.LuaClosure;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Prototype;
+import org.luaj.vm2.Upvaldesc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class AnalysisTools {
     private interface Analyzer {
         boolean accepts(LuaErrorCapture cap);
+
         Component execute(LuaErrorCapture cap);
     }
 
@@ -21,11 +27,35 @@ public class AnalysisTools {
         return p.k[kidx];
     }
 
-    private static abstract class DataflowElement {
-        abstract LuaValue resolve(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level);
+    public static abstract class DataflowElement {
+        public LuaValue valueAtHere = null;
+
+        public LuaValue resolve(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
+            LuaValue result = resolveInternal(previousValue, cap, level);
+            valueAtHere = result;
+            return result;
+        }
+
+        protected abstract LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level);
     }
 
-    private static class FunctionArgument extends DataflowElement {
+    /**
+     * Last resort if we don't know where it came from. Passes the previous value straight through.
+     */
+    public static class Register extends DataflowElement {
+        final int reg;
+
+        Register(int reg) {
+            this.reg = reg;
+        }
+
+        @Override
+        protected LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
+            return previousValue;
+        }
+    }
+
+    public static class FunctionArgument extends DataflowElement {
         final int argIndex;
 
         FunctionArgument(int argIndex) {
@@ -33,7 +63,7 @@ public class AnalysisTools {
         }
 
         @Override
-        public LuaValue resolve(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
+        public LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
             // Is the argument still available?
             LuaErrorCapture.PCFrame thisFrame = cap.frames.get(level);
             ProtoCache dataflowInfo = cap.getPrototypeFrame(level);
@@ -41,18 +71,21 @@ public class AnalysisTools {
             if (clobberedAt >= thisFrame.pc) { // it's free real estate
                 return thisFrame.stackView[argIndex];
             }
-            // we could do a bit better by looking for OP_MOVE aliases, but that's a bit too much effort for
-            // this already over-engineered feature
+            // we could do a bit better by looking for OP_MOVE aliases but whatever
 
             // Looks like we can't do that; try yoinking it from the caller?
             LuaErrorCapture.PCFrame above = cap.frames.get(level + 1);
             if (above == null) return null; // 'main chunk'
             if (above.c == null) return null; // Java functions (e.g. applyFunc)
             LuaClosure callingClosure = above.c;
-            Instruction callLike = Instruction.of(above.pc, callingClosure.p.lineinfo[above.pc], callingClosure.p.code[above.pc]);
+            Instruction callLike = Instruction.of(
+                    above.pc,
+                    callingClosure.p.lineinfo[above.pc],
+                    callingClosure.p.code[above.pc]
+            );
             if (callLike instanceof Instruction.Call) {
                 Instruction.Call call = (Instruction.Call) callLike;
-                if (call.argc == -1) return null; // Varargs are nasty stuff tbh
+                if (call.argc == -1) return null; // Varargs are nasty stuff
                 int outerReg = call.function + argIndex + 1;
                 return above.stackView[outerReg];
             }
@@ -62,7 +95,7 @@ public class AnalysisTools {
         }
     }
 
-    private static class GetUpValue extends DataflowElement {
+    public static class GetUpValue extends DataflowElement {
         final int uvIndex;
 
         GetUpValue(int uvIndex) {
@@ -70,48 +103,132 @@ public class AnalysisTools {
         }
 
         @Override
-        public LuaValue resolve(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
+        public LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
             return cap.frames.get(level).c.upValues[uvIndex].getValue();
         }
     }
 
-    private static class ConstantIndexTable extends DataflowElement {
-        final LuaValue key;
+    public static class ConstantIndexTable extends DataflowElement {
+        public final LuaValue key;
 
         ConstantIndexTable(LuaValue key) {
             this.key = key;
         }
 
         @Override
-        public LuaValue resolve(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
+        public LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
             if (previousValue == null) return null;
             return SafeLuaInteractions.safeIndex(previousValue, key);
         }
     }
 
-    private static Instruction findOriginOnce(ProtoCache chart, int register, int pc) {
+    private static abstract class TracebackException extends Exception {
+        // reduce performance impact of throwing this
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return this;
+        }
+    }
+
+    private static class ReachedStartOfFunction extends TracebackException {
+    }
+
+    private static class MissingInstructionAtPC extends TracebackException {
+        public final int pc;
+
+        private MissingInstructionAtPC(int pc) {
+            this.pc = pc;
+        }
+    }
+
+    private static class MultipleOptions extends TracebackException {
+    }
+
+    private static class UnknownOpcode extends TracebackException {
+        public final int pc;
+
+        private UnknownOpcode(int pc) {
+            this.pc = pc;
+        }
+    }
+
+
+    private static Instruction findOriginOnce(
+            ProtoCache chart,
+            int register,
+            int pc
+    ) throws ReachedStartOfFunction, MissingInstructionAtPC, MultipleOptions, UnknownOpcode {
         pc--; // start scanning 1 instruction before...
         Instruction instr;
         while ((instr = chart.get(pc)) != null) {
-            if (instr instanceof Instruction.Unknown) return null; // no idea what this instruction does?
+            if (instr instanceof Instruction.Unknown)
+                throw new UnknownOpcode(pc); // no idea what this instruction does?
             // does this instruction write this value?
             if (instr.modifies().contains(register)) return instr;
-            if (instr.inbound.size() != 1) return null; // no definite previous instruction
+            if (instr.inbound.size() > 1) throw new MultipleOptions(); // no definite previous instruction
+            // we can be confident about this because all jumping opcodes are known
+            if (instr.inbound.isEmpty()) throw new ReachedStartOfFunction();
             pc = instr.inbound.iterator().next();
         }
-        return null; // chart has a hole in it
+        throw new MissingInstructionAtPC(pc); // chart has a hole in it
     }
 
-    private static List<DataflowElement> findOriginAll(ProtoCache chart, int register, int pc, LuaClosure c) {
+    private static List<DataflowElement> findOriginAll(ProtoCache chart, int register, int pc, Prototype p) {
         ArrayList<DataflowElement> chain = new ArrayList<>();
         Instruction current;
-        while ((current = findOriginOnce(chart, register, pc)) != null) {
-
+        while (true) {
+            try {
+                current = findOriginOnce(chart, register, pc);
+            } catch (ReachedStartOfFunction e) {
+                if (register < p.numparams)
+                    chain.add(new FunctionArgument(register));
+                else
+                    chain.add(new Register(register));
+                break;
+            } catch (MissingInstructionAtPC | MultipleOptions | UnknownOpcode e) {
+                chain.add(new Register(register));
+                break;
+            }
+            pc = current.pc;
+            if (current instanceof Instruction.GetUpVal) {
+                chain.add(new GetUpValue(((Instruction.GetUpVal) current).upval));
+                break;
+            } else if (current instanceof Instruction.GetTabUp) {
+                Instruction.GetTabUp typed = (Instruction.GetTabUp) current;
+                if (!typed.isk) {
+                    chain.add(new Register(typed.to));
+                    break;
+                }
+                chain.add(new ConstantIndexTable(p.k[typed.rk]));
+                chain.add(new GetUpValue(typed.upval));
+                break;
+            } else if (current instanceof Instruction.GetTable) {
+                Instruction.GetTable typed = (Instruction.GetTable) current;
+                if (!typed.isk) {
+                    chain.add(new Register(typed.to));
+                    break;
+                }
+                register = typed.src;
+                chain.add(new ConstantIndexTable(p.k[typed.rk]));
+            } else if (current instanceof Instruction.Self) {
+                Instruction.Self typed = (Instruction.Self) current;
+                if (!typed.isk) {
+                    chain.add(new Register(typed.to));
+                    break;
+                }
+                register = typed.src;
+                chain.add(new ConstantIndexTable(p.k[typed.rk]));
+            } else if (current instanceof Instruction.Move) {
+                register = ((Instruction.Move) current).from;
+            }
         }
-        throw new RuntimeException("err");
+        Collections.reverse(chain);
+        return chain;
     }
 
     private static final Analyzer indexNilValue = new Analyzer() {
+        public static final ErrorType TYPE = ErrorType.INDEX_NIL;
+
         @Override
         public boolean accepts(LuaErrorCapture cap) {
             if (!cap.errorObj.getMessage().contains("attempt to index ? (a nil value) with key")) return false;
@@ -129,6 +246,12 @@ public class AnalysisTools {
                     ).append(
                             Component.literal(" [line ").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
                                     .append(String.valueOf(at.line))
+                                    .append(Component.literal(" pc ")
+                                            .withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY))
+                                            .append(String.valueOf(at.pc))
+                                            .append(" ")
+                                            .append(at.getClass().getSimpleName())
+                                    )
                                     .append("]")
                     );
         }
@@ -141,21 +264,32 @@ public class AnalysisTools {
             Instruction errorCause = cache.decoded.get(pc);
             if (errorCause == null) return null;
 
-            if (errorCause instanceof Instruction.GetTable) {
-                int registerCause = ((Instruction.GetTable) errorCause).src;
-                Instruction previous = findOriginOnce(cache, registerCause, pc);
-                if (previous == null) {
-                    return null;
+            ArrayList<Component> hints = new ArrayList<>();
+
+            boolean isGetTable = errorCause instanceof Instruction.GetTable;
+            boolean isSelf = errorCause instanceof Instruction.Self;
+            if (isGetTable || isSelf) {
+                final int registerCause;
+                if (isGetTable)
+                    registerCause = ((Instruction.GetTable) errorCause).src;
+                else
+                    registerCause = ((Instruction.Self) errorCause).src;
+
+                List<DataflowElement> stack = findOriginAll(cache, registerCause, pc, p);
+                LuaValue parent = null;
+                for (DataflowElement element : stack) {
+                    parent = element.resolve(parent, cap, 0);
                 }
-                if (previous instanceof Instruction.TableAccess) {
-                    Instruction.TableAccess casted = (Instruction.TableAccess) previous;
-                    if (casted.isIndexConstant()) {
-                        String reason = p.k[casted.getIndexValue()].tojstring();
-                        return singleBlame(reason, (Instruction) casted);
-                    } else {
-                        // uhhh don't want to resolve variables here...
-                    }
+
+                Component mpHint = new ImmediateModelPartNameHinter().getHint(stack, cap);
+                if (mpHint != null) hints.add(mpHint);
+
+                MutableComponent finalHints = Component.literal("\n");
+                for (Component c : hints) {
+                    finalHints.append(c);
+                    finalHints.append("\n");
                 }
+                return finalHints;
             } else if (errorCause instanceof Instruction.GetTabUp) {
                 Upvaldesc upv = p.upvalues[((Instruction.GetTabUp) errorCause).upval];
                 String reason = upv.name.tojstring();

@@ -288,6 +288,47 @@ public abstract class Instruction {
         }
     }
 
+    public static class Self extends Instruction implements TableAccess {
+        public final int to;
+        public final int src;
+        public final boolean isk;
+        public final int rk;
+
+        public Self(int pc, int line, int i) {
+            super(pc, line);
+            to = GETARG_A(i);
+            src = GETARG_B(i);
+            int actual_rk = GETARG_C(i);
+            isk = ISK(actual_rk);
+            rk = isk ? INDEXK(actual_rk) : actual_rk;
+        }
+
+        @Override
+        public int getOpcode() {
+            return OP_SELF;
+        }
+
+        @Override
+        public Set<Integer> modifies() {
+            return Set.of(to, to + 1);
+        }
+
+        @Override
+        public Set<Integer> consumes() {
+            return isk ? Set.of(src) : Set.of(src, rk);
+        }
+
+        @Override
+        public int getIndexValue() {
+            return rk;
+        }
+
+        @Override
+        public boolean isIndexConstant() {
+            return isk;
+        }
+    }
+
     public static class Jmp extends Instruction {
         public final boolean closeUpvalues;
         public final int pcoffset;
@@ -687,6 +728,8 @@ public abstract class Instruction {
                 return new GetTabUp(pc, line, i);
             case OP_GETTABLE:
                 return new GetTable(pc, line, i);
+            case OP_SELF:
+                return new Self(pc, line, i);
             case OP_JMP:
                 return new Jmp(pc, line, i);
             case OP_EQ:
