@@ -41,12 +41,15 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
                 isFirst = false;
             } else if (providedChar.toLowerCase(Locale.ENGLISH).equals(targetChar)) {
                 if (!isFirst) b.append(", ");
-                if (isFirst || !lastCase) b.append("lowercase ");
+                if (isFirst || lastCase) b.append("lowercase ");
                 b.append(targetChar);
                 lastCase = false;
                 isFirst = false;
             }
         }
+
+        if (b.toString().length() > 45) return "(different capitalization)";
+
         return b.append(")").toString();
     }
 
@@ -98,6 +101,8 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
 
         if (capitalization.isEmpty() && otherOptions.isEmpty()) return null;
 
+        // TODO: if there's only one option, mix it into the error message
+        // TODO: color the base part name
         MutableComponent builder = Component.literal("")
                 .withStyle(Style.EMPTY.withColor(ColorUtils.Colors.FIGURA_BLUE.hex));
         // TODO: if anything this should be the line that is localized
@@ -105,6 +110,8 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
 
         Style prominent = Style.EMPTY.withColor(0xb0ffb0);
         Style secondary = Style.EMPTY.withColor(0x608060);
+//        Style prominent = Style.EMPTY.withColor(0xd3fc7e);
+//        Style secondary = Style.EMPTY.withColor(0x99e65f);
         Style gray = Style.EMPTY.withColor(ChatFormatting.GRAY);
         Style grayer = Style.EMPTY.withColor(0x777777);
 

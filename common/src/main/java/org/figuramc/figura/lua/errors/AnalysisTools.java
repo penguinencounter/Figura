@@ -283,20 +283,25 @@ public class AnalysisTools {
 
                 Component mpHint = new ImmediateModelPartNameHinter().getHint(stack, cap);
                 if (mpHint != null) hints.add(mpHint);
-
-                MutableComponent finalHints = Component.literal("\n");
-                for (Component c : hints) {
-                    finalHints.append(c);
-                    finalHints.append("\n");
-                }
-                return finalHints;
             } else if (errorCause instanceof Instruction.GetTabUp) {
                 Upvaldesc upv = p.upvalues[((Instruction.GetTabUp) errorCause).upval];
                 String reason = upv.name.tojstring();
                 return singleBlame(reason, errorCause);
             }
 
-            return null;
+            if (!hints.isEmpty()) hints.add(Component.literal("-- INCLUDE ALL OF THE ABOVE IN YOUR SCREENSHOT --")
+                    .withStyle(ChatFormatting.YELLOW));
+
+            MutableComponent finalHints = Component.literal("\n");
+            boolean isFirst = true;
+            for (Component c : hints) {
+                if (!isFirst)
+                    finalHints.append("\n");
+                finalHints.append(c);
+                isFirst = false;
+            }
+
+            return finalHints;
         }
     };
 
