@@ -110,15 +110,26 @@ public class AnalysisTools {
 
     public static class ConstantIndexTable extends DataflowElement {
         public final LuaValue key;
+        public final @Nullable Integer regSrc;
 
-        ConstantIndexTable(LuaValue key) {
+        ConstantIndexTable(LuaValue key, @Nullable Integer src) {
             this.key = key;
+            this.regSrc = src;
         }
 
         @Override
         public LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
-            if (previousValue == null) return null;
-            return SafeLuaInteractions.safeIndex(previousValue, key);
+            if (previousValue == null) {
+                if (regSrc == null) return null;
+                // Maybe we can yoink the reference from the register?
+                LuaErrorCapture.PCFrame thisFrame = cap.frames.get(level);
+                ProtoCache dataflowInfo = cap.getPrototypeFrame(level);
+                int clobberedAt = dataflowInfo.getNextWrite(regSrc, -1);
+                if (clobberedAt < thisFrame.pc) {
+                    return null; // too bad :(
+                }
+                return SafeLuaInteractions.safeIndex(thisFrame.stackView[regSrc], key);
+            } else return SafeLuaInteractions.safeIndex(previousValue, key);
         }
     }
 
@@ -199,7 +210,7 @@ public class AnalysisTools {
                     chain.add(new Register(typed.to));
                     break;
                 }
-                chain.add(new ConstantIndexTable(p.k[typed.rk]));
+                chain.add(new ConstantIndexTable(p.k[typed.rk], null));
                 chain.add(new GetUpValue(typed.upval));
                 break;
             } else if (current instanceof Instruction.GetTable) {
@@ -209,7 +220,7 @@ public class AnalysisTools {
                     break;
                 }
                 register = typed.src;
-                chain.add(new ConstantIndexTable(p.k[typed.rk]));
+                chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src));
             } else if (current instanceof Instruction.Self) {
                 Instruction.Self typed = (Instruction.Self) current;
                 if (!typed.isk) {
@@ -217,7 +228,7 @@ public class AnalysisTools {
                     break;
                 }
                 register = typed.src;
-                chain.add(new ConstantIndexTable(p.k[typed.rk]));
+                chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src));
             } else if (current instanceof Instruction.Move) {
                 register = ((Instruction.Move) current).from;
             }

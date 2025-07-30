@@ -14,13 +14,15 @@ import org.luaj.vm2.LuaValue;
 
 import java.util.*;
 
+import static org.figuramc.figura.lua.errors.hinters.ModelPartSuggestionHeuristics.EQUALS_IGNORE_CASE;
+
 /**
  * hints for names in the same part
  * <p>
  * TODO: how the heck do we make this translatable holy
  */
 public class ImmediateModelPartNameHinter implements ErrorHinter {
-    public static final int MAX_CAPITALIZATION = 3;
+    public static final int MAX_DETAILED = 3;
     public static final int MAX_OTHERS = 12;
 
     public static String generateCapsHint(String provided, String target) {
@@ -49,9 +51,18 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
             }
         }
 
-        if (b.toString().length() > 45) return "(different capitalization)";
+        if (b.toString().length() > 45 || b.toString().equals("(with ")) return "(different capitalization)";
 
         return b.append(")").toString();
+    }
+
+    public static String generateSpaceHint(String provided, String target) {
+        // Simple cases
+        String providedNoSpace = provided.replaceAll("\\s", "");
+        String targetNoSpace = target.replaceAll("\\s", "");
+        boolean isCapsDifferent = !EQUALS_IGNORE_CASE.equals(providedNoSpace, targetNoSpace);
+
+        throw new RuntimeException();
     }
 
     @Override
@@ -73,10 +84,11 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
         if (!k.isstring()) return null;
         String attemptedName = k.checkjstring();
         String lowercaseAttemptedName = attemptedName.toLowerCase(Locale.ENGLISH);
+        String attemptedNameNoSpace = attemptedName.replaceAll("\\s*", "");
 
         Set<String> seen = new HashSet<>();
-        // capitalization mistakes: name -> details
-        Map<String, String> capitalization = new HashMap<>();
+        // mistakes: name -> details
+        Map<String, String> detailed = new HashMap<>();
         // other name options, sorted in some intelligent way hopefully
         // TODO: sort it actually
         Map<String, Integer> otherOptions = new HashMap<>();
@@ -93,14 +105,20 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
             seen.add(name);
 
             // Check for matching non-case-sensitive
-            if (name.toLowerCase(Locale.ENGLISH).equals(lowercaseAttemptedName) && capitalization.size() < MAX_CAPITALIZATION) {
-                capitalization.put(name, generateCapsHint(attemptedName, name));
+            if (detailed.size() < MAX_DETAILED) {
+                if (EQUALS_IGNORE_CASE.equals(attemptedName, name)) {
+                    detailed.put(name, generateCapsHint(attemptedName, name));
+                } else if (name.replaceAll("\\s*", "").equals(attemptedNameNoSpace)) {
+                    detailed.put(name, generateSpaceHint(attemptedName, name));
+                } else {
+                    otherOptions.put(name, 0);
+                }
             } else {
                 otherOptions.put(name, 0);
             }
         }
 
-        if (capitalization.isEmpty() && otherOptions.isEmpty()) return null;
+        if (detailed.isEmpty() && otherOptions.isEmpty()) return null;
 
         // TODO: if there's only one option, mix it into the error message
         MutableComponent builder = Component.literal("")
@@ -122,7 +140,7 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
         Style grayer = Style.EMPTY.withColor(0x777777);
 
         boolean isFirst = true;
-        for (Map.Entry<String, String> item : capitalization.entrySet()) {
+        for (Map.Entry<String, String> item : detailed.entrySet()) {
             if (!isFirst)
                 builder.append("\n");
             MutableComponent row = Component.literal(" • ").withStyle(gray);
@@ -134,7 +152,7 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
         }
 
         if (!otherOptions.isEmpty()) {
-            boolean isStandalone = capitalization.isEmpty();
+            boolean isStandalone = detailed.isEmpty();
 
             if (!isFirst)
                 builder.append("\n");
