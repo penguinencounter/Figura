@@ -169,6 +169,8 @@ public class FiguraAPIManager {
         add(FiguraFuture.class);
 
         add(RaycastAPI.class);
+
+        add(HintingAPI.class);
     }};
 
     public static final Map<String, Function<FiguraLuaRuntime, Object>> API_GETTERS = new LinkedHashMap<>() {{
@@ -197,6 +199,7 @@ public class FiguraAPIManager {
         put("resources", r -> new ResourcesAPI(r.owner));
         put("net", r -> new NetworkingAPI(r.owner));
         put("raycast", r -> new RaycastAPI(r.owner));
+        put("hinting", HintingAPI::new);
     }};
 
     private static final Set<FiguraAPI> ENTRYPOINTS = new HashSet<>();

@@ -1,5 +1,6 @@
 package org.figuramc.figura.lua.errors;
 
+import org.figuramc.figura.lua.FiguraLuaRuntime;
 import org.figuramc.figura.mixin.lua.CallFrameAccessor;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.DebugLib;
@@ -29,15 +30,17 @@ public class LuaErrorCapture {
         }
     }
 
-    public LuaErrorCapture(LuaError errorObj, List<PCFrame> frames) {
+    public LuaErrorCapture(FiguraLuaRuntime runtime, LuaError errorObj, List<PCFrame> frames) {
+        this.runtime = runtime;
         this.errorObj = errorObj;
         this.frames = frames;
     }
 
-    public LuaErrorCapture(LuaError errorObj, PCFrame first) {
-        this(errorObj, List.of(first));
+    public LuaErrorCapture(FiguraLuaRuntime runtime, LuaError errorObj, PCFrame first) {
+        this(runtime, errorObj, List.of(first));
     }
 
+    public final FiguraLuaRuntime runtime;
     public final LuaError errorObj;
     public final List<PCFrame> frames;
     public final Map<Integer, ProtoCache> caches = new HashMap<>();
@@ -65,11 +68,11 @@ public class LuaErrorCapture {
      * @param pc The program counter in this LuaClosure
      * @return a capture of the error state.
      */
-    public static LuaErrorCapture capturePartial(LuaError error, LuaClosure c, int pc) {
-        return new LuaErrorCapture(error, new PCFrame(c, pc, null));
+    public static LuaErrorCapture capturePartial(FiguraLuaRuntime runtime, LuaError error, LuaClosure c, int pc) {
+        return new LuaErrorCapture(runtime, error, new PCFrame(c, pc, null));
     }
 
-    public static LuaErrorCapture captureFull(LuaError error, List<DebugLib.CallFrame> frames) {
-        return new LuaErrorCapture(error, frames.stream().map(PCFrame::of).toList());
+    public static LuaErrorCapture captureFull(FiguraLuaRuntime runtime, LuaError error, List<DebugLib.CallFrame> frames) {
+        return new LuaErrorCapture(runtime, error, frames.stream().map(PCFrame::of).toList());
     }
 }

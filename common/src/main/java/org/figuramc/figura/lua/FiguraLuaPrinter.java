@@ -73,39 +73,6 @@ public class FiguraLuaPrinter {
                 .replace("\n\t[Java]: in ?", "")
                 .replace("'<eos>' expected", "Expected end of script");
 
-
-        // get script line
-        line: {
-            if (owner.minify) {
-                message += "\nscript:\n\tscript heavily minified! - cannot look for line numbers!";
-                break line;
-            }
-
-            try {
-                String[] split = message.split(":", 2);
-                if (split.length <= 1 || owner.luaRuntime == null)
-                    break line;
-
-                // name
-                String left = "[string \"";
-                int sub = split[0].indexOf(left);
-
-                String name = sub == -1 ? split[0] : split[0].substring(sub + left.length(), split[0].indexOf("\"]"));
-                String src = owner.luaRuntime.scripts.get(name);
-                if (src == null)
-                    break line;
-
-                // line
-                int line = Integer.parseInt(split[1].split("\\D", 2)[0]);
-
-                String str = src.split("\n")[line - 1].trim();
-                if (str.length() > 96)
-                    str = str.substring(0, 96) + " [...]";
-
-                message += "\nscript:\n\t" + str;
-            } catch (Exception ignored) {}
-        }
-
         MutableComponent component = Component.empty()
                 .append(Component.literal("[error] ").withStyle(ColorUtils.Colors.LUA_ERROR.style))
                 .append(Component.literal(owner.entityName))
@@ -114,7 +81,13 @@ public class FiguraLuaPrinter {
         if (trailers != null) component.append(trailers)
                 .append(Component.literal("\n"));
 
-        owner.errorText = TextUtils.replaceTabs(Component.literal(message).withStyle(ColorUtils.Colors.LUA_ERROR.style));
+        Component tooltipMessage = TextUtils.replaceTabs(Component.literal(message).withStyle(ColorUtils.Colors.LUA_ERROR.style));
+        MutableComponent tooltipText = Component.literal("");
+        tooltipText.append(tooltipMessage);
+        tooltipText.append("\n");
+        if (trailers != null) tooltipText.append(trailers);
+
+        owner.errorText = tooltipText;
 
         if ((owner.entityType == EntityType.PLAYER && !Configs.LOG_OTHERS.value && !FiguraMod.isLocal(owner.owner)) || owner.permissions.getCategory() == Permissions.Category.BLOCKED)
             return;

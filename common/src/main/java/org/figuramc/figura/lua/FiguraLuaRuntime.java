@@ -65,7 +65,7 @@ public class FiguraLuaRuntime {
     //---------------------------------
 
     public final Avatar owner;
-    private final Globals userGlobals = new Globals();
+    public final Globals userGlobals = new Globals();
     private final LuaFunction setHookFunction;
     private final LuaFunction getInfoFunction;
     protected final Map<String, String> scripts = new HashMap<>();
@@ -80,6 +80,7 @@ public class FiguraLuaRuntime {
     private static final ConcurrentMap<Globals, FiguraLuaRuntime> globalsToRuntime = new MapMaker().weakValues().makeMap();
 
     public LuaErrorCapture lastError = null;
+    public boolean isSyntaxError = false;
 
     public FiguraLuaRuntime(Avatar avatar, Map<String, String> scripts) {
         this.owner = avatar;
@@ -452,6 +453,11 @@ public class FiguraLuaRuntime {
 			return "function: addScript";
 		}
 	};
+
+    public String getScript(String name) {
+        return scripts.get(name);
+    }
+
     // init event //
 
     private Varargs initializeScript(String str){
@@ -473,7 +479,15 @@ public class FiguraLuaRuntime {
         // load
         String directory = PathUtils.computeSafeString(path.getParent());
         String fileName = PathUtils.computeSafeString(path.getFileName());
-        Varargs value = userGlobals.load(src, name).invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
+        Varargs value;
+        LuaValue chunk;
+        try {
+            chunk = userGlobals.load(src, name);
+        } catch (LuaError e) {
+            isSyntaxError = true;
+            throw e;
+        }
+        value = chunk.invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
         if (value == LuaValue.NIL)
             value = LuaValue.TRUE;
 
@@ -488,6 +502,8 @@ public class FiguraLuaRuntime {
             return false;
 
         owner.luaRuntime = this;
+        lastError = null;
+        isSyntaxError = false;
 
         try {
             if (autoScripts == null) {
@@ -509,7 +525,9 @@ public class FiguraLuaRuntime {
 
     public void error(Throwable e) {
         Component analysis = null;
-        if (lastError != null) {
+        if (isSyntaxError) {
+            analysis = AnalysisTools.analyzeSyntaxError(this, e);
+        } else if (lastError != null) {
             analysis = AnalysisTools.analyze(lastError);
         }
         FiguraLuaPrinter.sendLuaError(parseError(e), owner, analysis);

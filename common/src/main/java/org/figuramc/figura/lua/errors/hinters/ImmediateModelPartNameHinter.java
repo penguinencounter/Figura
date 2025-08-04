@@ -14,6 +14,7 @@ import org.luaj.vm2.LuaValue;
 
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
 import static org.figuramc.figura.lua.errors.hinters.ModelPartSuggestionHeuristics.EQUALS_IGNORE_CASE;
 
 /**
@@ -22,8 +23,14 @@ import static org.figuramc.figura.lua.errors.hinters.ModelPartSuggestionHeuristi
  * TODO: how the heck do we make this translatable holy
  */
 public class ImmediateModelPartNameHinter implements ErrorHinter {
+    private final List<AnalysisTools.DataflowElement> origin;
+
     public static final int MAX_DETAILED = 3;
     public static final int MAX_OTHERS = 12;
+
+    public ImmediateModelPartNameHinter(List<AnalysisTools.DataflowElement> origin) {
+        this.origin = origin;
+    }
 
     public static String generateCapsHint(String provided, String target) {
         StringBuilder b = new StringBuilder().append("(with ");
@@ -66,17 +73,18 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
     }
 
     @Override
-    public @Nullable Component getHint(List<AnalysisTools.DataflowElement> origin, LuaErrorCapture cap) {
-        // Is there enough data?
-        if (origin.size() < 2) return null;
-        AnalysisTools.DataflowElement parent = origin.get(origin.size() - 2);
+    public @Nullable Component getHint(LuaErrorCapture cap) {
+        AnalysisTools.DataflowElement parent = AnalysisTools.getStepFromEnd(origin, 1);
+        if (parent == null) return null;
         if (parent.valueAtHere == null) return null;
 
         // Is it the right type?
         if (!parent.valueAtHere.isuserdata(FiguraModelPart.class)) return null;
         FiguraModelPart thePart = (FiguraModelPart) parent.valueAtHere.checkuserdata(FiguraModelPart.class);
 
-        AnalysisTools.DataflowElement errorFrame = origin.get(origin.size() - 1);
+        AnalysisTools.DataflowElement errorFrame = requireNonNull(
+                AnalysisTools.getStepFromEnd(origin, 0)
+        );
         LuaValue k;
         if (errorFrame instanceof AnalysisTools.ConstantIndexTable) {
             k = ((AnalysisTools.ConstantIndexTable) errorFrame).key;

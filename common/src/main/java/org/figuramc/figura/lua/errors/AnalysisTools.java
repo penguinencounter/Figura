@@ -4,7 +4,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import org.figuramc.figura.lua.FiguraLuaRuntime;
 import org.figuramc.figura.lua.errors.hinters.ImmediateModelPartNameHinter;
+import org.figuramc.figura.lua.errors.hinters.SourceTextHinter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.luaj.vm2.LuaClosure;
@@ -15,6 +17,8 @@ import org.luaj.vm2.Upvaldesc;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AnalysisTools {
     private interface Analyzer {
@@ -27,6 +31,17 @@ public class AnalysisTools {
         return p.k[kidx];
     }
 
+    public static DataflowElement getStepFromEnd(List<DataflowElement> stack, int stepN) {
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            DataflowElement val = stack.get(i);
+            if (!(val instanceof DataflowElement.HintOnly)) {
+                if (stepN == 0) return val;
+                stepN--;
+            }
+        }
+        return null;
+    }
+
     public static abstract class DataflowElement {
         public LuaValue valueAtHere = null;
 
@@ -37,12 +52,19 @@ public class AnalysisTools {
         }
 
         protected abstract LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level);
+
+        /**
+         * Marker interface for actions that don't represent a step in the dataflow
+         * (e.g. moves, register markers)
+         */
+        public interface HintOnly {
+        }
     }
 
     /**
      * Last resort if we don't know where it came from. Passes the previous value straight through.
      */
-    public static class Register extends DataflowElement {
+    public static class Register extends DataflowElement implements DataflowElement.HintOnly {
         final int reg;
 
         Register(int reg) {
@@ -51,6 +73,15 @@ public class AnalysisTools {
 
         @Override
         protected LuaValue resolveInternal(@Nullable LuaValue previousValue, LuaErrorCapture cap, int level) {
+            if (previousValue == null) {
+                LuaErrorCapture.PCFrame thisFrame = cap.frames.get(level);
+                ProtoCache dataflowInfo = cap.getPrototypeFrame(level);
+                int clobberedAt = dataflowInfo.getNextWrite(reg, -1);
+                if (clobberedAt < thisFrame.pc) {
+                    return null; // too bad :(
+                }
+                return thisFrame.stackView[reg];
+            }
             return previousValue;
         }
     }
@@ -133,18 +164,18 @@ public class AnalysisTools {
         }
     }
 
-    private static abstract class TracebackException extends Exception {
+    public static abstract class TracebackException extends Exception {
         // reduce performance impact of throwing this
         @Override
         public synchronized Throwable fillInStackTrace() {
-            return this;
+            return null;
         }
     }
 
-    private static class ReachedStartOfFunction extends TracebackException {
+    public static class ReachedStartOfFunction extends TracebackException {
     }
 
-    private static class MissingInstructionAtPC extends TracebackException {
+    public static class MissingInstructionAtPC extends TracebackException {
         public final int pc;
 
         private MissingInstructionAtPC(int pc) {
@@ -152,10 +183,10 @@ public class AnalysisTools {
         }
     }
 
-    private static class MultipleOptions extends TracebackException {
+    public static class MultipleOptions extends TracebackException {
     }
 
-    private static class UnknownOpcode extends TracebackException {
+    public static class UnknownOpcode extends TracebackException {
         public final int pc;
 
         private UnknownOpcode(int pc) {
@@ -164,7 +195,7 @@ public class AnalysisTools {
     }
 
 
-    private static Instruction findOriginOnce(
+    public static Instruction findOriginOnce(
             ProtoCache chart,
             int register,
             int pc
@@ -230,6 +261,8 @@ public class AnalysisTools {
                 register = typed.src;
                 chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src));
             } else if (current instanceof Instruction.Move) {
+                Instruction.Move typed = (Instruction.Move) current;
+                chain.add(new Register(typed.from));
                 register = ((Instruction.Move) current).from;
             }
         }
@@ -276,6 +309,8 @@ public class AnalysisTools {
             if (errorCause == null) return null;
 
             ArrayList<Component> hints = new ArrayList<>();
+            hints.add(new SourceTextHinter().getHint(cap));
+
 
             boolean isGetTable = errorCause instanceof Instruction.GetTable;
             boolean isSelf = errorCause instanceof Instruction.Self;
@@ -292,7 +327,7 @@ public class AnalysisTools {
                     parent = element.resolve(parent, cap, 0);
                 }
 
-                Component mpHint = new ImmediateModelPartNameHinter().getHint(stack, cap);
+                Component mpHint = new ImmediateModelPartNameHinter(stack).getHint(cap);
                 if (mpHint != null) hints.add(mpHint);
             } else if (errorCause instanceof Instruction.GetTabUp) {
                 Upvaldesc upv = p.upvalues[((Instruction.GetTabUp) errorCause).upval];
@@ -316,8 +351,37 @@ public class AnalysisTools {
         }
     };
 
+    private static final Analyzer callNilValue = new Analyzer() {
+        @Override
+        public boolean accepts(LuaErrorCapture cap) {
+            if (!cap.errorObj.getMessage().contains("attempt to call a nil value")) return false;
+            return cap.getTop().c != null;
+        }
+
+        @Override
+        public Component execute(LuaErrorCapture cap) {
+            ArrayList<Component> hints = new ArrayList<>();
+            hints.add(new SourceTextHinter().getHint(cap));
+
+            if (!hints.isEmpty()) hints.add(Component.literal("-- INCLUDE ALL OF THE ABOVE IN YOUR SCREENSHOT --")
+                    .withStyle(ChatFormatting.YELLOW));
+
+            MutableComponent finalHints = Component.literal("\n");
+            boolean isFirst = true;
+            for (Component c : hints) {
+                if (!isFirst)
+                    finalHints.append("\n");
+                finalHints.append(c);
+                isFirst = false;
+            }
+
+            return finalHints;
+        }
+    };
+
     private static final List<Analyzer> allAnalyzers = List.of(
-            indexNilValue
+            indexNilValue,
+            callNilValue
     );
 
     public static Component analyze(LuaErrorCapture cap) {
@@ -327,5 +391,15 @@ public class AnalysisTools {
             }
         }
         return null;
+    }
+
+    public static final Pattern SYNTAX_SCRIPT_AND_LINE = Pattern.compile("\\[string \"(.*?)\"]:(\\d+):");
+
+    public static Component analyzeSyntaxError(FiguraLuaRuntime runtime, Throwable e) {
+        String message = e.toString().replace("org.luaj.vm2.LuaError: ", "")
+                .replace("\n\t[Java]: in ?", "");
+        Matcher m = SYNTAX_SCRIPT_AND_LINE.matcher(message);
+        if (!m.find()) return null;
+        return SourceTextHinter.getContextHint(m.group(1), Integer.parseInt(m.group(2)), runtime);
     }
 }
