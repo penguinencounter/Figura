@@ -15,7 +15,7 @@ public abstract class CauseHint implements ErrorHinter {
     public @Nullable Component getHint(LuaErrorCapture cap) {
         MutableComponent header = Component.translatable("figura.errors.cause")
                 .withStyle(Style.EMPTY.withColor(ColorUtils.Colors.LUA_ERROR_HINT_HEADER.hex));
-        return Component.literal("").append(header).append("\n").append(getBody(cap)).append("\n");
+        return Component.literal("\n").append(header).append("\n").append(getBody(cap)).append("\n");
     }
 
     @Override
