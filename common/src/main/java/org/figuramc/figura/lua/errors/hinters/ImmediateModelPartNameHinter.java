@@ -157,8 +157,15 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
         for (Map.Entry<String, String> item : detailed.entrySet()) {
             if (!isFirst)
                 builder.append("\n");
+
+            Style extra = overloaded.contains(item.getKey()) ? Style.EMPTY.withStrikethrough(true) : Style.EMPTY;
+
             MutableComponent row = Component.literal(" • ").withStyle(gray);
-            row.append(LuaRendering.indexString(item.getKey()).toComponent(prominentScaffolding, prominent));
+            row.append(
+                    LuaRendering.indexString(item.getKey())
+                            .toComponent(prominentScaffolding, prominent)
+                            .withStyle(extra)
+            );
             row.append(" ");
             row.append(item.getValue());
             builder.append(row);
@@ -188,7 +195,9 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
                     break;
                 }
                 if (!listIsFirst) everythingElse.append(", ");
-                everythingElse.append(LuaRendering.indexString(item.getKey()).toComponent(scaffoldStyle, elementStyle));
+                Style extra = overloaded.contains(item.getKey()) ? Style.EMPTY.withStrikethrough(true) : Style.EMPTY;
+
+                everythingElse.append(LuaRendering.indexString(item.getKey()).toComponent(scaffoldStyle, elementStyle).withStyle(extra));
                 listIsFirst = false;
             }
             builder.append(everythingElse);

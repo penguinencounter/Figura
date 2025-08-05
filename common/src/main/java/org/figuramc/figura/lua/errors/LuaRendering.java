@@ -1,11 +1,12 @@
 package org.figuramc.figura.lua.errors;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 public class LuaRendering {
     public record Annotated(String left, String main, String right) {
-        public Component toComponent(Style outer, Style inner) {
+        public MutableComponent toComponent(Style outer, Style inner) {
             if (left.isEmpty() && right.isEmpty()) return Component.literal(main).withStyle(inner);
             return Component.literal(left).withStyle(outer)
                     .append(Component.literal(main).withStyle(inner))

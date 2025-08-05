@@ -5,16 +5,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import org.figuramc.figura.lua.FiguraLuaRuntime;
-import org.figuramc.figura.lua.errors.hinters.ErrorHinter;
-import org.figuramc.figura.lua.errors.hinters.HintMissingUpval;
-import org.figuramc.figura.lua.errors.hinters.ImmediateModelPartNameHinter;
-import org.figuramc.figura.lua.errors.hinters.SourceTextHinter;
+import org.figuramc.figura.lua.errors.hinters.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.luaj.vm2.LuaClosure;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.Prototype;
-import org.luaj.vm2.Upvaldesc;
+import org.luaj.vm2.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,10 +139,12 @@ public class AnalysisTools {
     public static class ConstantIndexTable extends DataflowElement {
         public final LuaValue key;
         public final @Nullable Integer regSrc;
+        public final Instruction by;
 
-        ConstantIndexTable(LuaValue key, @Nullable Integer src) {
+        ConstantIndexTable(LuaValue key, @Nullable Integer src, Instruction by) {
             this.key = key;
             this.regSrc = src;
+            this.by = by;
         }
 
         @Override
@@ -197,6 +193,24 @@ public class AnalysisTools {
         }
     }
 
+    public static String getLocalNameFor(int register, int pc, Prototype p, ProtoCache chart) {
+        while (true) {
+            LuaString loc;
+            if ((loc = p.getlocalname(register + 1, pc)) != null) return loc.checkjstring();
+            Instruction i;
+            try {
+                i = AnalysisTools.findOriginOnce(chart, register, pc);
+            } catch (AnalysisTools.TracebackException e) {
+                return null;
+            }
+            pc = i.pc;
+            if (i instanceof Instruction.Move) {
+                register = ((Instruction.Move) i).from;
+            } else {
+                return null;
+            }
+        }
+    }
 
     public static Instruction findOriginOnce(
             ProtoCache chart,
@@ -244,7 +258,7 @@ public class AnalysisTools {
                     chain.add(new Register(typed.to));
                     break;
                 }
-                chain.add(new ConstantIndexTable(p.k[typed.rk], null));
+                chain.add(new ConstantIndexTable(p.k[typed.rk], null, typed));
                 chain.add(new GetUpValue(typed.upval));
                 break;
             } else if (current instanceof Instruction.GetTable) {
@@ -254,7 +268,7 @@ public class AnalysisTools {
                     break;
                 }
                 register = typed.src;
-                chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src));
+                chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src, typed));
             } else if (current instanceof Instruction.Self) {
                 Instruction.Self typed = (Instruction.Self) current;
                 if (!typed.isk) {
@@ -262,7 +276,7 @@ public class AnalysisTools {
                     break;
                 }
                 register = typed.src;
-                chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src));
+                chain.add(new ConstantIndexTable(p.k[typed.rk], typed.src, typed));
             } else if (current instanceof Instruction.Move) {
                 Instruction.Move typed = (Instruction.Move) current;
                 chain.add(new Register(typed.from));
@@ -329,6 +343,27 @@ public class AnalysisTools {
                 }
 
                 hints.add(new ImmediateModelPartNameHinter(stack));
+
+                generateHint:
+                {
+                    DataflowElement last = getStepFromEnd(stack, 0);
+                    if (!(last instanceof ConstantIndexTable)) break generateHint;
+                    ConstantIndexTable typed = (ConstantIndexTable) last;
+                    LuaValue key = typed.key;
+                    Instruction inst = typed.by;
+                    if (typed.regSrc == null) break generateHint;
+                    String name = getLocalNameFor(typed.regSrc, inst.pc, p, cache);
+                    if (name == null) {
+                        DataflowElement second = getStepFromEnd(stack, 1);
+                        if (second == null) break generateHint;
+                        if (second instanceof ConstantIndexTable) {
+                            name = ((ConstantIndexTable) second).key.checkjstring();
+                        } else break generateHint;
+                    }
+
+                    hints.add(new HintMissingKey(name, key));
+                }
+
             } else if (errorCause instanceof Instruction.GetTabUp) {
                 Upvaldesc upv = p.upvalues[((Instruction.GetTabUp) errorCause).upval];
                 String reason = upv.name.tojstring();
