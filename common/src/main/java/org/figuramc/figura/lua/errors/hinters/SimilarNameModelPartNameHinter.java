@@ -12,6 +12,11 @@ public class SimilarNameModelPartNameHinter implements ErrorHinter {
     public static final int MAX_OTHERS = 12;
 
     @Override
+    public int getOrdering() {
+        return 10;
+    }
+
+    @Override
     public @Nullable Component getHint(LuaErrorCapture cap) {
         return null;
     }

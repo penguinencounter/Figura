@@ -7,6 +7,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import org.figuramc.figura.lua.FiguraLuaRuntime;
 import org.figuramc.figura.lua.errors.LuaErrorCapture;
+import org.figuramc.figura.utils.ColorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +21,11 @@ import static net.minecraft.network.chat.Component.translatable;
  */
 public class SourceTextHinter implements ErrorHinter {
     public static final int COLOR = 0xffffff;
-    public static final int SCRIPT_NAME = 0x40ffc8;
     public static final int CONTEXT = 0x505050;
     public static final int SUSPECT = 0xb0b0b0;
     public static final int ERROR = 0xff8080;
+    public static final int HEADER = 0xff9080;
+    public static final int HEADER_SUBJECT = 0xffb080;
 
     private static Component minified() {
         HoverEvent tooltip = new HoverEvent(
@@ -91,8 +93,8 @@ public class SourceTextHinter implements ErrorHinter {
             List<String> span
     ) {
         MutableComponent result = Component.literal("").withStyle(Style.EMPTY.withColor(COLOR));
-        result.append(Component.literal("script '").withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))
-                .append(Component.literal(scriptName).withStyle(Style.EMPTY.withColor(SCRIPT_NAME)))
+        result.append(Component.literal("script '").withStyle(Style.EMPTY.withColor(HEADER))
+                .append(Component.literal(scriptName).withStyle(Style.EMPTY.withColor(HEADER_SUBJECT)))
                 .append("':\n"));
 
         markUpLines(
@@ -106,6 +108,11 @@ public class SourceTextHinter implements ErrorHinter {
         );
 
         return result;
+    }
+
+    @Override
+    public int getOrdering() {
+        return -1; // First thing
     }
 
     @Override

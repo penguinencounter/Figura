@@ -73,6 +73,11 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
     }
 
     @Override
+    public int getOrdering() {
+        return 11;
+    }
+
+    @Override
     public @Nullable Component getHint(LuaErrorCapture cap) {
         AnalysisTools.DataflowElement parent = AnalysisTools.getStepFromEnd(origin, 1);
         if (parent == null) return null;
@@ -130,11 +135,12 @@ public class ImmediateModelPartNameHinter implements ErrorHinter {
 
         // TODO: if there's only one option, mix it into the error message
         MutableComponent builder = Component.literal("")
-                .withStyle(Style.EMPTY.withColor(ColorUtils.Colors.FIGURA_BLUE.hex));
+                .withStyle(Style.EMPTY.withColor(ColorUtils.Colors.LUA_ERROR_HINT_HEADER.hex));
         // TODO: if anything this should be the line that is localized
         builder.append(
                 Component.literal("Did you mean one of these other parts in ")
-                        .append(Component.literal(thePart.name).withStyle(ChatFormatting.GREEN))
+                        .append(Component.literal(thePart.name)
+                                .withStyle(Style.EMPTY.withColor(ColorUtils.Colors.LUA_ERROR_HINT_SUBJECT.hex)))
                         .append("?\n")
         );
 

@@ -22,6 +22,10 @@ public class ColorUtils {
 
         LUA_LOG(0x5555FF),
         LUA_ERROR(0xFF5555),
+        LUA_ERROR_HINT_HEADER(0x19E5D7),
+        LUA_ERROR_HINT_SUBJECT(0x40FFC8),
+        LUA_ERROR_CAUSE(0xFFD53F),
+        LUA_ERROR_CAUSE_SUBJECT(0xFF9F3F),
         LUA_PING(0xA155DA),
 
         DEFAULT(0x5AAAFF),

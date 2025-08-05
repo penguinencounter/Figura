@@ -5,6 +5,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import org.figuramc.figura.lua.FiguraLuaRuntime;
+import org.figuramc.figura.lua.errors.hinters.ErrorHinter;
+import org.figuramc.figura.lua.errors.hinters.HintMissingUpval;
 import org.figuramc.figura.lua.errors.hinters.ImmediateModelPartNameHinter;
 import org.figuramc.figura.lua.errors.hinters.SourceTextHinter;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +18,7 @@ import org.luaj.vm2.Upvaldesc;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +27,7 @@ public class AnalysisTools {
     private interface Analyzer {
         boolean accepts(LuaErrorCapture cap);
 
-        Component execute(LuaErrorCapture cap);
+        List<ErrorHinter> execute(LuaErrorCapture cap);
     }
 
     private static LuaValue k(Prototype p, int kidx) {
@@ -301,16 +304,14 @@ public class AnalysisTools {
         }
 
         @Override
-        public Component execute(LuaErrorCapture cap) {
+        public List<ErrorHinter> execute(LuaErrorCapture cap) {
             @NotNull Prototype p = cap.getTop().c.p;
             int pc = cap.getTop().pc;
             ProtoCache cache = cap.getPrototypeFrame(0);
             Instruction errorCause = cache.decoded.get(pc);
             if (errorCause == null) return null;
 
-            ArrayList<Component> hints = new ArrayList<>();
-            hints.add(new SourceTextHinter().getHint(cap));
-
+            ArrayList<ErrorHinter> hints = new ArrayList<>();
 
             boolean isGetTable = errorCause instanceof Instruction.GetTable;
             boolean isSelf = errorCause instanceof Instruction.Self;
@@ -327,70 +328,57 @@ public class AnalysisTools {
                     parent = element.resolve(parent, cap, 0);
                 }
 
-                Component mpHint = new ImmediateModelPartNameHinter(stack).getHint(cap);
-                if (mpHint != null) hints.add(mpHint);
+                hints.add(new ImmediateModelPartNameHinter(stack));
             } else if (errorCause instanceof Instruction.GetTabUp) {
                 Upvaldesc upv = p.upvalues[((Instruction.GetTabUp) errorCause).upval];
                 String reason = upv.name.tojstring();
-                return singleBlame(reason, errorCause);
+                hints.add(new HintMissingUpval(reason));
             }
 
-            if (!hints.isEmpty()) hints.add(Component.literal("-- INCLUDE ALL OF THE ABOVE IN YOUR SCREENSHOT --")
-                    .withStyle(ChatFormatting.YELLOW));
-
-            MutableComponent finalHints = Component.literal("\n");
-            boolean isFirst = true;
-            for (Component c : hints) {
-                if (!isFirst)
-                    finalHints.append("\n");
-                finalHints.append(c);
-                isFirst = false;
-            }
-
-            return finalHints;
+            return hints;
         }
     };
 
-    private static final Analyzer callNilValue = new Analyzer() {
+    private static final Analyzer defaults = new Analyzer() {
         @Override
         public boolean accepts(LuaErrorCapture cap) {
-            if (!cap.errorObj.getMessage().contains("attempt to call a nil value")) return false;
             return cap.getTop().c != null;
         }
 
         @Override
-        public Component execute(LuaErrorCapture cap) {
-            ArrayList<Component> hints = new ArrayList<>();
-            hints.add(new SourceTextHinter().getHint(cap));
-
-            if (!hints.isEmpty()) hints.add(Component.literal("-- INCLUDE ALL OF THE ABOVE IN YOUR SCREENSHOT --")
-                    .withStyle(ChatFormatting.YELLOW));
-
-            MutableComponent finalHints = Component.literal("\n");
-            boolean isFirst = true;
-            for (Component c : hints) {
-                if (!isFirst)
-                    finalHints.append("\n");
-                finalHints.append(c);
-                isFirst = false;
-            }
-
-            return finalHints;
+        public List<ErrorHinter> execute(LuaErrorCapture cap) {
+            return List.of(
+                    new SourceTextHinter()
+            );
         }
     };
 
     private static final List<Analyzer> allAnalyzers = List.of(
-            indexNilValue,
-            callNilValue
+            defaults,
+            indexNilValue
     );
 
     public static Component analyze(LuaErrorCapture cap) {
+        ArrayList<ErrorHinter> hints = new ArrayList<>();
         for (Analyzer analyzer : allAnalyzers) {
             if (analyzer.accepts(cap)) {
-                return analyzer.execute(cap);
+                hints.addAll(analyzer.execute(cap));
             }
         }
-        return null;
+
+        hints.sort(Comparator.comparingInt(ErrorHinter::getOrdering));
+
+        MutableComponent result = Component.literal("");
+        boolean first = true;
+        for (ErrorHinter hint : hints) {
+            Component resolved = hint.getHint(cap);
+            if (resolved == null) continue;
+            if (!first) result.append("\n");
+            result.append(resolved);
+            first = false;
+        }
+
+        return result;
     }
 
     public static final Pattern SYNTAX_SCRIPT_AND_LINE = Pattern.compile("\\[string \"(.*?)\"]:(\\d+):");
