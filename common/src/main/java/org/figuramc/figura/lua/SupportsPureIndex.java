@@ -21,6 +21,7 @@ public interface SupportsPureIndex {
      */
     interface Auto extends SupportsPureIndex {
         Object __index(String key);
+
         LuaTypeManager getTypeManager();
 
         @Override

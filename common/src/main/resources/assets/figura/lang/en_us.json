@@ -173,7 +173,7 @@
     "figura.emoji.reference_retro": "Retro References",
     "figura.emoji.meme": "Memes",
     "figura.errors.cause": "What went wrong:",
-    "figura.errors.missing_key": "Couldn't find %s within %s. Check your spelling and capitalization.",
+    "figura.errors.missing_key": "Couldn't find %s within %s.\nCheck your spelling and capitalization.",
     "figura.errors.missing_script": "failed to locate script",
     "figura.errors.missing_upvalue": "%s is defined outside this function, but it is currently nil",
     "figura.errors.script_minified": "Script is heavily minified, cannot show preview",

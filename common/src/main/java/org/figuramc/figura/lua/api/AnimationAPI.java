@@ -2,7 +2,9 @@ package org.figuramc.figura.lua.api;
 
 import org.figuramc.figura.animation.Animation;
 import org.figuramc.figura.avatar.Avatar;
+import org.figuramc.figura.lua.LuaTypeManager;
 import org.figuramc.figura.lua.LuaWhitelist;
+import org.figuramc.figura.lua.SupportsPureIndex;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
@@ -17,7 +19,7 @@ import java.util.Map;
         name = "AnimationAPI",
         value = "animations"
 )
-public class AnimationAPI {
+public class AnimationAPI implements SupportsPureIndex.Auto {
 
     private final Map<String, Map<String, Animation>> animTable;
     private final Avatar avatar;
@@ -81,6 +83,11 @@ public class AnimationAPI {
     @LuaWhitelist
     public Map<String, Animation> __index(String val) {
         return val == null ? null : animTable.get(val);
+    }
+
+    @Override
+    public LuaTypeManager getTypeManager() {
+        return avatar.luaRuntime.typeManager;
     }
 
     @Override
