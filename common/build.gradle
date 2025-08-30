@@ -24,7 +24,10 @@ dependencies {
     implementation("com.neovisionaries:nv-websocket-client:$nv_websocket")
 
     // Mods
-    modCompileOnly ("software.bernie.geckolib:geckolib-fabric-$geckolib_version") {
+//    modCompileOnly ("software.bernie.geckolib:geckolib-fabric-$geckolib_version") {
+//        exclude group: "net.fabricmc"
+//    }
+    modCompileOnly("mod.azure.azurelibarmor:azurelibarmor-fabric-1.21.1:3.0.0") {
         exclude group: "net.fabricmc"
     }
 

@@ -27,6 +27,13 @@ subprojects {
 				includeGroup("com.eliotlash.mclib")
 			}
 		}
+		maven {
+			name = 'AzureLib'
+			url = "https://maven.azuredoom.com/mods"
+			content {
+				includeGroupByRegex("mod\\.azure.*")
+			}
+		}
 	}
 
 	dependencies {

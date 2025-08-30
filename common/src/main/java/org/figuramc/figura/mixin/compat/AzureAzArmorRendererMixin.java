@@ -1,13 +1,14 @@
 package org.figuramc.figura.mixin.compat;
 
+import mod.azure.azurelibarmor.rewrite.render.AzProvider;
+import mod.azure.azurelibarmor.rewrite.render.armor.AzArmorRenderer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
-import org.figuramc.figura.ducks.GeckolibGeoArmorAccessor;
-import org.joml.Matrix4f;
+import org.figuramc.figura.ducks.AzureAzArmorAccessor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,11 +16,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 @Pseudo
-@Mixin(value = GeoArmorRenderer.class, remap = false)
-public abstract class GeckolibGeoArmorRendererMixin implements GeckolibGeoArmorAccessor {
+@Mixin(value = AzArmorRenderer.class, remap = false)
+public abstract class AzureAzArmorRendererMixin implements AzureAzArmorAccessor {
     @Unique
     private Avatar figura$avatar;
 
@@ -39,18 +39,6 @@ public abstract class GeckolibGeoArmorRendererMixin implements GeckolibGeoArmorA
     }
 
     @Override
-    @Accessor("entityRenderTranslations")
-    public abstract void figura$setEntityRenderTranslations(Matrix4f matrix4f);
-
-    @Override
-    @Accessor("modelRenderTranslations")
-    public abstract void figura$setModelRenderTranslations(Matrix4f matrix4f);
-
-    @Override
-    @Accessor("scaleWidth")
-    public abstract float figura$getScaleWidth();
-
-    @Override
-    @Accessor("scaleHeight")
-    public abstract float figura$getScaleHeight();
+    @Accessor("provider")
+    public abstract AzProvider<ItemStack> figura$getProvider();
 }
