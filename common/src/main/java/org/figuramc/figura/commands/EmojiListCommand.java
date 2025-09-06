@@ -87,12 +87,7 @@ class EmojiListCommand {
                     }
                 }
                 msg.append(literal("\ncodepoint: " + unicode.codePointAt(0)).withStyle(ChatFormatting.GRAY));
-                comp.append(((MutableComponent)Emojis.getEmoji(aliases[0],Style.EMPTY, msg)).withStyle(Style.EMPTY.withClickEvent(
-                        new ClickEvent(
-                                ClickEvent.Action.COPY_TO_CLIPBOARD,
-                                ":" + aliases[0] + ":"
-                        )
-                )));
+                comp.append(Emojis.getEmoji(aliases[0],Style.EMPTY, msg));
             }
         });
 
