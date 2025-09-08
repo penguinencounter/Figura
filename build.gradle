@@ -27,6 +27,7 @@ subprojects {
 				includeGroup("com.eliotlash.mclib")
 			}
 		}
+		maven { url 'https://maven.maxhenkel.de/repository/public' }
 	}
 
 	dependencies {

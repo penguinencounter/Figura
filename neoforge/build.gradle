@@ -29,7 +29,8 @@ dependencies {
     include(forgeRuntimeLibrary("com.github.FiguraMC.luaj:luaj-core:$luaj-figura"))
     include(forgeRuntimeLibrary("com.github.FiguraMC.luaj:luaj-jse:$luaj-figura"))
     include(forgeRuntimeLibrary("com.neovisionaries:nv-websocket-client:$nv_websocket"))
-
+    include(forgeRuntimeLibrary("org.chenliang.oggus:oggus:1.2.0"))
+    include(forgeRuntimeLibrary("org.concentus:Concentus:1.0-SNAPSHOT"))
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
 
     if (rootProject.run_with_geckolib == "true") {
