@@ -20,6 +20,7 @@ import org.luaj.vm2.LuaFunction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -231,7 +232,7 @@ public class Action {
             value = "wheel_action.set_item"
     )
     public Action setItem(Object item) {
-        this.part = new FiguraModelPart(owner, title+"_part", new PartCustomization(), new HashMap<>(), new ArrayList<>());
+        this.part = new FiguraModelPart(owner, title+"_part", null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
         this.part.facesByTexture = new ArrayList<>();
         this.part.textures = new ArrayList<>();
 
@@ -262,7 +263,7 @@ public class Action {
             value = "wheel_action.set_hover_item"
     )
     public Action setHoverItem(Object item) {
-        this.hoverPart = new FiguraModelPart(owner, title+"_hover_part", new PartCustomization(), new HashMap<>(), new ArrayList<>());
+        this.hoverPart = new FiguraModelPart(owner, title+"_hover_part", null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
         this.hoverPart.facesByTexture = new ArrayList<>();
         this.hoverPart.textures = new ArrayList<>();
 
@@ -562,7 +563,7 @@ public class Action {
             value = "wheel_action.set_toggle_item"
     )
     public Action setToggleItem(Object item) {
-        this.togglePart = new FiguraModelPart(owner, title+"_hover_part", new PartCustomization(), new HashMap<>(), new ArrayList<>());
+        this.togglePart = new FiguraModelPart(owner, title+"_hover_part", null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
         this.togglePart.facesByTexture = new ArrayList<>();
         this.togglePart.textures = new ArrayList<>();
 

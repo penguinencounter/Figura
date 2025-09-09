@@ -96,8 +96,8 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
 
     private void walkCollections(Map<String, List<FiguraModelPart>> root, String names[]) {
         if (collectionInfo != null)
-        for (byte b: collectionInfo)
-        root.get(names[b]).add(this);
+            for (byte b: collectionInfo)
+                root.get(names[b]).add(this);
         for (var c: children) c.walkCollections(root, names);
     }
 
