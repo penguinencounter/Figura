@@ -29,6 +29,8 @@ import org.figuramc.figura.model.TextureCustomization;
 import org.figuramc.figura.model.rendering.PartFilterScheme;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
 import org.figuramc.figura.model.rendering.texture.RenderTypes;
+import org.figuramc.figura.model.rendertasks.ItemTask;
+import org.figuramc.figura.model.rendertasks.RenderTask;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.TextUtils;
@@ -229,8 +231,16 @@ public class ActionWheel {
             // render
             renderPart(gui, action, part, (float) xOff, (float) yOff, minecraft.getDeltaFrameTime());
 
-         //   if (Configs.ACTION_WHEEL_DECORATIONS.value && part instanceof ItemTask itemTask)
-           //     gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+            // this is so ugly lol, i could do better
+            for (RenderTask task : part.renderTasks.values())
+                if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                    gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+
+            for (FiguraModelPart child : part.getChildren().values()) {
+                for (RenderTask task : child.renderTasks.values())
+                    if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                        gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+            }
         }
     }
 
