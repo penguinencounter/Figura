@@ -475,7 +475,7 @@ public class SpriteTask extends RenderTask {
         copy.b = b;
         copy.a = a;
         copy.renderType = renderType;
-        copy.vertices.addAll(vertices);
+        this.vertices.forEach(v-> copy.vertices.add(v.copy()));
         return copy;
     }
 
