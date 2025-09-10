@@ -561,11 +561,11 @@ public class Action {
             value = "wheel_action.set_toggle_item"
     )
     public Action setToggleItem(Object item) {
-        this.togglePart = new FiguraModelPart(owner, title+"_hover_part", null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
+        this.togglePart = new FiguraModelPart(owner, title+"_toggle_part", null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
         this.togglePart.facesByTexture = new ArrayList<>();
         this.togglePart.textures = new ArrayList<>();
 
-        this.togglePart.addTask(new ItemTask(title+"_hover_task", owner, null)
+        this.togglePart.addTask(new ItemTask(title+"_toggle_task", owner, null)
                 .setItem(LuaUtils.parseItemStack("hoverItem", item))
                 .displayMode("gui").setLight(15d, 15d));
         return this;

@@ -257,7 +257,7 @@ public class ActionWheel {
 
         Avatar avatar = action.owner;
 
-        int[] prev = new int[]{avatar.complexity.remaining};;
+        int[] prev = new int[]{avatar.complexity.remaining};
         avatar.renderer.entity = minecraft.player;
 
         avatar.renderer.setupRenderer(PartFilterScheme.MODEL, gui.bufferSource(), gui.pose(), tickDelta, LightTexture.FULL_BRIGHT, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
