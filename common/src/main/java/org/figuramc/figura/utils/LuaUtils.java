@@ -245,6 +245,8 @@ public class LuaUtils {
                 throw new LuaError("Could not parse block state from string: " + string);
             }
         }
+        else if (block instanceof BlockState)
+            return (BlockState) block;
 
         throw new LuaError("Illegal argument to " + methodName + "(): " + block);
     }

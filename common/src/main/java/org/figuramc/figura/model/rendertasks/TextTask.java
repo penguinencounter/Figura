@@ -418,6 +418,28 @@ public class TextTask extends RenderTask {
     }
 
     @Override
+    public RenderTask copy() {
+        TextTask copy = new TextTask(this.name + "_copy", this.owner, this.parent);
+        copy.textCached = this.textCached;
+        copy.text = this.text;
+        copy.alignment = this.alignment;
+        copy.shadow = this.shadow;
+        copy.outline = this.outline;
+        copy.outlineColor = this.outlineColor;
+        copy.background = this.background;
+        copy.backgroundColor = this.backgroundColor;
+        copy.seeThrough = this.seeThrough;
+        copy.opacity = this.opacity;
+        copy.width = this.width;
+        copy.wrap = this.wrap;
+        copy.cachedComplexity = this.cachedComplexity;
+        copy.cacheWidth = this.cacheWidth;
+        copy.cacheHeight = this.cacheHeight;
+        this.customization.copyTo(copy.customization);
+        return copy;
+    }
+
+    @Override
     public String toString() {
         return name + " (Text Render Task)";
     }
