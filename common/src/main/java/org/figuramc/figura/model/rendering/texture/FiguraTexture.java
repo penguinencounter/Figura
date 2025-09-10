@@ -345,4 +345,8 @@ public class FiguraTexture extends SimpleTexture {
     public String toString() {
         return name + " (" + getWidth() + "x" + getHeight() + ") (Texture)";
     }
+
+    public FiguraTexture copyTexture() {
+        return new FiguraTexture(owner, name + "_copy", copy());
+    }
 }

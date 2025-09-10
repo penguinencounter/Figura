@@ -248,6 +248,10 @@ public abstract class AvatarRenderer {
         this.normalMat.set(normalMat);
     }
 
+    public void addTextureSet(FiguraTextureSet set) {
+        textureSets.add(set);
+    }
+
     public abstract boolean renderPart(FiguraModelPart part, int[] remainingComplexity, boolean prevPredicate);
 
     public abstract void pushToCustomizationStack(PartCustomization stack);
