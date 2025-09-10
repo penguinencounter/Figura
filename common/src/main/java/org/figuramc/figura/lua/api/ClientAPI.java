@@ -651,8 +651,8 @@ public class ClientAPI {
             contents.put("progress",event.getProgress());
             contents.put("color",event.getColor().getName());
             contents.put("style",event.getOverlay().getName());
-            contents.put("darkenscreen", event.shouldDarkenScreen());
-            contents.put("bossmusic",event.shouldPlayBossMusic());
+            contents.put("darkenScreen", event.shouldDarkenScreen());
+            contents.put("bossMusic",event.shouldPlayBossMusic());
             contents.put("fog",event.shouldCreateWorldFog());
 
             bosses.put(entry.getKey().toString(),contents);
