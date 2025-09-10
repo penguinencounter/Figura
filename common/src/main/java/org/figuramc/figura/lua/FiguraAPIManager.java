@@ -82,6 +82,7 @@ public class FiguraAPIManager {
 
         add(Vertex.class);
         add(FiguraModelPart.class);
+        add(PartCollection.class);
         add(RenderTask.class);
         add(ItemTask.class);
         add(BlockTask.class);
