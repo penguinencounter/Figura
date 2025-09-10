@@ -347,6 +347,8 @@ public class FiguraTexture extends SimpleTexture {
     }
 
     public FiguraTexture copyTexture() {
-        return new FiguraTexture(owner, name + "_copy", copy());
+        FiguraTexture copy = new FiguraTexture(owner, name + "_copy", copy());
+        owner.renderer.customTextures.put(name + "_copy", copy);
+        return copy;
     }
 }

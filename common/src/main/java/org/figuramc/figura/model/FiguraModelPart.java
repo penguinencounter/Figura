@@ -1552,11 +1552,17 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
                 @LuaMethodOverload(
                         argumentTypes = {String.class, Boolean.class},
                         argumentNames = {"name", "deepCopy"}
+                ),
+                @LuaMethodOverload(
+                        argumentTypes = {Boolean.class},
+                        argumentNames = {"deepCopy"}
                 )
             },
             value = "model_part.copy"
     )
-    public FiguraModelPart copy(String name, Boolean deep) {
+    public FiguraModelPart copy(Object obj, Boolean deepP) {
+        String name = obj instanceof String ? (String) obj : null;
+        Boolean deep = obj instanceof Boolean ? (Boolean) obj : deepP;
         if (deep != null && deep) return deepCopy(name);
 		if (name == null) name = this.name;
         PartCustomization customization = new PartCustomization();
@@ -1593,11 +1599,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         }
         FiguraModelPart result = new FiguraModelPart(owner, name, uuid != null ? UUID.nameUUIDFromBytes((uuid + ":" + cloneSeed++).getBytes(StandardCharsets.UTF_8)).toString() : null, customization, copyVertices(), figuraModelParts, null, null);
         result.facesByTexture = new ArrayList<>(facesByTexture);
-        result.textures = textures.stream().map(tex -> {
-            FiguraTextureSet set = tex.copy();
-            owner.renderer.addTextureSet(set);
-            return set;
-        }).toList();
+        result.textures = new ArrayList<>(textures);
         result.parentType = parentType;
         result.textureHeight = textureHeight;
         result.textureWidth = textureWidth;
