@@ -1573,6 +1573,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         result.parentType = parentType;
         result.textureHeight = textureHeight;
         result.textureWidth = textureWidth;
+        result.renderTasks.putAll(renderTasks);
 
         if (parentType.isSeparate)
             owner.renderer.sortParts();
@@ -1603,6 +1604,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         result.parentType = parentType;
         result.textureHeight = textureHeight;
         result.textureWidth = textureWidth;
+        this.renderTasks.forEach((key, value) -> result.renderTasks.put(key, value.copy()));
 
         if (parentType.isSeparate)
             owner.renderer.sortParts();

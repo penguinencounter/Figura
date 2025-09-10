@@ -459,6 +459,27 @@ public class SpriteTask extends RenderTask {
     }
 
     @Override
+    public RenderTask copy() {
+        SpriteTask copy = new SpriteTask(name + "_copy", owner, parent);
+        copy.texture = texture;
+        copy.textureW = textureW;
+        copy.textureH = textureH;
+        copy.width = width;
+        copy.height = height;
+        copy.regionW = regionW;
+        copy.regionH = regionH;
+        copy.u = u;
+        copy.v = v;
+        copy.r = r;
+        copy.g = g;
+        copy.b = b;
+        copy.a = a;
+        copy.renderType = renderType;
+        copy.vertices.addAll(vertices);
+        return copy;
+    }
+
+    @Override
     public String toString() {
         return name + " (Sprite Render Task)";
     }
