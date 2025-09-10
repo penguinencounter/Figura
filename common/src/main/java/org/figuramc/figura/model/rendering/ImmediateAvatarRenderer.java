@@ -48,6 +48,32 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         sortParts();
     }
 
+    @Override
+    public void pushToCustomizationStack(PartCustomization stack) {
+        this.customizationStack.push(stack);
+    }
+
+    @Override
+    public void popCustomizationStack() {
+        this.customizationStack.pop();
+    }
+
+    @Override
+    public void doSetupForPart() {
+        for (FiguraTextureSet set : textureSets)
+            set.uploadIfNeeded();
+        for (FiguraTexture texture : customTextures.values())
+            texture.uploadIfDirty();
+
+        VIEW_TO_WORLD_MATRIX.set(AvatarRenderer.worldToViewMatrix().invert());
+    }
+
+    @Override
+    public void flushBuffers() {
+        VERTEX_BUFFER.consume(true, bufferSource);
+        VERTEX_BUFFER.consume(false, bufferSource);
+    }
+
     public void checkEmpty() {
         if (!customizationStack.isEmpty())
             throw new IllegalStateException("Customization stack not empty!");
@@ -202,7 +228,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         return customization;
     }
 
-    protected boolean renderPart(FiguraModelPart part, int[] remainingComplexity, boolean prevPredicate) {
+    public boolean renderPart(FiguraModelPart part, int[] remainingComplexity, boolean prevPredicate) {
         FiguraMod.pushProfiler(part.name);
 
         PartCustomization custom = part.customization;
