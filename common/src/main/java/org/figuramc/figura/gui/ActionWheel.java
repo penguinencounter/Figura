@@ -10,12 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -29,18 +26,13 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.model.FiguraModelPart;
 import org.figuramc.figura.model.PartCustomization;
 import org.figuramc.figura.model.TextureCustomization;
-import org.figuramc.figura.model.rendering.ImmediateAvatarRenderer;
 import org.figuramc.figura.model.rendering.PartFilterScheme;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
-import org.figuramc.figura.model.rendertasks.EntityTask;
-import org.figuramc.figura.model.rendertasks.ItemTask;
-import org.figuramc.figura.model.rendertasks.RenderTask;
+import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.TextUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 
 import java.util.List;
 import java.util.function.Function;
@@ -230,19 +222,19 @@ public class ActionWheel {
             }
 
             // no part, no render
-            FiguraModelPart part = action.getTask(isSelected);
+            FiguraModelPart part = action.getPart(isSelected);
             if (part == null || !part.getVisible())
                 continue;
 
             // render
-            renderTask(gui, action, part, (float) xOff, (float) yOff, minecraft.getDeltaFrameTime());
+            renderPart(gui, action, part, (float) xOff, (float) yOff, minecraft.getDeltaFrameTime());
 
          //   if (Configs.ACTION_WHEEL_DECORATIONS.value && part instanceof ItemTask itemTask)
            //     gui.renderItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
         }
     }
 
-    private static void renderTask(GuiGraphics gui, Action action, FiguraModelPart part, float xOff, float yOff, float tickDelta) {
+    private static void renderPart(GuiGraphics gui, Action action, FiguraModelPart part, float xOff, float yOff, float tickDelta) {
         int x = Math.round(xOff - 8);
         int y = Math.round(yOff - 8);
 
@@ -266,6 +258,8 @@ public class ActionWheel {
         customization.light = LightTexture.FULL_BRIGHT;
         customization.alpha = 1f;
         customization.overlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
+        customization.setPrimaryRenderType(RenderTypes.TRANSLUCENT);
+        customization.setSecondaryRenderType(RenderTypes.EMISSIVE);
 
         customization.primaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.PRIMARY, null);
         customization.secondaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.SECONDARY, null);
@@ -273,30 +267,11 @@ public class ActionWheel {
         avatar.renderer.pushToCustomizationStack(customization);
         Lighting.setupForFlatItems();
 
-        avatar.renderer.renderPart(part, prev, false);
-
+        avatar.renderer.doSetupForPart();
+        avatar.renderer.renderPart(part, prev, true);
+        avatar.renderer.flushBuffers();
         avatar.renderer.popCustomizationStack();
 
-        /*
-        if (task instanceof ItemTask) {
-            bakedModel = minecraft.getItemRenderer().getModel(((ItemTask) task).getItem(), minecraft.level, minecraft.player, 0);
-            if (!bakedModel.usesBlockLight()) {
-                Lighting.setupForFlatItems();
-            }
-            // this fixes the item tasks rendering darkly, i hate it, thank item tasks for scaling stuff negatively :/
-            gui.pose().last().normal().scale(-1.0F, 1.0F, -1.0F);
-        } else if (task instanceof EntityTask) {
-            Lighting.setupForEntityInInventory();
-        }
-
-        // if i don't give it a figura customization stack it won't use the render task translations >:(
-
-        gui.flush();
-        // reset light to 3d light
-        if (bakedModel != null && !bakedModel.usesBlockLight()) {
-            Lighting.setupFor3DItems();
-        }
-*/
         gui.flush();
         gui.pose().popPose();
     }

@@ -257,4 +257,8 @@ public abstract class AvatarRenderer {
     public abstract void pushToCustomizationStack(PartCustomization stack);
 
     public abstract void popCustomizationStack();
+
+    public abstract void doSetupForPart();
+
+    public abstract void flushBuffers();
 }

@@ -13,14 +13,12 @@ import org.figuramc.figura.model.FiguraModelPart;
 import org.figuramc.figura.model.PartCustomization;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.model.rendertasks.ItemTask;
-import org.figuramc.figura.model.rendertasks.RenderTask;
 import org.figuramc.figura.utils.LuaUtils;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaFunction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.UUID;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -91,7 +89,7 @@ public class Action {
             avatar.run(scroll, avatar.tick, delta, this);
     }
 
-    public FiguraModelPart getTask(boolean selected) {
+    public FiguraModelPart getPart(boolean selected) {
         FiguraModelPart ret = null;
         if (selected)
             ret = hoverPart;
