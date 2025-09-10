@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.BossHealthOverlay;
+import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.server.IntegratedServer;
@@ -17,6 +19,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.world.BossEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
@@ -38,6 +41,7 @@ import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.mixin.gui.BossHealthOverlayAccessor;
 import org.figuramc.figura.mixin.gui.GuiAccessor;
 import org.figuramc.figura.mixin.gui.PlayerTabOverlayAccessor;
 import org.figuramc.figura.mixin.render.ModelManagerAccessor;
@@ -635,6 +639,28 @@ public class ClientAPI {
         }
 
         return map;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_bossbars")
+    public static Map<String, Object> getBossbars() {
+        BossHealthOverlay bossBars = Minecraft.getInstance().gui.getBossOverlay();
+        Map<String, Object> bosses = new HashMap<String, Object>();
+        for (Map.Entry<UUID, LerpingBossEvent> entry : ((BossHealthOverlayAccessor) bossBars).getBossEvents().entrySet()) {
+            Map<String, Object> contents = new HashMap<String, Object>();
+
+            BossEvent event = entry.getValue();
+            contents.put("name",event.getName());
+            contents.put("progress",event.getProgress());
+            contents.put("color",event.getColor().getName());
+            contents.put("style",event.getOverlay().getName());
+            contents.put("darkenScreen", event.shouldDarkenScreen());
+            contents.put("bossMusic",event.shouldPlayBossMusic());
+            contents.put("fog",event.shouldCreateWorldFog());
+
+            bosses.put(entry.getKey().toString(),contents);
+        }
+        return bosses;
     }
 
     @LuaWhitelist

@@ -972,6 +972,7 @@
     "figura.docs.client.get_title": "Returns the current title text, or nil if the title isn't visible",
     "figura.docs.client.get_subtitle": "Returns the current subtitle text, or nil if the title or subtitle isn't visible",
     "figura.docs.client.get_scoreboard": "Returns data about the current scoreboard(s). Multiple scoreboards can be visible at the same time (sidebar, team sidebar, list, and below name), so each scoreboard is grouped by its display location",
+    "figura.docs.client.get_bossbars": "Returns a table of bossbars.\nIndexed by the bar's UUID, and contains the bossbar's name (JSON formatted), (lerped) progress, color, style, and whether the bar causes fog, darkens the screen, and causes music to play",
     "figura.docs.client.list_atlases": "Returns a list of all registered atlases paths",
     "figura.docs.client.get_atlas": "Returns a TextureAtlasAPI object with information about the given atlas\nReturns nil if the atlas was not found",
     "figura.docs.client.get_enum": "Return an array containing the entries in the given enum\nEnums can be found in /figura docs enums",
