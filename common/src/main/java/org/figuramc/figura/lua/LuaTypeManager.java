@@ -159,7 +159,7 @@ public class LuaTypeManager {
                     int argIndex = i + (isStatic ? 1 : 2) + offset;
                     boolean nil = args.isnil(argIndex);
                     if (nil && requiredNotNil[i])
-                        throw new LuaError("bad argument: " + method.getName() + " " + argIndex + " do not allow nil values, expected " + FiguraDocsManager.getNameFor(argumentTypes[i]));
+                        throw new LuaError("bad argument: " + method.getName() + " " + argIndex + " does not allow nil values, expected " + FiguraDocsManager.getNameFor(argumentTypes[i]));
                     if (argIndex <= args.narg() && !nil) {
                         try {
                             actualArgs[i] = switch (argumentTypes[i].getName()) {
