@@ -21,9 +21,12 @@ import com.mojang.datafixers.util.Pair;
 import org.figuramc.figura.server.utils.StatusCode;
 import org.figuramc.figura.server.utils.Utils;
 import org.figuramc.figura.utils.FiguraText;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class FSB {
     private static FSB instance;
@@ -36,6 +39,8 @@ public abstract class FSB {
     private final HashMap<Integer, AvatarInputStream> inputStreams = new HashMap<>();
 
     private final HashSet<UUID> connectedPlayers = new HashSet<>();
+    private final ConcurrentLinkedDeque<S2CAvatarReadyPacket> uploadCompletedAvatars = new ConcurrentLinkedDeque<>();
+    private final AtomicBoolean hasDeletedAvatar = new AtomicBoolean(false);
 
     private int handshakeTick = 0;
     private int handshakeAttempts = 0;
@@ -169,6 +174,22 @@ public abstract class FSB {
     public void handleUserConnected(S2CConnectedPacket packet) {
         connectedPlayers.add(packet.player());
         AvatarManager.clearAvatars(packet.player());
+    }
+
+    public void handleAvatarReady(S2CAvatarReadyPacket packet) {
+        uploadCompletedAvatars.add(packet);
+    }
+
+    public @Nullable S2CAvatarReadyPacket nextReadyAvatar() {
+        return uploadCompletedAvatars.poll();
+    }
+
+    public void handleAvatarDeleted() {
+        hasDeletedAvatar.set(true);
+    }
+
+    public boolean pollAvatarDeleted() {
+        return hasDeletedAvatar.getAndSet(false);
     }
 
     public void reset(UUID id) {
@@ -371,9 +392,7 @@ public abstract class FSB {
         private void close(StatusCode code) {
             switch (code) {
                 case FINISHED, ALREADY_EXISTS -> {
-                    FiguraToast.sendToast(FiguraText.of("backend.upload_success"));
-                    parent.equipAvatar(List.of(Pair.of(avatarId, Utils.getHash(data))));
-                    AvatarManager.localUploaded = true;
+                    // This is handled by the AvatarReadyPacket.
                 }
                 case MAX_AVATAR_SIZE_EXCEEDED -> {
                     FiguraToast.sendToast(FiguraText.of("backend.upload_too_big"), FiguraToast.ToastType.ERROR);

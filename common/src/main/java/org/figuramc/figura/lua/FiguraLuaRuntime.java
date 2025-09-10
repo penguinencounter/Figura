@@ -304,10 +304,19 @@ public class FiguraLuaRuntime {
 
                 // get environment in which will be used to get global values from, does not make extra lookups outside this table
                 val = args.arg(3);
-                LuaTable environment = val.istable() ? val.checktable() : runtime.userGlobals;
+                LuaTable environment = val.istable() ? val.checktable() : null;
 
                 // create the function from arguments
-                return runtime.userGlobals.load(ld, chunkName, "t", environment);
+                LuaValue chunk = runtime.userGlobals.load(ld, chunkName, "t", runtime.userGlobals);
+                // adjust the globals so that the debug hooks function correctly *and* the environment also works
+                if (environment != null && chunk instanceof LuaClosure) {
+                    UpValue[] upvalues = ((LuaClosure) chunk).upValues;
+                    if (upvalues.length > 0 && upvalues[0].getValue() == runtime.userGlobals) {
+                        upvalues[0].setValue(environment);
+                    }
+                }
+
+                return chunk;
             } catch (LuaError e) {
                 return varargsOf(NIL, e.getMessageObject());
             }
@@ -380,46 +389,45 @@ public class FiguraLuaRuntime {
 		@Override
 		public LuaValue call(LuaValue arg) {
 			Path path = PathUtils.getPath(arg.checkstring(1));
-			Path dir = PathUtils.getWorkingDirectory(getInfoFunction);
-			return LuaValue.valueOf(scripts.get(PathUtils.computeSafeString(PathUtils.isAbsolute(path) ? path : dir.resolve(path))));
+			String ret = scripts.get(PathUtils.computeSafeString(PathUtils.isAbsolute(path) ? path : PathUtils.getWorkingDirectory(getInfoFunction).resolve(path)));
+			return ret == null ? null : LuaValue.valueOf(ret);
 		}
 		@Override
 		public String tojstring() {
-			return "function: getscript";
+			return "function: getScript";
 		}
 	};
 
+    // "both" "runtime" "nbt"
 	private final ThreeArgFunction addScript = new ThreeArgFunction() {
 		@Override
-		public LuaValue call(LuaValue arg,LuaValue contents,LuaValue replacing) {
+		public LuaValue call(LuaValue arg,LuaValue contents,LuaValue side) {
 			Path path = PathUtils.getPath(arg.checkjstring());
 			Path dir = PathUtils.getWorkingDirectory(getInfoFunction);
 			String scriptName = PathUtils.computeSafeString(PathUtils.getPath(PathUtils.computeSafeString(
 				PathUtils.isAbsolute(path) ? path : dir.resolve(path)
 			)));
 			String scriptNameNbt = scriptName.replace('/','.');
-			loadedScripts.remove(scriptName);
+
+			String modifySide = side.isnil() ? "both" : side.checkjstring().toLowerCase();
+			if (!("both".equals(modifySide) || "runtime".equals(modifySide) || "nbt".equals(modifySide))) {
+				throw new LuaError("Argument \"side\" must be one of \"both\", \"nbt\", \"runtime\", or nil.");
+			}
+
+			if (!modifySide.equals("nbt")) loadedScripts.remove(scriptName);
 			if(contents.isnil()){
-				owner.nbt.getCompound("scripts").remove(scriptNameNbt);
-				scripts.remove(scriptName);
+				if (!modifySide.equals("runtime")) owner.nbt.getCompound("scripts").remove(scriptNameNbt);
+				if (!modifySide.equals("nbt")) scripts.remove(scriptName);
 				return LuaValue.NIL;
 			}
 			String scriptContent = contents.checkjstring();
 			var scriptNbt = owner.nbt.getCompound("scripts");
-			if(replacing.toboolean()){
-				if(!scripts.containsKey(scriptName)){
-					throw new LuaError("Script " + scriptName + " doesn't exist!");
-				}
-				if(!scriptNbt.contains(scriptNameNbt)){
-					throw new LuaError("Script " + scriptNameNbt + " doesn't exist in the NBT!");
 
-				}
-			}
-			scripts.put(scriptName,scriptContent);
+			if (!modifySide.equals("nbt")) scripts.put(scriptName,scriptContent);
 			// if (loadingScripts.contains(scriptNauiime))
 			// 	throw new LuaError("Detected circular dependency in script " + loadingScripts.peek());
 
-			scriptNbt.put(scriptNameNbt,new ByteArrayTag(scriptContent.getBytes(StandardCharsets.UTF_8)));
+			if (!modifySide.equals("runtime")) scriptNbt.put(scriptNameNbt,new ByteArrayTag(scriptContent.getBytes(StandardCharsets.UTF_8)));
 			return LuaValue.NIL;
 		}
 		@Override

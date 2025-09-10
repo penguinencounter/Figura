@@ -9,3 +9,20 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.11.0'
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = "${project.archivesBaseName}-server-common"
+            version = project.version
+            artifact(jar) {
+                builtBy jar
+                classifier ''
+            }
+            artifact(sourcesJar) {
+                builtBy sourcesJar
+                classifier 'sources'
+            }
+        }
+    }
+}
