@@ -150,6 +150,7 @@ public class FiguraDocsManager {
         put("models", List.of(
                 Vertex.class,
                 FiguraModelPart.class,
+                PartCollection.class,
                 RenderTask.class,
                 BlockTask.class,
                 ItemTask.class,
@@ -262,6 +263,10 @@ public class FiguraDocsManager {
         ));
         put("raycast", List.of(
                 RaycastAPI.class
+        ));
+
+        put("server_packets", List.of(
+                ServerPacketsAPI.class
         ));
     }};
     private static final Map<String, List<FiguraDoc>> GENERATED_CHILDREN = new HashMap<>();

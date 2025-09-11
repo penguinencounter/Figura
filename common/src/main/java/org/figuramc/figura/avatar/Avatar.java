@@ -293,7 +293,8 @@ public class Avatar {
         if (scriptError || luaRuntime == null || !loaded)
             return;
 
-        render.reset(permissions.get(Permissions.RENDER_INST));
+        // render.reset(permissions.get(Permissions.RENDER_INST));
+		// Moved to GameRenderMixin for preRender
         worldRender.reset(permissions.get(Permissions.WORLD_RENDER_INST));
         run("WORLD_RENDER", worldRender, delta);
     }
@@ -391,6 +392,11 @@ public class Avatar {
 
         run("POST_WORLD_RENDER", worldRender.post(), delta);
     }
+
+	public void preRenderEvent(float delta) {
+		if (loaded && luaRuntime != null && luaRuntime.getUser() != null)
+			run("PRE_RENDER", render, delta, renderMode.name());
+	}
 
     public boolean skullRenderEvent(float delta, BlockStateAPI block, ItemStackAPI item, EntityAPI<?> entity, String mode) {
         Varargs result = null;
@@ -544,7 +550,7 @@ public class Avatar {
         renderer.setupRenderer(
                 PartFilterScheme.WORLD, bufferSource, stack,
                 tickDelta, lightFallback, 1f, OverlayTexture.NO_OVERLAY,
-                false, false,
+                false, false, true,
                 camX, camY, camZ
         );
 

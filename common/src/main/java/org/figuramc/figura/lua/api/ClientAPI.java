@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.BossHealthOverlay;
+import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.server.IntegratedServer;
@@ -16,6 +18,8 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.world.BossEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.utils.*;
@@ -25,7 +29,11 @@ import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
+
 import org.figuramc.figura.FiguraMod;
+import org.figuramc.figura.backend2.FSB;
+import org.figuramc.figura.backend2.NetworkStuff;
+import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.api.entity.EntityAPI;
@@ -36,6 +44,7 @@ import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.mixin.gui.BossHealthOverlayAccessor;
 import org.figuramc.figura.mixin.gui.GuiAccessor;
 import org.figuramc.figura.mixin.gui.PlayerTabOverlayAccessor;
 import org.figuramc.figura.utils.*;
@@ -624,6 +633,28 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
+    @LuaMethodDoc("client.get_bossbars")
+    public static Map<String, Object> getBossbars() {
+        BossHealthOverlay bossBars = Minecraft.getInstance().gui.getBossOverlay();
+        Map<String, Object> bosses = new HashMap<String, Object>();
+        for (Map.Entry<UUID, LerpingBossEvent> entry : ((BossHealthOverlayAccessor) bossBars).getBossEvents().entrySet()) {
+            Map<String, Object> contents = new HashMap<String, Object>();
+
+            BossEvent event = entry.getValue();
+            contents.put("name",event.getName());
+            contents.put("progress",event.getProgress());
+            contents.put("color",event.getColor().getName());
+            contents.put("style",event.getOverlay().getName());
+            contents.put("darkenScreen", event.shouldDarkenScreen());
+            contents.put("bossMusic",event.shouldPlayBossMusic());
+            contents.put("fog",event.shouldCreateWorldFog());
+
+            bosses.put(entry.getKey().toString(),contents);
+        }
+        return bosses;
+    }
+
+    @LuaWhitelist
     @LuaMethodDoc("client.list_atlases")
     public static List<String> listAtlases() {
         return List.of();
@@ -735,6 +766,108 @@ public class ClientAPI {
         } catch (Exception e) {
             throw new LuaError("Enum " + enumName + " does not exist");
         }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.fsb_connected")
+    public static boolean fsbConnected() {
+        return FSB.instance().connected();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.ping_rate_limit")
+    public static int pingRateLimit() {
+        return NetworkStuff.pingsRateLimit();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.ping_size_limit")
+    public static int pingSizeLimit() {
+        return NetworkStuff.pingsSizeLimit();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "key"),
+            },
+            value = "client.get_figura_config"
+    )
+    public static Object getFiguraConfig(String key) {
+        if (key == null)
+            return Configs.REGISTRY;
+        try {
+            return Configs.REGISTRY.get(key.toLowerCase());
+        } catch (Exception e) {
+            throw new LuaError("Config " + key + " does not exist");
+        }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "source"),
+            },
+            value = "client.get_volume"
+    )
+    public static float getVolume(String source) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (source == null)
+            return minecraft.options.getSoundSourceVolume(SoundSource.MASTER);
+        try {
+            return minecraft.options.getSoundSourceVolume(SoundSource.valueOf(source.toUpperCase()));
+        } catch (Exception e) {
+            throw new LuaError("Sound source " + source + " does not exist");
+        }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_mouse_sensitivity")
+    public static double getMouseSensitivity() {
+        // https://www.spigotmc.org/threads/determining-a-players-sensitivity.468373/#post-3976392
+        return Math.pow(Minecraft.getInstance().options.sensitivity().get() * 0.6 + 0.2, 3) * 8;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_mouse_inverted")
+    public static Boolean getMouseInverted() {
+        return Minecraft.getInstance().options.invertYMouse().get();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_scroll_sensitivity")
+    public static double getScrollSensitivity() {
+        return Minecraft.getInstance().options.mouseWheelSensitivity().get();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_discrete_scrolling")
+    public static Boolean getDiscreteScrolling() {
+        return Minecraft.getInstance().options.discreteMouseScroll().get();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("host.get_chat_width")
+    public static Double getChatWidth() {
+        // 0 -> 40
+        // 1 -> 320
+        return Math.floor(40 + 280 * Minecraft.getInstance().options.chatWidth().get());
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("host.get_focused_chat_height")
+    public static Double getFocusedChatHeight() {
+        // 0 -> 20
+        // 1 -> 180
+        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("host.get_unfocused_chat_height")
+    public static Double getUnfocusedChatHeight() {
+        // 0 -> 20
+        // 1 -> 180
+        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused().get());
     }
 
     @Override
