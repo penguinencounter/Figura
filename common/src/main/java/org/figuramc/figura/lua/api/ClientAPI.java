@@ -50,10 +50,13 @@ import org.figuramc.figura.mixin.gui.PlayerTabOverlayAccessor;
 import org.figuramc.figura.utils.*;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.FloatBuffer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -253,9 +256,12 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_mouse_pos")
     public static FiguraVec2 getMousePos() {
-        MouseHandler mouse = Minecraft.getInstance().mouseHandler;
-        return FiguraVec2.of(mouse.xpos(), mouse.ypos());
-    }
+		MouseHandler mouse = Minecraft.getInstance().mouseHandler;
+		FloatBuffer xScale = BufferUtils.createFloatBuffer(1);
+		FloatBuffer yScale = BufferUtils.createFloatBuffer(1);
+		GLFW.glfwGetWindowContentScale( (long) Minecraft.getInstance().getWindow().getWindow(), xScale, yScale);
+		return FiguraVec2.of(mouse.xpos() * xScale.get(0), mouse.ypos() * yScale.get(0));
+	}
 
     @LuaWhitelist
     @LuaMethodDoc("client.get_scaled_window_size")
