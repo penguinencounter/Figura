@@ -149,14 +149,14 @@ public abstract class FiguraServer {
         userManager().tick();
     }
 
-    public final S2CBackendHandshakePacket getHandshake() {
+    public final S2CBackendHandshakePacket getHandshake(UUID newUser) {
         ArrayList<UUID> connectedUsers = new ArrayList<>();
         userManager.forEachUser(user -> connectedUsers.add(user.uuid()));
         return new S2CBackendHandshakePacket(
-                config.pingsRateLimit(),
-                config.pingsSizeLimit(),
-                config.avatarSizeLimit(),
-                config.avatarsCountLimit(),
+                config.pingsRateLimit(this, newUser),
+                config.pingsSizeLimit(this, newUser),
+                config.avatarSizeLimit(this, newUser),
+                config.avatarsCountLimit(this, newUser),
                 connectedUsers
         );
     }
@@ -179,7 +179,8 @@ public abstract class FiguraServer {
 
     protected abstract void sendPacketInternal(UUID receiver, Packet packet);
 
-    public abstract boolean getPermission(UUID player, String permission);
+    public abstract boolean getPermission(UUID player, FiguraPermissionNodes permission);
+    public abstract Optional<String> getOption(UUID player, FiguraPermissionNodes permission);
     public abstract void sendMessage(UUID receiver, JsonObject component);
 
     public FiguraServerAvatarManager avatarManager() {
