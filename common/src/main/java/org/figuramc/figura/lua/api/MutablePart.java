@@ -7,6 +7,7 @@ import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 
+@LuaWhitelist
 public interface MutablePart<R extends MutablePart<R>> {
     @LuaWhitelist
     @LuaMethodDoc(
