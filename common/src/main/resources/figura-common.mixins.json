@@ -4,6 +4,7 @@
   "package": "org.figuramc.figura.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ClientPacketListenerMixin"
   ],
   "client": [
     "AABBInvoker",
@@ -17,7 +18,9 @@
     "LivingEntityAccessor",
     "LivingEntityMixin",
     "MinecraftMixin",
+    "PlayerSocialManagerMixin",
     "ReloadableResourceManagerMixin",
+    "ServerDataMixin",
     "SkullBlockEntityAccessor",
     "SNIHelperMixin",
     "compat.SimpleVCMixin",
@@ -25,12 +28,14 @@
     "font.BitmapGlyphMixin",
     "font.FontAccessor",
     "font.FontSetMixin",
+    "gui.BossHealthOverlayAccessor",
     "gui.ChatComponentAccessor",
     "gui.ChatComponentMixin",
     "gui.ChatScreenAccessor",
     "gui.ChatScreenMixin",
     "gui.ClickEventActionMixin",
     "gui.DebugScreenOverlayMixin",
+    "gui.EditServerScreenMixin",
     "gui.GuiAccessor",
     "gui.GuiMessageMixin",
     "gui.GuiMixin",
@@ -41,8 +46,8 @@
     "gui.ScreenAccessor",
     "gui.ScreenMixin",
     "gui.SplashManagerMixin",
-    "gui.TitleScreenMixin",
     "gui.SuggestionsListMixin",
+    "gui.TitleScreenMixin",
     "gui.books.BookViewScreenMixin",
     "gui.books.LineInfoMixin",
     "input.InputConstantsTypeMixin",
@@ -60,6 +65,7 @@
     "render.LevelRendererMixin",
     "render.MissingTextureAtlasSpriteAccessor",
     "render.PlayerModelMixin",
+    "render.PoseStackAccessor",
     "render.TextureAtlasMixin",
     "render.TextureManagerAccessor",
     "render.layers.CapeLayerMixin",
@@ -76,6 +82,7 @@
     "render.renderers.BlockEntityWithoutLevelRendererMixin",
     "render.renderers.EntityRendererMixin",
     "render.renderers.HandRenderSelectionAccessor",
+    "render.renderers.ItemEntityRendererMixin",
     "render.renderers.ItemInHandRendererMixin",
     "render.renderers.ItemRendererMixin",
     "render.renderers.LivingEntityRendererMixin",
@@ -83,14 +90,18 @@
     "render.renderers.ScreenEffectRendererMixin",
     "render.renderers.SignRendererMixin",
     "render.renderers.SkullBlockRendererMixin",
+    "render.renderers.StuckArrowsFeatureRendererMixin",
     "render.renderers.TridentRendererMixin",
-    "render.PoseStackAccessor",
     "sound.ChannelHandleMixin",
+    "sound.OggAudioStreamMixin",
+    "sound.OutputConcatAccessor",
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
     "sound.SubtitleOverlayMixin"
   ],
   "server": [
+    "CommandSourceStackMixin",
+    "network.server.PlayerListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

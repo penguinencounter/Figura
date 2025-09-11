@@ -3,6 +3,7 @@ accessWidener v2 named
 accessible class net/minecraft/world/level/biome/Biome$ClimateSettings
 accessible class net/minecraft/client/gui/font/providers/BitmapProvider$Glyph
 accessible class net/minecraft/client/gui/screens/inventory/BookEditScreen$LineInfo
+accessible class com/mojang/blaze3d/audio/OggAudioStream$OutputConcat
 
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;ILnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
@@ -17,3 +18,6 @@ accessible method net/minecraft/client/gui/components/MultiLineLabel$TextWithWid
 
 accessible field net/minecraft/client/renderer/texture/TextureAtlas$Preparations width I
 accessible field net/minecraft/client/renderer/texture/TextureAtlas$Preparations height I
+
+accessible method com/mojang/blaze3d/platform/NativeImage checkAllocated ()V
+accessible field com/mojang/blaze3d/platform/NativeImage pixels J

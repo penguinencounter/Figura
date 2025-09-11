@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
+import org.figuramc.figura.avatar.Avatar.Instructions;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.ducks.GameRendererAccessor;
 import org.figuramc.figura.lua.api.ClientAPI;
@@ -20,6 +21,7 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
+import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.RenderUtils;
 import org.spongepowered.asm.mixin.*;
@@ -184,4 +186,12 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     public double figura$getFov(Camera camera, float tickDelta, boolean changingFov) {
         return this.getFov(camera, tickDelta, changingFov);
     }
+	@Inject(method = "render", at = @At("HEAD"))
+	private void preRender(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+		Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity());
+		if (avatar == null) return;
+		avatar.render.reset(avatar.permissions.get(Permissions.RENDER_INST));
+
+		AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tickDelta));
+	}
 }

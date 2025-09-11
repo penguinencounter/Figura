@@ -8,6 +8,9 @@
     "compat.GeckolibIGeoRendererMixin",
     "compat.GeckolibGeoArmorRendererMixin"
   ],
+  "server": [
+    "MinecraftServerMixin"
+  ],
   "mixins": [
   ],
   "injectors": {
