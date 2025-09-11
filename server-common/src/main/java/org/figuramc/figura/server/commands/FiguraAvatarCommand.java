@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
+import org.figuramc.figura.server.FiguraPermissionNodes;
 import org.figuramc.figura.server.FiguraServer;
 import org.figuramc.figura.server.FiguraUser;
 import org.figuramc.figura.server.avatars.EHashPair;
@@ -38,7 +39,7 @@ public class FiguraAvatarCommand {
 
     private static LiteralArgumentBuilder<FiguraServerCommandSource> immortalizeCommand() {
         LiteralArgumentBuilder<FiguraServerCommandSource> immortalize = literal("immortalize");
-        immortalize.requires(permissionCheck("figura.avatars.immortalize"));
+        immortalize.requires(permissionCheck(FiguraPermissionNodes.FIGURA_AVATARS_IMMORTALIZE));
         immortalize.executes(FiguraAvatarCommand::immortalizeEquippedAvatar);
 
         RequiredArgumentBuilder<FiguraServerCommandSource, String> immortalizeSpecific = argument("avatar_hash", StringArgumentType.string());
@@ -51,7 +52,7 @@ public class FiguraAvatarCommand {
 
     private static LiteralArgumentBuilder<FiguraServerCommandSource> setAvatarCommand() {
         LiteralArgumentBuilder<FiguraServerCommandSource> setAvatar = literal("set");
-        setAvatar.requires(permissionCheck("figura.avatars.set"));
+        setAvatar.requires(permissionCheck(FiguraPermissionNodes.FIGURA_AVATARS_SET));
 
         RequiredArgumentBuilder<FiguraServerCommandSource, String> target = argument("target", StringArgumentType.string());
         target.executes(FiguraAvatarCommand::setAvatarEquipped);
@@ -66,7 +67,7 @@ public class FiguraAvatarCommand {
 
     private static LiteralArgumentBuilder<FiguraServerCommandSource> clearAvatarCommand() {
         LiteralArgumentBuilder<FiguraServerCommandSource> clearAvatar = literal("clear");
-        clearAvatar.requires(permissionCheck("figura.avatars.clear"));
+        clearAvatar.requires(permissionCheck(FiguraPermissionNodes.FIGURA_AVATARS_CLEAR));
 
         RequiredArgumentBuilder<FiguraServerCommandSource, String> target = argument("target", StringArgumentType.string());
         target.executes(FiguraAvatarCommand::clearAvatar);

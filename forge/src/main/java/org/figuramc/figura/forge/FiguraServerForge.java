@@ -8,10 +8,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.server.permission.PermissionAPI;
 import org.figuramc.figura.server.FiguraModServer;
+import org.figuramc.figura.server.FiguraPermissionNodes;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.utils.Identifier;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class FiguraServerForge extends FiguraModServer {
@@ -27,9 +29,22 @@ public class FiguraServerForge extends FiguraModServer {
     }
 
     @Override
-    public boolean getPermission(UUID player, String permission) {
+    public boolean getPermission(UUID player, FiguraPermissionNodes permission) {
         ServerPlayer pl = getServer().getPlayerList().getPlayer(player);
         String perm = FiguraForgePermissions.getPermission(permission);
         return pl != null && perm != null && PermissionAPI.hasPermission(pl, perm);
     }
+
+    @Override
+    public Optional<String> getOption(UUID player, FiguraPermissionNodes permission) {
+        ServerPlayer pl = getServer().getPlayerList().getPlayer(player);
+        PermissionNode<String> perm = FiguraForgePermissions.getOption(permission);
+        if (pl == null || perm == null) {
+            return Optional.empty();
+        }
+        String value = PermissionAPI.getPermission(pl, perm);
+        return Optional.of(value);
+    }
+
+
 }

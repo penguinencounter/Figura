@@ -289,8 +289,11 @@ public class Avatar {
         if (scriptError || luaRuntime == null || !loaded)
             return;
 
-        // render.reset(permissions.get(Permissions.RENDER_INST));
-		// Moved to GameRenderMixin for preRender
+        // Instruction count resetting happens in GameRenderMixin with pre_render event
+        // If there isn't an entity loaded, that event never runs. Fallback to resetting instruction count here
+        if (luaRuntime.getUser() == null)
+            render.reset(permissions.get(Permissions.RENDER_INST));
+            
         worldRender.reset(permissions.get(Permissions.WORLD_RENDER_INST));
         run("WORLD_RENDER", worldRender, delta);
     }
@@ -389,10 +392,10 @@ public class Avatar {
         run("POST_WORLD_RENDER", worldRender.post(), delta);
     }
 
-	public void preRenderEvent(float delta) {
-		if (loaded && luaRuntime != null && luaRuntime.getUser() != null)
-			run("PRE_RENDER", render, delta, renderMode.name());
-	}
+    public void preRenderEvent(float delta) {
+        if (loaded && luaRuntime != null && luaRuntime.getUser() != null)
+            run("PRE_RENDER", render, delta, renderMode.name());
+    }
 
     public boolean skullRenderEvent(float delta, BlockStateAPI block, ItemStackAPI item, EntityAPI<?> entity, String mode) {
         Varargs result = null;

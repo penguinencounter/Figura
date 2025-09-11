@@ -32,7 +32,7 @@ public class C2SHandshakeHandler implements C2SPacketHandler<C2SBackendHandshake
         else {
             FiguraUserManager manager = parent.userManager();
             FiguraUser user = manager.setupOnlinePlayer(sender);
-            user.sendPacket(parent.getHandshake());
+            user.sendPacket(parent.getHandshake(sender));
             manager.forEachUser(u -> {
                 if (u != user) {
                     u.sendPacket(new S2CConnectedPacket(user.uuid()));
