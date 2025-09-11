@@ -3,12 +3,15 @@ package org.figuramc.figura.gui;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Axis;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -257,12 +260,12 @@ public class ActionWheel {
 
         int[] prev = new int[]{avatar.complexity.remaining};
         avatar.renderer.entity = minecraft.player;
-
-        avatar.renderer.setupRenderer(PartFilterScheme.MODEL, gui.bufferSource(), gui.pose(), tickDelta, LightTexture.FULL_BRIGHT, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
+        MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
+        avatar.renderer.setupRenderer(PartFilterScheme.MODEL, bufferSource, poseStack, tickDelta, LightTexture.FULL_BRIGHT, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
 
         PartCustomization customization = new PartCustomization();
-        customization.setPositionMatrix(new FiguraMat4().set(gui.pose().last().pose()));
-        customization.setNormalMatrix(new FiguraMat3().set(gui.pose().last().normal()));
+        customization.setPositionMatrix(new FiguraMat4().set(poseStack.last().pose()));
+        customization.setNormalMatrix(new FiguraMat3().set(poseStack.last().normal()));
         customization.light = LightTexture.FULL_BRIGHT;
         customization.alpha = 1f;
         customization.overlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
@@ -280,7 +283,7 @@ public class ActionWheel {
         avatar.renderer.flushBuffers();
         avatar.renderer.popCustomizationStack();
 
-        gui.flush();
+        bufferSource.endBatch();
         poseStack.popPose();
     }
 
