@@ -644,7 +644,7 @@ public class ClientAPI {
 
             BossEvent event = entry.getValue();
             contents.put("name",event.getName());
-            contents.put("progress",event.getProgress());
+            contents.put("progress",event.getPercent());
             contents.put("color",event.getColor().getName());
             contents.put("style",event.getOverlay().getName());
             contents.put("darkenScreen", event.shouldDarkenScreen());

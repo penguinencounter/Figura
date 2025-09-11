@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.lua.api.sound.SoundAPI;
-import org.figuramc.figura.mixin.font.StyleAccessor;
+import org.figuramc.figura.ducks.StyleAccessor;
 import org.figuramc.figura.permissions.PermissionManager;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.ColorUtils;

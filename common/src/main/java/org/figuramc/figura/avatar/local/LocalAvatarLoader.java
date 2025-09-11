@@ -356,45 +356,54 @@ public class LocalAvatarLoader {
      * @param path the path to register the watch key
      * @param consumer a consumer that will process the watch key and its path
      */
+    // Java
+    @SuppressWarnings("unchecked")
     protected static void addWatchKey(Path path, BiConsumer<Path, WatchKey> consumer) {
         if (watcher == null || path == null || path.getFileSystem() != FileSystems.getDefault())
             return;
 
-        if (!Files.isDirectory(path) || IOUtils.isHidden(path))
-            return;
-
         try {
-            WatchEvent.Kind<?>[] events = {StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY};
-            WatchKey key = null;
-            if (IS_WINDOWS) {
-                Class c = Class.forName("com.sun.nio.file.ExtendedWatchEventModifier");
-                for (Object obj : c.getEnumConstants()) {
-                    try {
-                        Method m = c.getMethod("value", null);
-                        Object modifier = m.invoke(obj, null);
-                        if (modifier instanceof WatchEvent.Modifier) {
-                            key = path.register(watcher, events, (WatchEvent.Modifier) obj);
-                        } else {
-                            key = path.register(watcher, events);
-                        }
-                        break;
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-                        FiguraMod.LOGGER.warn("Could not find tree file modifier, avatar list might not refresh automatically!");
-                        key = path.register(watcher, events);
-                        break;
-                    }
-                }
-            } else {
-                key = path.register(watcher, events);
-            }
-            consumer.accept(path, key);
-
-            List<Path> children = IOUtils.listPaths(path);
-            if (children == null || IS_WINDOWS)
+            if (!Files.isDirectory(path) || IOUtils.isHidden(path))
                 return;
 
-            for (Path child : children)
-                addWatchKey(child, consumer);
+            WatchEvent.Kind<?>[] events = new WatchEvent.Kind<?>[] {
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY
+            };
+
+            WatchKey key = null;
+            boolean usedFileTree = false;
+
+            if (IS_WINDOWS) {
+                try {
+                    Class<?> clazz = Class.forName("com.sun.nio.file.ExtendedWatchEventModifier");
+                    Class<? extends Enum> enumClass = clazz.asSubclass(Enum.class);
+                    Object fileTree = Enum.valueOf(enumClass, "FILE_TREE");
+                    if (fileTree instanceof WatchEvent.Modifier) {
+                        key = path.register(watcher, events, (WatchEvent.Modifier) fileTree);
+                        usedFileTree = true;
+                    }
+                } catch (Throwable t) {
+                    FiguraMod.LOGGER.warn("FILE_TREE modifier unavailable, falling back to recursive registration", t);
+                }
+            }
+
+            if (key == null) {
+                key = path.register(watcher, events);
+            }
+
+            consumer.accept(path, key);
+
+            // Recurse on non-Windows, or on Windows when FILE_TREE was not used, might fix avatar list not loading, maybe?
+            if (!IS_WINDOWS || !usedFileTree) {
+                List<Path> children = IOUtils.listPaths(path);
+                if (children != null) {
+                    for (Path child : children) {
+                        addWatchKey(child, consumer);
+                    }
+                }
+            }
         } catch (Exception e) {
             FiguraMod.LOGGER.error("Failed to register watcher for " + path, e);
         }

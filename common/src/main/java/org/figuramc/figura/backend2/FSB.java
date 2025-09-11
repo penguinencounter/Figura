@@ -201,7 +201,7 @@ public abstract class FSB {
     }
 
     public void handleAvatarData(int streamId, byte[] chunk, boolean finalChunk) {
-        var inputStream = inputStreams.get(streamId);
+        FSB.AvatarInputStream inputStream = inputStreams.get(streamId);
         if (inputStream == null) {
             sendPacket(new CloseIncomingStreamPacket(streamId, StatusCode.INVALID_STREAM_ID));
             return;
@@ -210,21 +210,21 @@ public abstract class FSB {
     }
 
     public void handleAllow(int stream) {
-        var outputStream = outputStreams.get(stream);
+        FSB.AvatarOutputStream outputStream = outputStreams.get(stream);
         if (outputStream != null) {
             outputStream.allow();
         }
     }
 
     public void closeIncomingStream(int streamId, StatusCode code) {
-        var inputStream = inputStreams.get(streamId);
+        FSB.AvatarInputStream inputStream = inputStreams.get(streamId);
         if (inputStream != null) {
             inputStream.close(code);
         }
     }
 
     public void closeOutcomingStreamPacket(int streamId, StatusCode code) {
-        var outputStream = outputStreams.get(streamId);
+        FSB.AvatarOutputStream outputStream = outputStreams.get(streamId);
         if (outputStream != null) {
             outputStream.close(code);
         }
@@ -268,10 +268,10 @@ public abstract class FSB {
 
     public byte[] getKey() {
         if (key == null) {
-            var f = keyFile();
+            File f = keyFile();
             if (f.exists()) {
                 try (FileInputStream fis = new FileInputStream(f)) {
-                    key = fis.readAllBytes();
+                    key = Utils.toByteArray(fis);
                 }
                 catch (IOException e) {
                     FiguraMod.LOGGER.error("Error occured while getting a key for FSB: ", e);
@@ -347,8 +347,12 @@ public abstract class FSB {
 
         private void close(StatusCode code) {
             switch (code) {
-                case AVATAR_DOES_NOT_EXIST -> FiguraMod.LOGGER.info("Avatar with hash %s does not exist on this server".formatted(hash));
-                default -> FiguraMod.LOGGER.error("Incoming stream was closed by unexpected reason: %s".formatted(code.name()));
+                case AVATAR_DOES_NOT_EXIST:
+                    FiguraMod.LOGGER.info(String.format("Avatar with hash %s does not exist on this server", hash));
+                    break;
+                default:
+                    FiguraMod.LOGGER.error(String.format("Incoming stream was closed by unexpected reason: %s", code.name()));
+                    break;
             }
             parent.inputStreams.remove(id);
         }
@@ -391,15 +395,15 @@ public abstract class FSB {
 
         private void close(StatusCode code) {
             switch (code) {
-                case FINISHED, ALREADY_EXISTS -> {
-                    // This is handled by the AvatarReadyPacket.
-                }
-                case MAX_AVATAR_SIZE_EXCEEDED -> {
+                case FINISHED:
+                case ALREADY_EXISTS:// This is handled by the AvatarReadyPacket.
+                    break;
+                case MAX_AVATAR_SIZE_EXCEEDED:
                     FiguraToast.sendToast(new FiguraText("backend.upload_too_big"), FiguraToast.ToastType.ERROR);
-                }
-                default -> {
+                    break;
+                default:
                     FiguraToast.sendToast(new FiguraText("backend.upload_error"), code, FiguraToast.ToastType.ERROR);
-                }
+                    break;
             }
             parent.outputStreams.remove(id);
         }

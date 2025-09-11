@@ -9,22 +9,24 @@ import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.UUID;
 
 public abstract class FiguraModServer extends FiguraServer {
     public static final String MOD_ID = "figura";
-    public static final Logger LOGGER = LoggerFactory.getLogger("Figura");
+    public static final Logger LOGGER = LogManager.getLogger("Figura");
     private MinecraftServer server;
 
     @Override
     public Path getFiguraFolder() {
-        return Path.of("fsb");
+        return FileSystems.getDefault().getPath("fsb");
     }
 
     @Override

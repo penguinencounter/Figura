@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlayerListMixin {
     @Inject(method = "remove", at = @At("HEAD"))
     private void onPlayerDisconnect(ServerPlayer player, CallbackInfo ci) {
-        var srv = FiguraModServer.getInstance();
+        FiguraModServer srv = FiguraModServer.getInstance();
         if (FiguraServer.initialized()) {
             srv.userManager().onUserLeave(player.getUUID());
         }

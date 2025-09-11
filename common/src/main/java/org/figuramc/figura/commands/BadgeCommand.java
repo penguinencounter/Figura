@@ -9,6 +9,8 @@ import org.figuramc.figura.backend2.HttpAPI;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.utils.FiguraClientCommandSource;
 
+import java.util.Objects;
+
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 public class BadgeCommand {
@@ -34,7 +36,36 @@ public class BadgeCommand {
         return 0;
     }
 
-    private record BadgeCommandExecutor(Badges.Pride badge) implements Command<FiguraClientCommandSource> {
+    private static final class BadgeCommandExecutor implements Command<FiguraClientCommandSource> {
+        private final Badges.Pride badge;
+
+        private BadgeCommandExecutor(Badges.Pride badge) {
+            this.badge = badge;
+        }
+
+        public Badges.Pride badge() {
+            return badge;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            BadgeCommandExecutor that = (BadgeCommandExecutor) obj;
+            return Objects.equals(this.badge, that.badge);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(badge);
+        }
+
+        @Override
+        public String toString() {
+            return "BadgeCommandExecutor[" +
+                    "badge=" + badge + ']';
+        }
+
         @Override
         public int run(CommandContext<FiguraClientCommandSource> ctx) throws CommandSyntaxException {
             NetworkStuff.setBadge(badge.ordinal());

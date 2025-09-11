@@ -1,5 +1,6 @@
 package org.figuramc.figura.lua;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
@@ -423,7 +424,7 @@ public class FiguraLuaRuntime {
 				return LuaValue.NIL;
 			}
 			String scriptContent = contents.checkjstring();
-			var scriptNbt = owner.nbt.getCompound("scripts");
+			CompoundTag scriptNbt = owner.nbt.getCompound("scripts");
 
 			if (!modifySide.equals("nbt")) scripts.put(scriptName,scriptContent);
 			// if (loadingScripts.contains(scriptNauiime))

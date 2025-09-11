@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.function.BiConsumer;
 
 public class Handlers {
-    private static final HashMap<Identifier, S2CPacketHandler<?>> PACKET_HANDLERS = new HashMap<>() {{
+    private static final HashMap<Identifier, S2CPacketHandler<?>> PACKET_HANDLERS = new HashMap<Identifier, S2CPacketHandler<?>>() {{
         put(S2CBackendHandshakePacket.PACKET_ID, new S2CHandshakeHandler());
         put(S2CRefusedPacket.PACKET_ID, new S2CRefusalHandler());
         put(S2CUserdataPacket.PACKET_ID, new S2CUserdataHandler());

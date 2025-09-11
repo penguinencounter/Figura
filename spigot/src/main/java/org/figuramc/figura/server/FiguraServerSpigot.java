@@ -37,7 +37,7 @@ public class FiguraServerSpigot extends FiguraServer implements PluginMessageLis
         OutputStreamByteBuf buf = new OutputStreamByteBuf(baos);
         packet.write(buf);
         byte[] packetData = baos.toByteArray();
-        logDebug("Sending packet %s".formatted(packet.getId()   ));
+        logDebug(String.format("Sending packet %s", packet.getId()   ));
         player.sendPluginMessage(parent, packet.getId().toString(), packetData);
     }
 
@@ -45,9 +45,9 @@ public class FiguraServerSpigot extends FiguraServer implements PluginMessageLis
     public void onPluginMessageReceived(String s, Player player, byte[] bytes) {
         Identifier id = Identifier.parse(s);
         C2SPacketHandler<Packet> handler = getPacketHandler(id);
-        logDebug("Got packet %s from %s".formatted(id, player.getName()));
+        logDebug(String.format("Got packet %s from %s", id, player.getName()));
         if (handler != null) {
-            logDebug("Handling packet %s".formatted(id));
+            logDebug(String.format("Handling packet %s", id));
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             InputStreamByteBuf buf = new InputStreamByteBuf(bais);
             Packet packet = handler.serialize(buf);
@@ -86,6 +86,6 @@ public class FiguraServerSpigot extends FiguraServer implements PluginMessageLis
 
     @Override
     public void logDebug(String text) {
-        if (FiguraSpigot.DEBUG) parent.getLogger().log(Level.INFO, "[DEBUG] %s".formatted(text));
+        if (FiguraSpigot.DEBUG) parent.getLogger().log(Level.INFO, String.format("[DEBUG] %s" ,text));
     }
 }

@@ -3,29 +3,81 @@ package org.figuramc.figura.animation;
 import com.mojang.datafixers.util.Pair;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.server.utils.Either;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
+import java.util.Objects;
+
 public class Keyframe implements Comparable<Keyframe> {
     /**
-     * <p>
-     * wannabe <code>Either&lt;Double, LuaValue&gt;</code>
-     * (because we have our own {@link org.figuramc.figura.server.utils.Either}, but it's in the server code so we can't use it)
-     * </p>
-     *
-     * <p>(the presence or absence of {@link KeyframeValue#function} implies which value is the "real" one)</p>
-     * <p>{@link KeyframeValue#chunkName} is also stored in here so that we don't have to dig it out of the function</p>
-     */
-    public record KeyframeValue(double literal, LuaValue function, String chunkName) {
-        public static KeyframeValue literal(double literal) {
-            return new KeyframeValue(literal, null, null);
-        }
+         * <p>
+         * wannabe <code>Either&lt;Double, LuaValue&gt;</code>
+         * (because we have our own {@link Either}, but it's in the server code so we can't use it)
+         * </p>
+         *
+         * <p>(the presence or absence of {@link KeyframeValue#function} implies which value is the "real" one)</p>
+         * <p>{@link KeyframeValue#chunkName} is also stored in here so that we don't have to dig it out of the function</p>
+         */
+        public static final class KeyframeValue {
+            private final double literal;
+            private final LuaValue function;
+            private final String chunkName;
 
-        public static KeyframeValue function(LuaValue function, String chunkName) {
-            return new KeyframeValue(0.0, function, chunkName);
+            /**
+             *
+             */
+            public KeyframeValue(double literal, LuaValue function, String chunkName) {
+                this.literal = literal;
+                this.function = function;
+                this.chunkName = chunkName;
+            }
+
+            public static KeyframeValue literal(double literal) {
+                return new KeyframeValue(literal, null, null);
+            }
+
+            public static KeyframeValue function(LuaValue function, String chunkName) {
+                return new KeyframeValue(0.0, function, chunkName);
+            }
+
+            public double literal() {
+                return literal;
+            }
+
+            public LuaValue function() {
+                return function;
+            }
+
+            public String chunkName() {
+                return chunkName;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == this) return true;
+                if (obj == null || obj.getClass() != this.getClass()) return false;
+                KeyframeValue that = (KeyframeValue) obj;
+                return Double.doubleToLongBits(this.literal) == Double.doubleToLongBits(that.literal) &&
+                        Objects.equals(this.function, that.function) &&
+                        Objects.equals(this.chunkName, that.chunkName);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(literal, function, chunkName);
+            }
+
+            @Override
+            public String toString() {
+                return "KeyframeValue[" +
+                        "literal=" + literal + ", " +
+                        "function=" + function + ", " +
+                        "chunkName=" + chunkName + ']';
+            }
+
         }
-    }
 
     private final Avatar owner;
     private final Animation animation;

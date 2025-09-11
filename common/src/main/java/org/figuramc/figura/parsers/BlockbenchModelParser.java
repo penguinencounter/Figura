@@ -65,7 +65,7 @@ public class BlockbenchModelParser {
         ListTag cns = new ListTag();
         if (model.collections != null)
             for (int i = 0; i < model.collections.length; i++) {
-                var c = model.collections[i];
+                BlockbenchModel.BCollection c = model.collections[i];
                 cns.add(StringTag.valueOf(c.name));
                 for (String u: c.children) collectionMap.put(u, i);
             }
@@ -296,7 +296,7 @@ public class BlockbenchModelParser {
             }
 
             //find collections
-            var prs = new ArrayList<>(collectionMap.get(element.uuid));
+            List<Integer> prs = Arrays.asList(collectionMap.get(element.uuid).toArray(new Integer[0]));
             if (!prs.isEmpty()) {
                 byte pr[] = new byte[prs.size()];
                 for (int i = 0; i < prs.size(); i++) pr[i] = (byte) (int) prs.get(i);
@@ -705,7 +705,7 @@ public class BlockbenchModelParser {
             parseParent(group.name, groupNbt);
 
             //find collections
-            var prs = new ArrayList<>(collectionMap.get(group.uuid));
+            List<Integer> prs = Arrays.asList(collectionMap.get(group.uuid).toArray(new Integer[0]));
             if (!prs.isEmpty()) {
                 byte pr[] = new byte[prs.size()];
                 for (int i = 0; i < prs.size(); i++) pr[i] = (byte) (int) prs.get(i);

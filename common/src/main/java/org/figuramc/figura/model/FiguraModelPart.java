@@ -103,7 +103,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
         if (collectionInfo != null)
             for (byte b: collectionInfo)
                 root.get(names[b]).add(this);
-        for (var c: children) c.walkCollections(root, names);
+        for (FiguraModelPart c: children) c.walkCollections(root, names);
     }
 
     public boolean pushVerticesImmediate(ImmediateAvatarRenderer avatarRenderer, int[] remainingComplexity) {

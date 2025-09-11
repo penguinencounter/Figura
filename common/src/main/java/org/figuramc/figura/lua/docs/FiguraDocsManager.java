@@ -265,7 +265,7 @@ public class FiguraDocsManager {
                 RaycastAPI.class
         ));
 
-        put("server_packets", List.of(
+        put("server_packets", Collections.singletonList(
                 ServerPacketsAPI.class
         ));
     }};

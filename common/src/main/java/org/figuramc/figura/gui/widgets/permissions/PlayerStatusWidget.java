@@ -77,26 +77,53 @@ public class PlayerStatusWidget extends StatusWidget {
 
     @Override
     public MutableComponent getStatusIcon(int type) {
-        return new TextComponent(String.valueOf(STATUS_INDICATORS.charAt(switch (type) {
-            case 0 -> size;
-            case 1 -> complexity;
-            case 2 -> init;
-            case 3 -> tick;
-            case 4 -> render;
-            default -> 0;
-        }))).setStyle(Style.EMPTY.withFont(UIHelper.UI_FONT));
+        int value;
+        switch (type) {
+            case 0:
+                value = size;
+                break;
+            case 1:
+                value = complexity;
+                break;
+            case 2:
+                value = init;
+                break;
+            case 3:
+                value = tick;
+                break;
+            case 4:
+                value = render;
+                break;
+            default:
+                value = 0;
+                break;
+        }
+        return new TextComponent(String.valueOf(STATUS_INDICATORS.charAt(value)))
+                .setStyle(Style.EMPTY.withFont(UIHelper.UI_FONT));
     }
 
-    @Override
     public Component getTooltipFor(int i) {
-        int color = switch (i) {
-            case 0 -> size;
-            case 1 -> complexity;
-            case 2 -> init;
-            case 3 -> tick;
-            case 4 -> render;
-            default -> 0;
-        };
+        int color;
+        switch (i) {
+            case 0:
+                color = size;
+                break;
+            case 1:
+                color = complexity;
+                break;
+            case 2:
+                color = init;
+                break;
+            case 3:
+                color = tick;
+                break;
+            case 4:
+                color = render;
+                break;
+            default:
+                color = 0;
+                break;
+        }
         return avatar == null ? null : HOVER_TEXT.get(i).apply(avatar).setStyle(TEXT_COLORS.get(color));
     }
 }

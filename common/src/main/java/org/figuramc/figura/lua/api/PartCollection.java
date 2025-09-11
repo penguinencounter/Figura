@@ -13,6 +13,7 @@ import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaUserdata;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -50,10 +51,12 @@ public class PartCollection implements MutablePart<PartCollection> {
         aliases = "+"
     )
     public PartCollection union(Object parts) {
-        if (parts instanceof PartCollection c) {
+        if (parts instanceof PartCollection) {
+            PartCollection c = (PartCollection) parts;
             return new PartCollection(manager, Sets.union(this.parts, c.parts));
-        } else if (parts instanceof FiguraModelPart p) {
-            return new PartCollection(manager, Sets.union(this.parts, Set.of(p)));
+        } else if (parts instanceof FiguraModelPart) {
+            FiguraModelPart p = (FiguraModelPart) parts;
+            return new PartCollection(manager, Sets.union(this.parts, Collections.singleton(p)));
         } else {
             throw new LuaError("Expected argument of either modelpart or collection for 'PartCollection:union'");
         }
@@ -75,10 +78,12 @@ public class PartCollection implements MutablePart<PartCollection> {
         aliases = "-"
     )
     public PartCollection subtract(Object parts) {
-        if (parts instanceof PartCollection c) {
+        if (parts instanceof PartCollection) {
+            PartCollection c = (PartCollection) parts;
             return new PartCollection(manager, Sets.difference(this.parts, c.parts));
-        } else if (parts instanceof FiguraModelPart p) {
-            return new PartCollection(manager, Sets.difference(this.parts, Set.of(p)));
+        } else if (parts instanceof FiguraModelPart) {
+            FiguraModelPart p = (FiguraModelPart) parts;
+            return new PartCollection(manager, Sets.difference(this.parts, Collections.singleton(p)));
         } else {
             throw new LuaError("Expected argument of either modelpart or collection for 'PartCollection:subtract'");
         }
@@ -100,10 +105,12 @@ public class PartCollection implements MutablePart<PartCollection> {
         aliases = "*"
     )
     public PartCollection intersect(Object parts) {
-        if (parts instanceof PartCollection c) {
+        if (parts instanceof PartCollection) {
+            PartCollection c = (PartCollection) parts;
             return new PartCollection(manager, Sets.intersection(this.parts, c.parts));
-        } else if (parts instanceof FiguraModelPart p) {
-            return new PartCollection(manager, Sets.intersection(this.parts, Set.of(p)));
+        } else if (parts instanceof FiguraModelPart) {
+            FiguraModelPart p = (FiguraModelPart) parts;
+            return new PartCollection(manager, Sets.intersection(this.parts, Collections.singleton(p)));
         } else {
             throw new LuaError("Expected argument of either modelpart or collection for 'PartCollection:intersect'");
         }
@@ -114,7 +121,7 @@ public class PartCollection implements MutablePart<PartCollection> {
 
     @Override
     public boolean equals(Object o) {
-        return this == o || o instanceof PartCollection other && parts.equals(other.parts);
+        return this == o || o instanceof PartCollection && parts.equals(((PartCollection) o).parts);
     }
 
     @LuaWhitelist
@@ -130,9 +137,11 @@ public class PartCollection implements MutablePart<PartCollection> {
     @LuaWhitelist
     @LuaMethodDoc("models.collection.has")
     public boolean has(Object parts) {
-        if (parts instanceof PartCollection c) {
+        if (parts instanceof PartCollection) {
+            PartCollection c = (PartCollection) parts;
             return this.parts.containsAll(c.parts);
-        } else if (parts instanceof FiguraModelPart p) {
+        } else if (parts instanceof FiguraModelPart) {
+            FiguraModelPart p = (FiguraModelPart) parts;
             return this.parts.contains(p);
         } else {
             throw new LuaError("Expected argument of either modelpart or collection for 'PartCollection:has'");
@@ -144,7 +153,7 @@ public class PartCollection implements MutablePart<PartCollection> {
     public PartCollection filter(@LuaNotNil LuaFunction arg) {
         ImmutableSet.Builder<FiguraModelPart> builder = ImmutableSet.builder();
         Iterable<FiguraModelPart> iter = parts;
-        for (var part: iter)
+        for (FiguraModelPart part: iter)
 			if (arg.invoke(manager.get().javaToLua(part)).toboolean(1))
 				builder.add(part);
         return new PartCollection(manager, builder.build());

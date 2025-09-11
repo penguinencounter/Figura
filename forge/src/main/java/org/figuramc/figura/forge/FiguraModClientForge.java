@@ -14,9 +14,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.event.EventNetworkChannel;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.event.EventNetworkChannel;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -84,7 +84,7 @@ public class FiguraModClientForge extends FiguraMod {
     }
 
     public static void registerPacketListener(Identifier id, EventNetworkChannel channel) {
-        var handler = Handlers.getHandler(id);
+        S2CPacketHandler<Packet> handler = Handlers.getHandler(id);
         if (handler != null) channel.addListener(new ForgeNetworkListener<>(id, handler));
     }
 
@@ -100,7 +100,7 @@ public class FiguraModClientForge extends FiguraMod {
         @Override
         public void accept(NetworkEvent event) {
             if (event.getPayload() == null) return;
-            var ctx = event.getSource().get();
+            NetworkEvent.Context ctx = event.getSource().get();
             if (ctx.getDirection().equals(NetworkDirection.PLAY_TO_CLIENT)) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
@@ -108,7 +108,7 @@ public class FiguraModClientForge extends FiguraMod {
                     ctx.setPacketHandled(true);
                 }
                 catch (Exception e) {
-                    FiguraMod.LOGGER.error("Failed to handle packet %s".formatted(id), e);
+                    FiguraMod.LOGGER.error(String.format("Failed to handle packet %s", id), e);
                 }
             }
         }

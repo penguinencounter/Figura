@@ -34,7 +34,7 @@ public class FiguraModFabric extends FiguraMod implements ClientModInitializer {
         getResourceListeners().forEach(figuraResourceListener -> managerHelper.registerReloadListener((FiguraResourceListenerImpl)figuraResourceListener));
 
         Handlers.forEachHandler((id, handler) -> {
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
+            ResourceLocation resLoc = new ResourceLocation(id.namespace(), id.path());
             ClientPlayNetworking.registerGlobalReceiver(resLoc, new FabricClientHandler<>(handler));
         });
 

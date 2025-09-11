@@ -14,6 +14,7 @@ import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.backend2.FSB;
 import org.figuramc.figura.backend2.NetworkStuff;
+import org.figuramc.figura.server.packets.s2c.S2CBackendHandshakePacket;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.MathUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
@@ -113,24 +114,48 @@ public class StatusWidget implements FiguraWidget, FiguraTickable, GuiEventListe
     }
 
     public MutableComponent getStatusIcon(int type) {
-        return new TextComponent(String.valueOf(STATUS_INDICATORS.charAt(switch (type) {
-            case 0 -> size;
-            case 1 -> texture;
-            case 2 -> script;
-            case 3 -> backend;
-            default -> 0;
-        }))).setStyle(Style.EMPTY.withFont(UIHelper.UI_FONT));
+        int value;
+        switch (type) {
+            case 0:
+                value = size;
+                break;
+            case 1:
+                value = texture;
+                break;
+            case 2:
+                value = script;
+                break;
+            case 3:
+                value = backend;
+                break;
+            default:
+                value = 0;
+                break;
+        }
+        return new TextComponent(String.valueOf(STATUS_INDICATORS.charAt(value)))
+                .setStyle(Style.EMPTY.withFont(UIHelper.UI_FONT));
     }
 
     public Component getTooltipFor(int i) {
         // get name and color
-        int color = switch (i) {
-            case 0 -> size;
-            case 1 -> texture;
-            case 2 -> script;
-            case 3 -> backend;
-            default -> 0;
-        };
+        int color;
+        switch (i) {
+            case 0:
+                color = size;
+                break;
+            case 1:
+                color = texture;
+                break;
+            case 2:
+                color = script;
+                break;
+            case 3:
+                color = backend;
+                break;
+            default:
+                color = 0;
+                break;
+        }
         String part = "gui.status." + STATUS_NAMES.get(i);
 
         MutableComponent info;
@@ -138,7 +163,7 @@ public class StatusWidget implements FiguraWidget, FiguraTickable, GuiEventListe
             double size = NetworkStuff.getSizeLimit();
             info = new FiguraText(part + "." + color, MathUtils.asFileSize(size));
         } else if (i == 3 && FSB.instance().connected()) {
-            var handshake = FSB.instance().handshake();
+            S2CBackendHandshakePacket handshake = FSB.instance().handshake();
             info = new FiguraText(part + "." + color,
                     handshake.maxAvatarsCount(),
                     MathUtils.asFileSize(handshake.maxAvatarSize()),

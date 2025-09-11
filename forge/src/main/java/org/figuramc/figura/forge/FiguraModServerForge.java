@@ -4,12 +4,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
+
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.event.EventNetworkChannel;
+
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.event.EventNetworkChannel;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.packets.handlers.c2s.C2SPacketHandler;
@@ -32,15 +34,15 @@ public class FiguraModServerForge {
     }
 
     public static void registerPacketListener(Identifier id, EventNetworkChannel channel) {
-        var handler = fsbInstance.getPacketHandler(id);
+        C2SPacketHandler<Packet> handler = fsbInstance.getPacketHandler(id);
         if (handler != null) channel.addListener(new ForgeNetworkListener<>(id, handler));
     }
 
-    public static void onInitializeServer(ServerStartedEvent event) {
+    public static void onInitializeServer(FMLServerStartedEvent event) {
         fsbInstance.finishInitialization(event.getServer());
     }
 
-    public static void onServerStop(ServerStoppingEvent event) {
+    public static void onServerStop(FMLServerStoppedEvent event) {
         fsbInstance.close();
     }
 
@@ -62,7 +64,7 @@ public class FiguraModServerForge {
         @Override
         public void accept(NetworkEvent event) {
             if (event.getPayload() == null) return;
-            var ctx = event.getSource().get();
+            NetworkEvent.Context ctx = event.getSource().get();
             if (ctx.getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
@@ -71,7 +73,7 @@ public class FiguraModServerForge {
                     ctx.setPacketHandled(true);
                 }
                 catch (Exception e) {
-                    fsbInstance.logError("Failed to handle packet %s".formatted(id), e);
+                    fsbInstance.logError(String.format("Failed to handle packet %s", id), e);
                 }
             }
         }

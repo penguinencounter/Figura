@@ -14,6 +14,7 @@ import org.figuramc.figura.commands.fabric.FiguraServerCommandsFabric;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.packets.handlers.c2s.C2SPacketHandler;
+import org.figuramc.figura.server.utils.Identifier;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
     public void onInitializeServer() {
         init();
         forEachHandler((id, handler) -> {
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
+            ResourceLocation resLoc = new ResourceLocation(id.namespace(), id.path());
             ServerPlayNetworking.registerGlobalReceiver(resLoc, new FabricServerHandler<>(handler));
         });
         FiguraServerCommandsFabric.init();
@@ -33,8 +34,8 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
     protected void sendPacketInternal(UUID receiver, Packet packet) {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
         if (player != null) {
-            var id = packet.getId();
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
+            Identifier id = packet.getId();
+            ResourceLocation resLoc = new ResourceLocation(id.namespace(), id.path());
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
             packet.write(new FriendlyByteBufWrapper(buf));
             ServerPlayNetworking.send(player, resLoc, buf);

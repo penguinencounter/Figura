@@ -122,7 +122,7 @@ public class FiguraListDocs {
             add(resourceLocation.getPath());
     }};
     private static final Set<String> FIGURA_CONFIGS = Configs.REGISTRY.keySet();
-    private static final LinkedHashSet<String> SOUND_SOURCES = new LinkedHashSet<>() {{
+    private static final LinkedHashSet<String> SOUND_SOURCES = new LinkedHashSet<String>() {{
         for (SoundSource value : SoundSource.values())
             add(value.name());
     }};
@@ -174,7 +174,7 @@ public class FiguraListDocs {
         private Collection<?> get() {
             Object obj = supplier.get();
             if (obj instanceof Set<?>) {
-                LinkedHashSet<?> set = (LinkedHashSet<?>) obj;
+                Set<?> set = (Set<?>) obj;
                 return set;
             } else if (obj instanceof Map<?, ?>) {
                 Map<?, ?> map = (Map<?, ?>) obj;

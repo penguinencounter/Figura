@@ -398,7 +398,7 @@ public class NetworkStuff {
         FSB fsb = fsb();
         if (fsb.connected()) {
             FiguraToast.sendToast(new FiguraText("backend.upload_success"));
-            fsb.equipAvatar(List.of(Pair.of(avatarId, target.hash())));
+            fsb.equipAvatar(Collections.singletonList(Pair.of(avatarId, target.hash())));
             AvatarManager.localUploaded = true;
         }
     }
@@ -749,19 +749,31 @@ public class NetworkStuff {
         FSB_OR_BACKEND;
 
         public boolean allowBackend() {
-            return switch (this) {
-                case BACKEND, BOTH -> true;
-                case FSB -> false;
-                case FSB_OR_BACKEND -> !org.figuramc.figura.backend2.FSB.instance().connected();
-            };
+            switch (this) {
+                case BACKEND:
+                case BOTH:
+                    return true;
+                case FSB:
+                    return false;
+                case FSB_OR_BACKEND:
+                    return !org.figuramc.figura.backend2.FSB.instance().connected();
+                default:
+                    throw new IllegalArgumentException();
+            }
         }
 
         public boolean allowFSB() {
-            return switch (this) {
-                case FSB, BOTH -> true;
-                case BACKEND -> false;
-                case FSB_OR_BACKEND -> org.figuramc.figura.backend2.FSB.instance().connected();
-            };
+            switch (this) {
+                case FSB:
+                case BOTH:
+                    return true;
+                case BACKEND:
+                    return false;
+                case FSB_OR_BACKEND:
+                    return org.figuramc.figura.backend2.FSB.instance().connected();
+                default:
+                    throw new IllegalArgumentException();
+            }
         }
     }
 }

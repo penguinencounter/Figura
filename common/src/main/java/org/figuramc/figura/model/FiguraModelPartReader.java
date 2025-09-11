@@ -90,10 +90,10 @@ public class FiguraModelPartReader {
                 children.add(read(owner, (CompoundTag) tag, textureSets, smoothNormals));
         }
 
-		String collections[] = partCompound.contains("cn") ? partCompound.getList("cn", Tag.TAG_STRING).stream().map(Tag::getAsString).toArray(String[]::new) : null;
+		String collections[] = partCompound.contains("cn") ? partCompound.getList("cn", NbtType.STRING.getValue()).stream().map(Tag::getAsString).toArray(String[]::new) : null;
 		byte collectionInfo[] = partCompound.contains("pr") ? partCompound.getByteArray("pr") : null;
-		String savedUUID = partCompound.contains("nr") ? partCompound.get("nr") instanceof IntArrayTag list ? SerializableUUID.uuidFromIntArray(list.getAsIntArray()).toString() : partCompound.get("nr").getAsString() : null;
-        FiguraModelPart result = new FiguraModelPart(owner, name, savedUUID, customization, vertices, children, partCompound.contains("cn") ? partCompound.getList("cn", Tag.TAG_STRING).stream().map(Tag::getAsString).toArray(String[]::new) : null, partCompound.contains("pr") ? partCompound.getByteArray("pr") : null);
+		String savedUUID = partCompound.contains("nr") ? partCompound.get("nr") instanceof IntArrayTag ? SerializableUUID.uuidFromIntArray(((IntArrayTag) partCompound.get("nr")).getAsIntArray()).toString() : partCompound.get("nr").getAsString() : null;
+        FiguraModelPart result = new FiguraModelPart(owner, name, savedUUID, customization, vertices, children, partCompound.contains("cn") ? partCompound.getList("cn", NbtType.STRING.getValue()).stream().map(Tag::getAsString).toArray(String[]::new) : null, partCompound.contains("pr") ? partCompound.getByteArray("pr") : null);
 
         for (FiguraModelPart child : children)
             child.parent = result;

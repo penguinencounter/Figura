@@ -4,7 +4,7 @@
   "package": "org.figuramc.figura.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ClientPacketListenerMixin"
+    "ClientPacketListenerMixin",
   ],
   "client": [
     "AABBInvoker",
@@ -33,9 +33,11 @@
     "font.BitmapGlyphMixin",
     "font.FontAccessor",
     "font.FontMixin",
+    "font.FontSetAccessor",
     "font.FontSetMixin",
+    "font.StringRenderOutputAccessor",
+    "font.StringRenderOutputMixin",
     "gui.BossHealthOverlayAccessor",
-    "font.StyleAccessor",
     "gui.ChatComponentAccessor",
     "gui.ChatComponentMixin",
     "gui.ChatScreenAccessor",
@@ -65,6 +67,7 @@
     "input.MouseHandlerMixin",
     "math.Matrix3fMixin",
     "math.Matrix4fMixin",
+    "font.StyleMixin",
     "particle.ParticleAccessor",
     "particle.ParticleEngineMixin",
     "particle.SingleQuadParticleMixin",
@@ -108,10 +111,7 @@
     "sound.OutputConcatAccessor",
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
-    "sound.SubtitleOverlayMixin",
-    "font.FontSetAccessor",
-    "font.StringRenderOutputAccessor",
-    "font.StringRenderOutputMixin"
+    "sound.SubtitleOverlayMixin"
   ],
   "server": [
     "CommandSourceStackMixin",

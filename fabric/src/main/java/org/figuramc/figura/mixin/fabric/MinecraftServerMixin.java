@@ -20,7 +20,7 @@ public abstract class MinecraftServerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;updateStatusIcon(Lnet/minecraft/network/protocol/status/ServerStatus;)V"))
     private void onServerStart(CallbackInfo ci) {
         if (isDedicatedServer()) {
-            var inst = FiguraServerFabric.getInstance();
+            FiguraModServer inst = FiguraServerFabric.getInstance();
             inst.init();
             inst.finishInitialization((MinecraftServer) (Object) this);
         }

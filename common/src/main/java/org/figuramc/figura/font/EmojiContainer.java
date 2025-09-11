@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import org.figuramc.figura.FiguraMod;
+import org.figuramc.figura.ducks.StyleAccessor;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.JsonUtils;
@@ -141,9 +142,9 @@ public class EmojiContainer {
     }
 
     private MutableComponent makeComponent(@Nullable EmojiMetadata metadata, String unicode, MutableComponent hover, Style style) {
-        Style styleToUse = metadata != null && metadata.canBeColored ? style.withBold(false).withItalic(false).withObfuscated(false).withUnderlined(false) : STYLE;
+        Style styleToUse = metadata != null && metadata.canBeColored ? ((StyleAccessor)style.withBold(false).withItalic(false)).figura$withObfuscated(false).withUnderlined(false) : STYLE;
         if (metadata != null && metadata.canBeColored && styleToUse.getColor() == null) {
-            styleToUse = styleToUse.withColor(metadata.defaultColor);
+            styleToUse = styleToUse.withColor(TextColor.fromRgb(metadata.defaultColor));
         }
 
         return new TextComponent(unicode).withStyle(styleToUse.withFont(font).withHoverEvent(

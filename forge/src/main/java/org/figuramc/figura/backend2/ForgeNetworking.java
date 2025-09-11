@@ -3,8 +3,8 @@ package org.figuramc.figura.backend2;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.event.EventNetworkChannel;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.event.EventNetworkChannel;
 import org.figuramc.figura.forge.FiguraModClientForge;
 import org.figuramc.figura.forge.FiguraModServerForge;
 import org.figuramc.figura.server.packets.Packets;
@@ -19,9 +19,9 @@ public class ForgeNetworking {
     private static final HashMap<Identifier, EventNetworkChannel> channels = new HashMap<>();
     public static void init() {
         Side currentSide = currentSide();
-        var packetListenerRegisterer = getCurrentListenerRegisterer();
+        BiConsumer<Identifier, EventNetworkChannel> packetListenerRegisterer = getCurrentListenerRegisterer();
         Packets.forEachPacket((id, desc) -> {
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
+            ResourceLocation resLoc = new ResourceLocation(id.namespace(), id.path());
             EventNetworkChannel channel = NetworkRegistry.newEventChannel(
                     resLoc,
                     () -> NetworkRegistry.ACCEPTVANILLA,

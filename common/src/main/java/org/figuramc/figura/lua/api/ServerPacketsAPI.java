@@ -1,9 +1,11 @@
 package org.figuramc.figura.lua.api;
 
 import net.minecraft.client.Minecraft;
+import org.apache.commons.io.IOUtils;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.backend2.FSB;
+import org.figuramc.figura.lua.FiguraLuaRuntime;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.api.data.FiguraBuffer;
@@ -42,10 +44,10 @@ public class ServerPacketsAPI {
             value = "server_packets.send_packet"
     )
     public void sendPacket(@LuaNotNil String id, FiguraBuffer data) {
-        var fsb = FSB.instance();
+        FSB fsb = FSB.instance();
         if (!(isHost && fsb.connected())) return;
         try {
-            byte[] bytes = data != null ? data.asInputStream().readAllBytes() : new byte[0];
+            byte[] bytes = data != null ? IOUtils.toByteArray(data.asInputStream()) : new byte[0];
             fsb.sendPacket(new CustomFSBPacket(id.hashCode(), bytes));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -78,7 +80,7 @@ public class ServerPacketsAPI {
         UUID localPlayerUUID = Minecraft.getInstance().player.getUUID();
         Avatar avatar = AvatarManager.getLoadedAvatar(localPlayerUUID);
         if (avatar != null) {
-            var runtime = avatar.luaRuntime;
+            FiguraLuaRuntime runtime = avatar.luaRuntime;
             LuaFunction listener = runtime.serverPackets.getListener(id);
             if (listener != null) {
                 FiguraBuffer buffer = new FiguraBuffer(avatar);

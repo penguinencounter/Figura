@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.figuramc.figura.server.commands.FiguraServerCommandSource;
@@ -29,6 +30,7 @@ import org.figuramc.figura.server.utils.Identifier;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static org.figuramc.figura.server.SpigotUtils.call;
 
@@ -43,7 +45,7 @@ public class FiguraSpigot extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         srv = new FiguraServerSpigot(this);
-        var msg = getServer().getMessenger();
+        Messenger msg = getServer().getMessenger();
         Bukkit.getPluginManager().registerEvents(this, this);
         Packets.forEachPacket(((id, packetDescriptor) -> {
             Side side = packetDescriptor.side();
@@ -52,7 +54,7 @@ public class FiguraSpigot extends JavaPlugin implements Listener {
                 outcomingPackets.add(id);
             }
             if (side.sentBy(Side.CLIENT)) msg.registerIncomingPluginChannel(this, id.toString(), srv);
-            srv.logDebug("Registered channel for %s".formatted(id));
+            srv.logDebug(String.format("Registered channel for %s", id));
         }));
         srv.init();
         tickTask = new BukkitTickRunnable().runTaskTimer(this, 0, 1);
@@ -70,7 +72,8 @@ public class FiguraSpigot extends JavaPlugin implements Listener {
     @SuppressWarnings("NullableProblems")
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player pl) {
+        if (sender instanceof Player) {
+            Player pl = (Player) sender;
             FiguraSpigotCommandSource source = new FiguraSpigotCommandSource(pl.getUniqueId());
             String[] commandComponents = getCmd(label, args);
             String commandText = String.join(" ", commandComponents);
@@ -87,15 +90,16 @@ public class FiguraSpigot extends JavaPlugin implements Listener {
     @SuppressWarnings("NullableProblems")
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (sender instanceof Player pl) {
+        if (sender instanceof Player) {
+            Player pl = (Player) sender;
             FiguraSpigotCommandSource source = new FiguraSpigotCommandSource(pl.getUniqueId());
             String[] commandComponents = getCmd(alias, args);
             String commandText = String.join(" ", commandComponents);
             ParseResults<FiguraServerCommandSource> parseResult = dispatcher.parse(commandText, source);
             Suggestions suggestions = dispatcher.getCompletionSuggestions(parseResult).join();
-            return suggestions.getList().stream().map(Suggestion::getText).toList();
+            return suggestions.getList().stream().map(Suggestion::getText).collect(Collectors.toList());
         }
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
@@ -107,19 +111,19 @@ public class FiguraSpigot extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        var player = event.getPlayer();
+        Player player = event.getPlayer();
         for (Identifier id: outcomingPackets) {
             call(player, "addChannel", CHANNEL_ARGS, id.toString());
-            srv.logDebug("Registered %s for %s".formatted(id, player.getName()));
+            srv.logDebug(String.format("Registered %s for %s", id, player.getName()));
         }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        var player = event.getPlayer();
+        Player player = event.getPlayer();
         for (Identifier id: outcomingPackets) {
             call(player, "removeChannel", CHANNEL_ARGS, id.toString());
-            srv.logDebug("Unregistered %s for %s".formatted(id, player.getName()));
+            srv.logDebug(String.format("Unregistered %s for %s", id, player.getName()));
         }
         srv.userManager().onUserLeave(player.getUniqueId());
     }

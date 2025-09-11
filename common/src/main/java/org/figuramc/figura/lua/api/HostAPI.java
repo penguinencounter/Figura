@@ -106,7 +106,7 @@ public class HostAPI {
     public ItemStackAPI getCursorItem() {
         if (!isHost() || this.minecraft.player == null)
             return ItemStackAPI.verify(ItemStack.EMPTY);
-        return ItemStackAPI.verify(this.minecraft.player.containerMenu.getCarried());
+        return ItemStackAPI.verify(this.minecraft.player.inventory.getCarried());
     }
 
     @LuaWhitelist

@@ -236,13 +236,17 @@ public class ActionWheel {
 
             // this is so ugly lol, i could do better
             for (RenderTask task : part.renderTasks.values())
-                if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask) {
+                    ItemTask itemTask = (ItemTask) task;
                     minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+                }
 
             for (FiguraModelPart child : part.getChildren().values()) {
                 for (RenderTask task : child.renderTasks.values())
-                    if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                    if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask) {
+                        ItemTask itemTask = (ItemTask) task;
                         minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+                    }
             }
         }
     }
@@ -255,20 +259,20 @@ public class ActionWheel {
         poseStack.translate((float)(x + 8), (float)(y + 8), (float)(150));
 
         // need special handling to replicate gui transforms for item tasks, blegh
-        RenderSystem.scalef(-1.0F, -1.0F, -1.0F);
-        //poseStack.last().normal().mul(Matrix3f.createScaleMatrix(-1.0F, 1.0F, -1.0F));
+        poseStack.scale(-1.0F, -1.0F, -1.0F);
+        poseStack.last().normal().mul(Matrix3f.createScaleMatrix(-1.0F, 1.0F, -1.0F));
 
         Avatar avatar = action.owner;
 
         int[] prev = new int[]{avatar.complexity.remaining};
         avatar.renderer.entity = minecraft.player;
         MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
-        avatar.renderer.setupRenderer(PartFilterScheme.MODEL, bufferSource, poseStack, tickDelta, LightTexture.FULL_BRIGHT, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
+        avatar.renderer.setupRenderer(PartFilterScheme.MODEL, bufferSource, poseStack, tickDelta, 15 << 20 | 15 << 4, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
 
         PartCustomization customization = new PartCustomization();
         customization.setPositionMatrix(new FiguraMat4().set(poseStack.last().pose()));
         customization.setNormalMatrix(new FiguraMat3().set(poseStack.last().normal()));
-        customization.light = LightTexture.FULL_BRIGHT;
+        customization.light = 15 << 20 | 15 << 4;
         customization.alpha = 1f;
         customization.overlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
         customization.setPrimaryRenderType(RenderTypes.TRANSLUCENT);

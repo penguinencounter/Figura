@@ -16,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemEntityRendererMixin {
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/world/entity/item/ItemEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
     private void onRender(ItemEntity itemEntity, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
-        if (itemEntity.getItem().getItem() instanceof BlockItem bl && bl.getBlock() instanceof AbstractSkullBlock) {
+        if (itemEntity.getItem().getItem() instanceof BlockItem && ((BlockItem) itemEntity.getItem().getItem()).getBlock() instanceof AbstractSkullBlock) {
+            BlockItem bl = (BlockItem) itemEntity.getItem().getItem();
             SkullBlockRendererAccessor.setEntity(itemEntity);
             SkullBlockRendererAccessor.setRenderMode(SkullBlockRendererAccessor.SkullRenderMode.ITEM_ENTITY);
         }
