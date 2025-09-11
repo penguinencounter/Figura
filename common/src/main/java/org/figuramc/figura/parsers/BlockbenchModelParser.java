@@ -2,23 +2,19 @@ package org.figuramc.figura.parsers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.gson.*;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.SerializableUUID;
 import net.minecraft.nbt.*;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.utils.IOUtils;
-import org.figuramc.figura.FiguraMod;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.regex.Pattern;
 
 //main class to convert a blockbench model (json) into nbt
 //default fields are omitted from the nbt to save up space
@@ -269,7 +265,7 @@ public class BlockbenchModelParser {
             nbt.putString("name", element.name);
             //invalid UUIDs are still technically valid Blockbench models, so handle those
             try {
-                nbt.putIntArray("nr", UUIDUtil.uuidToIntArray(UUID.fromString(element.uuid)));
+                nbt.putIntArray("nr", SerializableUUID.uuidToIntArray(UUID.fromString(element.uuid)));
             } catch (IllegalArgumentException ignored) {
                 nbt.putString("nr", element.uuid);
             }

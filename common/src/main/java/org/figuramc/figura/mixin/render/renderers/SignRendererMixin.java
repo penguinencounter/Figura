@@ -3,10 +3,7 @@ package org.figuramc.figura.mixin.render.renderers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.*;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import org.figuramc.figura.config.Configs;
@@ -34,7 +31,7 @@ public class SignRendererMixin {
     private FormattedText modifyText(FormattedText charSequence) {
         if (!(Configs.EMOJIS.value > 0 && charSequence instanceof Component text)) return charSequence;
 
-        MutableComponent test = MutableComponent.create(text.getContents());
+        MutableComponent test = new TextComponent(text.getContents());
         if (figura$signEntity.getColor() == DyeColor.BLACK) {
             test = test.withStyle(Style.EMPTY);
         } else {

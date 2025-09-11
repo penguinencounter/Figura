@@ -827,25 +827,25 @@ public class ClientAPI {
     @LuaMethodDoc("client.get_mouse_sensitivity")
     public static double getMouseSensitivity() {
         // https://www.spigotmc.org/threads/determining-a-players-sensitivity.468373/#post-3976392
-        return Math.pow(Minecraft.getInstance().options.sensitivity().get() * 0.6 + 0.2, 3) * 8;
+        return Math.pow(Minecraft.getInstance().options.sensitivity * 0.6 + 0.2, 3) * 8;
     }
 
     @LuaWhitelist
     @LuaMethodDoc("client.get_mouse_inverted")
     public static Boolean getMouseInverted() {
-        return Minecraft.getInstance().options.invertYMouse().get();
+        return Minecraft.getInstance().options.invertYMouse;
     }
 
     @LuaWhitelist
     @LuaMethodDoc("client.get_scroll_sensitivity")
     public static double getScrollSensitivity() {
-        return Minecraft.getInstance().options.mouseWheelSensitivity().get();
+        return Minecraft.getInstance().options.mouseWheelSensitivity;
     }
 
     @LuaWhitelist
     @LuaMethodDoc("client.get_discrete_scrolling")
     public static Boolean getDiscreteScrolling() {
-        return Minecraft.getInstance().options.discreteMouseScroll().get();
+        return Minecraft.getInstance().options.discreteMouseScroll;
     }
 
     @LuaWhitelist
@@ -853,7 +853,7 @@ public class ClientAPI {
     public static Double getChatWidth() {
         // 0 -> 40
         // 1 -> 320
-        return Math.floor(40 + 280 * Minecraft.getInstance().options.chatWidth().get());
+        return Math.floor(40 + 280 * Minecraft.getInstance().options.chatWidth);
     }
 
     @LuaWhitelist
@@ -861,7 +861,7 @@ public class ClientAPI {
     public static Double getFocusedChatHeight() {
         // 0 -> 20
         // 1 -> 180
-        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
+        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused);
     }
 
     @LuaWhitelist
@@ -869,7 +869,7 @@ public class ClientAPI {
     public static Double getUnfocusedChatHeight() {
         // 0 -> 20
         // 1 -> 180
-        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused().get());
+        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused);
     }
 
     @Override

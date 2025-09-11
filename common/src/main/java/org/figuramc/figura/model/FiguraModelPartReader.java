@@ -2,7 +2,7 @@ package org.figuramc.figura.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.SerializableUUID;
 import net.minecraft.nbt.*;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.FiguraMod;
@@ -91,7 +91,7 @@ public class FiguraModelPartReader {
 
 		String collections[] = partCompound.contains("cn") ? partCompound.getList("cn", Tag.TAG_STRING).stream().map(Tag::getAsString).toArray(String[]::new) : null;
 		byte collectionInfo[] = partCompound.contains("pr") ? partCompound.getByteArray("pr") : null;
-		String savedUUID = partCompound.contains("nr") ? partCompound.get("nr") instanceof IntArrayTag list ? UUIDUtil.uuidFromIntArray(list.getAsIntArray()).toString() : partCompound.get("nr").getAsString() : null;
+		String savedUUID = partCompound.contains("nr") ? partCompound.get("nr") instanceof IntArrayTag list ? SerializableUUID.uuidFromIntArray(list.getAsIntArray()).toString() : partCompound.get("nr").getAsString() : null;
         FiguraModelPart result = new FiguraModelPart(owner, name, savedUUID, customization, vertices, children, partCompound.contains("cn") ? partCompound.getList("cn", Tag.TAG_STRING).stream().map(Tag::getAsString).toArray(String[]::new) : null, partCompound.contains("pr") ? partCompound.getByteArray("pr") : null);
 
         for (FiguraModelPart child : children)

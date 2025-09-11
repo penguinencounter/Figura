@@ -35,7 +35,7 @@ public abstract class EditServerScreenMixin extends Screen {
         int width = 20;
         int height = 20;
         ServerDataAccessor data = (ServerDataAccessor) serverData;
-        fsbState = new Checkbox(x, y, width, height, FiguraText.of("fsb"), data.figura$allowFigura());
+        fsbState = new Checkbox(x, y, width, height, new FiguraText("fsb"), data.figura$allowFigura());
         addRenderableWidget(fsbState);
     }
 

@@ -138,7 +138,7 @@ public class StatusWidget implements FiguraWidget, FiguraTickable, GuiEventListe
             info = new FiguraText(part + "." + color, MathUtils.asFileSize(size));
         } else if (i == 3 && FSB.instance().connected()) {
             var handshake = FSB.instance().handshake();
-            info = FiguraText.of(part + "." + color,
+            info = new FiguraText(part + "." + color,
                     handshake.maxAvatarsCount(),
                     MathUtils.asFileSize(handshake.maxAvatarSize()),
                     handshake.pingsRateLimit(),

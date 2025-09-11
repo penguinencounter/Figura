@@ -9,8 +9,8 @@ public class S2CPingErrorPacketHandler extends ConnectedPacketHandler<S2CPingErr
     @Override
     protected void handlePacket(S2CPingErrorPacket packet) {
         switch (packet.error()) {
-            case PING_SIZE -> FiguraToast.sendToast(FiguraText.of("backend.warning"), FiguraText.of("backend.ping_size"), FiguraToast.ToastType.ERROR);
-            case RATE_LIMIT -> FiguraToast.sendToast(FiguraText.of("backend.warning"), FiguraText.of("backend.ping_rate"), FiguraToast.ToastType.ERROR);
+            case PING_SIZE -> FiguraToast.sendToast(new FiguraText("backend.warning"), new FiguraText("backend.ping_size"), FiguraToast.ToastType.ERROR);
+            case RATE_LIMIT -> FiguraToast.sendToast(new FiguraText("backend.warning"), new FiguraText("backend.ping_rate"), FiguraToast.ToastType.ERROR);
             case UNKNOWN -> {
             }
         }

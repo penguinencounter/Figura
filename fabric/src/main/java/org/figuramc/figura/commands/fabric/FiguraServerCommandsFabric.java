@@ -1,8 +1,7 @@
 package org.figuramc.figura.commands.fabric;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.commands.CommandBuildContext;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import org.figuramc.figura.server.commands.FiguraServerCommandSource;
@@ -14,8 +13,8 @@ public class FiguraServerCommandsFabric {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext ctx, Commands.CommandSelection environment) {
-        if (environment == Commands.CommandSelection.DEDICATED) {
+    private static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+        if (dedicated) {
             CommandDispatcher<FiguraServerCommandSource> casted = (CommandDispatcher) dispatcher;
             casted.register(FiguraServerCommands.getCommand());
         }

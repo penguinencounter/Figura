@@ -83,7 +83,7 @@ public abstract class FSB {
         if (fsbAllowed() && state == State.HandshakeSent) {
             s2CHandshake = packet;
             state = State.Connected;
-            FiguraToast.sendToast(FiguraText.of("backend.fsb_connected"));
+            FiguraToast.sendToast(new FiguraText("backend.fsb_connected"));
             connectedPlayers.addAll(packet.connectedPlayers());
             AvatarManager.clearAllAvatars();
         }
@@ -395,10 +395,10 @@ public abstract class FSB {
                     // This is handled by the AvatarReadyPacket.
                 }
                 case MAX_AVATAR_SIZE_EXCEEDED -> {
-                    FiguraToast.sendToast(FiguraText.of("backend.upload_too_big"), FiguraToast.ToastType.ERROR);
+                    FiguraToast.sendToast(new FiguraText("backend.upload_too_big"), FiguraToast.ToastType.ERROR);
                 }
                 default -> {
-                    FiguraToast.sendToast(FiguraText.of("backend.upload_error"), code, FiguraToast.ToastType.ERROR);
+                    FiguraToast.sendToast(new FiguraText("backend.upload_error"), code, FiguraToast.ToastType.ERROR);
                 }
             }
             parent.outputStreams.remove(id);

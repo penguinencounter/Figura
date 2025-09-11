@@ -239,30 +239,30 @@ public class WardrobeScreen extends AbstractPanelScreen {
 
     private void generateUploadContext() {
         uploadContext = new ContextMenu(upload);
-        uploadContext.addAction(FiguraText.of("gui.wardrobe.upload_backend"), FiguraText.of("gui.wardrobe.upload_backend.tooltip"), button -> {
+        uploadContext.addAction(new FiguraText("gui.wardrobe.upload_backend"), new FiguraText("gui.wardrobe.upload_backend.tooltip"), button -> {
             uploadAvatar(NetworkStuff.Destination.BACKEND);
         });
 
-        uploadContext.addAction(FiguraText.of("gui.wardrobe.upload_fsb"), FiguraText.of("gui.wardrobe.upload_fsb.tooltip"), button -> {
+        uploadContext.addAction(new FiguraText("gui.wardrobe.upload_fsb"), new FiguraText("gui.wardrobe.upload_fsb.tooltip"), button -> {
             uploadAvatar(NetworkStuff.Destination.FSB);
         });
 
-        uploadContext.addAction(FiguraText.of("gui.wardrobe.upload_both"), FiguraText.of("gui.wardrobe.upload_both.tooltip"), button -> {
+        uploadContext.addAction(new FiguraText("gui.wardrobe.upload_both"), new FiguraText("gui.wardrobe.upload_both.tooltip"), button -> {
             uploadAvatar(NetworkStuff.Destination.BOTH);
         });
     }
 
     private void generateDeleteContext() {
         deleteContext = new ContextMenu(delete);
-        deleteContext.addAction(FiguraText.of("gui.wardrobe.delete_backend"), FiguraText.of("gui.wardrobe.delete_backend.tooltip"), button -> {
+        deleteContext.addAction(new FiguraText("gui.wardrobe.delete_backend"), new FiguraText("gui.wardrobe.delete_backend.tooltip"), button -> {
             deleteAvatar(NetworkStuff.Destination.BACKEND);
         });
 
-        deleteContext.addAction(FiguraText.of("gui.wardrobe.delete_fsb"), FiguraText.of("gui.wardrobe.delete_fsb.tooltip"), button -> {
+        deleteContext.addAction(new FiguraText("gui.wardrobe.delete_fsb"), new FiguraText("gui.wardrobe.delete_fsb.tooltip"), button -> {
             deleteAvatar(NetworkStuff.Destination.FSB);
         });
 
-        deleteContext.addAction(FiguraText.of("gui.wardrobe.delete_both"), FiguraText.of("gui.wardrobe.delete_both.tooltip"), button -> {
+        deleteContext.addAction(new FiguraText("gui.wardrobe.delete_both"), new FiguraText("gui.wardrobe.delete_both.tooltip"), button -> {
             deleteAvatar(NetworkStuff.Destination.BOTH);
         });
     }

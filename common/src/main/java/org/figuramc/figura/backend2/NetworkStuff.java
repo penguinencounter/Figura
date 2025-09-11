@@ -388,7 +388,7 @@ public class NetworkStuff {
         hashesAwaitingUpload.remove(target.hash());
         FSB fsb = fsb();
         if (fsb.connected()) {
-            FiguraToast.sendToast(FiguraText.of("backend.upload_success"));
+            FiguraToast.sendToast(new FiguraText("backend.upload_success"));
             fsb.equipAvatar(List.of(Pair.of(avatarId, target.hash())));
             AvatarManager.localUploaded = true;
         }
@@ -446,7 +446,7 @@ public class NetworkStuff {
     }
 
     public static void fsbDeleteAvatarCompleted() {
-        FiguraToast.sendToast(FiguraText.of("backend.delete_success"));
+        FiguraToast.sendToast(new FiguraText("backend.delete_success"));
     }
 
     public static void deleteAvatar(String avatar, Destination destination) {
@@ -528,11 +528,11 @@ public class NetworkStuff {
         queueString(Util.NIL_UUID, api -> api.setBadge(badgeId), (code, data) -> {
             // On error
             if (code != 200) {
-                FiguraToast.sendToast(FiguraText.of("backend.badge_set_error"), FiguraToast.ToastType.ERROR);
+                FiguraToast.sendToast(new FiguraText("backend.badge_set_error"), FiguraToast.ToastType.ERROR);
                 return;
             }
 
-            FiguraToast.sendToast(FiguraText.of("backend.badge_set"));
+            FiguraToast.sendToast(new FiguraText("backend.badge_set"));
         });
     }
 
@@ -540,11 +540,11 @@ public class NetworkStuff {
         queueString(Util.NIL_UUID, HttpAPI::clearBadge, (code, data) -> {
             // On error
             if (code != 200) {
-                FiguraToast.sendToast(FiguraText.of("backend.badge_clear_error"), FiguraToast.ToastType.ERROR);
+                FiguraToast.sendToast(new FiguraText("backend.badge_clear_error"), FiguraToast.ToastType.ERROR);
                 return;
             }
 
-            FiguraToast.sendToast(FiguraText.of("backend.badge_clear"));
+            FiguraToast.sendToast(new FiguraText("backend.badge_clear"));
         });
     }
 

@@ -3,6 +3,7 @@ package org.figuramc.figura.gui.widgets.permissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -75,7 +76,7 @@ public class PlayerStatusWidget extends StatusWidget {
 
     @Override
     public MutableComponent getStatusIcon(int type) {
-        return Component.literal(String.valueOf(STATUS_INDICATORS.charAt(switch (type) {
+        return new TextComponent(String.valueOf(STATUS_INDICATORS.charAt(switch (type) {
             case 0 -> size;
             case 1 -> complexity;
             case 2 -> init;
