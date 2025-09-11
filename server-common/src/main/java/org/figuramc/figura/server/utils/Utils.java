@@ -1,5 +1,10 @@
 package org.figuramc.figura.server.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -40,25 +45,42 @@ public class Utils {
     }
 
     private static int fromHexChar(char c) {
-        return switch (c) {
-            case '0' -> 0x0;
-            case '1' -> 0x1;
-            case '2' -> 0x2;
-            case '3' -> 0x3;
-            case '4' -> 0x4;
-            case '5' -> 0x5;
-            case '6' -> 0x6;
-            case '7' -> 0x7;
-            case '8' -> 0x8;
-            case '9' -> 0x9;
-            case 'a' -> 0xa;
-            case 'b' -> 0xb;
-            case 'c' -> 0xc;
-            case 'd' -> 0xd;
-            case 'e' -> 0xe;
-            case 'f' -> 0xf;
-            default -> throw new IllegalStateException("Unexpected value: " + c);
-        };
+        switch (c) {
+            case '0':
+                return 0x0;
+            case '1':
+                return 0x1;
+            case '2':
+                return 0x2;
+            case '3':
+                return 0x3;
+            case '4':
+                return 0x4;
+            case '5':
+                return 0x5;
+            case '6':
+                return 0x6;
+            case '7':
+                return 0x7;
+            case '8':
+                return 0x8;
+            case '9':
+                return 0x9;
+            case 'a':
+                return 0xa;
+            case 'b':
+                return 0xb;
+            case 'c':
+                return 0xc;
+            case 'd':
+                return 0xd;
+            case 'e':
+                return 0xe;
+            case 'f':
+                return 0xf;
+            default:
+                throw new IllegalStateException("Unexpected value: " + c);
+        }
     }
 
     public static byte[] bytesFromHex(String hex) {
@@ -125,5 +147,19 @@ public class Utils {
 
     public static byte[] copyBytes(byte[] source) {
         return Arrays.copyOf(source, source.length);
+    }
+
+    public static String readStreamToString(FileInputStream fis, Charset charset) throws IOException {
+        return new String(toByteArray(fis), charset);
+    }
+
+    public static byte[] toByteArray(FileInputStream fis) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            baos.write(buffer, 0, bytesRead);
+        }
+        return baos.toByteArray();
     }
 }

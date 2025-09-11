@@ -14,7 +14,7 @@ public interface IFriendlyByteBuf {
             writeByte(s & 0xFF);
             return this;
         }
-        else throw new IllegalArgumentException("Value %s is out of range [%s; %s]".formatted(val, Short.MIN_VALUE, Short.MAX_VALUE));
+        else throw new IllegalArgumentException(String.format("Value %s is out of range [%s; %s]", val, Short.MIN_VALUE, Short.MAX_VALUE));
     }
     default IFriendlyByteBuf writeInt(int val) {
         writeByte((val >> 24) & 0xFF);
@@ -151,7 +151,7 @@ public interface IFriendlyByteBuf {
     default byte[] readByteArray(int maxSize) {
         int len = readVarInt();
         if (len > maxSize) {
-            throw new IllegalStateException("Array length (%s) is longer than %s".formatted(len, maxSize));
+            throw new IllegalStateException(String.format("Array length (%s) is longer than %s", len, maxSize));
         }
         else if (len < 0) {
             throw new IllegalStateException("Array length can't be negative");

@@ -18,7 +18,7 @@ public class C2SFetchAvatarPacketHandler extends AuthorizedC2SPacketHandler<C2SF
 
     @Override
     protected void handle(FiguraUser sender, C2SFetchAvatarPacket packet) {
-        var hash = packet.hash();
+        Hash hash = packet.hash();
         if (!parent.avatarManager().avatarExists(hash)) {
             sender.sendPacket(new CloseOutcomingStreamPacket(packet.streamId(), StatusCode.AVATAR_DOES_NOT_EXIST));
             return;

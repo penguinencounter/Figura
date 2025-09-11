@@ -7,6 +7,7 @@ import org.figuramc.figura.server.events.users.SavePlayerDataEvent;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -73,7 +74,7 @@ public final class FiguraUserManager {
     }
 
     public void close() {
-        for (var user: users.values()) {
+        for (FiguraUser user: users.values()) {
             if (!Events.call(new SavePlayerDataEvent(user)).isCancelled())
                 user.save(parent.getUserdataFile(user.uuid()));
         }
@@ -88,5 +89,42 @@ public final class FiguraUserManager {
         pingsTickCounter++;
     }
 
-    private record FutureHandle(UUID user, CompletableFuture<FiguraUser> future) {}
+    private static final class FutureHandle {
+        private final UUID user;
+        private final CompletableFuture<FiguraUser> future;
+
+        private FutureHandle(UUID user, CompletableFuture<FiguraUser> future) {
+            this.user = user;
+            this.future = future;
+        }
+
+        public UUID user() {
+            return user;
+        }
+
+        public CompletableFuture<FiguraUser> future() {
+            return future;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            FutureHandle that = (FutureHandle) obj;
+            return Objects.equals(this.user, that.user) &&
+                    Objects.equals(this.future, that.future);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(user, future);
+        }
+
+        @Override
+        public String toString() {
+            return "FutureHandle[" +
+                    "user=" + user + ", " +
+                    "future=" + future + ']';
+        }
+    }
 }

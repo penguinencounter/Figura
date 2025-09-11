@@ -23,7 +23,8 @@ public class Hash {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Hash hash1)) return false;
+        if (!(o instanceof Hash)) return false;
+        Hash hash1 = (Hash) o;
         return Arrays.equals(hash, hash1.hash);
     }
 

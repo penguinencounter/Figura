@@ -14,7 +14,7 @@ public class C2SPingPacketHandler extends AuthorizedC2SPacketHandler<C2SPingPack
 
     @Override
     protected void handle(FiguraUser sender, C2SPingPacket packet) {
-        var counter = sender.pingCounter();
+        FiguraUser.PingCounter counter = sender.pingCounter();
         if (counter.pingsSent() > parent.config().pingsRateLimit()) {
             sender.sendPacket(new S2CPingErrorPacket(S2CPingErrorPacket.Error.RATE_LIMIT));
         }

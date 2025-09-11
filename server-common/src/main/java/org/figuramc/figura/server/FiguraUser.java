@@ -86,7 +86,7 @@ public final class FiguraUser {
         File playerFile = file.toFile();
         try {
             FileInputStream fis = new FileInputStream(playerFile);
-            String str = new String(fis.readAllBytes(), UTF_8);
+            String str = Utils.readStreamToString(fis, UTF_8);
             fis.close();
             FiguraUserStruct struct = FiguraServer.getInstance().GSON.fromJson(str, FiguraUserStruct.class);
             Pair<String, EHashPair> avatar = struct.equippedAvatar != null ? new Pair<>(struct.equippedAvatar, struct.avatarHash) : null;
@@ -96,7 +96,7 @@ public final class FiguraUser {
         }
     }
 
-    @Deprecated(forRemoval = true)
+    @Deprecated()
     public static FiguraUser loadByteBuf(UUID player, Path playerFile) {
         try (FileInputStream fis = new FileInputStream(playerFile.toFile())) {
             InputStreamByteBuf buf = new InputStreamByteBuf(fis);
@@ -108,7 +108,7 @@ public final class FiguraUser {
         }
     }
 
-    @Deprecated(forRemoval = true)
+    @Deprecated()
     public static FiguraUser loadByteBuf(UUID player, IFriendlyByteBuf buf) {
         int length = buf.readVarInt();
         byte[] arr = buf.readBytes(length);
@@ -133,9 +133,9 @@ public final class FiguraUser {
     }
 
     public Hash findEHash(Hash hash) {
-        var avatar = equippedAvatar();
+        Pair<String, EHashPair> avatar = equippedAvatar();
         if (avatar != null) {
-            var pair = avatar.right();
+            EHashPair pair = avatar.right();
             if (pair.hash().equals(hash)) return pair.ehash();
         }
         for (EHashPair pair: ownedAvatars.values()) {

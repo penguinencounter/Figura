@@ -39,8 +39,6 @@ rootProject.mod_projects.split(",").each { project(":$it") {
 
 		// Mods
 		modCompileOnly "maven.modrinth:iris:$iris"
-		modCompileOnly "maven.modrinth:immediatelyfast:$immediately_fast"
-		modCompileOnly "maven.modrinth:iris:$iris"
 		implementation("org.chenliang.oggus:oggus:1.2.0")
 		implementation("org.concentus:Concentus:1.0-SNAPSHOT")
 	}

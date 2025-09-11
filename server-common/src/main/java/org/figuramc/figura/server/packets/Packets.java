@@ -7,6 +7,7 @@ import org.figuramc.figura.server.utils.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -14,7 +15,7 @@ import static org.figuramc.figura.server.packets.Side.*;
 
 public class Packets {
 
-    private static final HashMap<Identifier, PacketDescriptor<?>> PACKETS = new HashMap<>() {{
+    private static final HashMap<Identifier, PacketDescriptor<?>> PACKETS = new HashMap<Identifier, PacketDescriptor<?>>() {{
         put(C2SBackendHandshakePacket.PACKET_ID, desc(CLIENT, empty(C2SBackendHandshakePacket::new)));
         put(C2SDeleteAvatarPacket.PACKET_ID, desc(CLIENT, C2SDeleteAvatarPacket::new));
         put(C2SEquipAvatarsPacket.PACKET_ID, desc(CLIENT, C2SEquipAvatarsPacket::new));
@@ -52,12 +53,42 @@ public class Packets {
         return PACKETS.get(id);
     }
 
-    private record EmptyDeserializer<P extends Packet>(Supplier<P> emptyConstructor) implements Packet.Deserializer<P> {
-        @Override
-            public P read(IFriendlyByteBuf buf) {
-                return emptyConstructor.get();
-            }
+    private static final class EmptyDeserializer<P extends Packet> implements Packet.Deserializer<P> {
+        private final Supplier<P> emptyConstructor;
+
+        private EmptyDeserializer(Supplier<P> emptyConstructor) {
+            this.emptyConstructor = emptyConstructor;
         }
+
+        @Override
+        public P read(IFriendlyByteBuf buf) {
+            return emptyConstructor.get();
+        }
+
+        public Supplier<P> emptyConstructor() {
+            return emptyConstructor;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            EmptyDeserializer that = (EmptyDeserializer) obj;
+            return Objects.equals(this.emptyConstructor, that.emptyConstructor);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(emptyConstructor);
+        }
+
+        @Override
+        public String toString() {
+            return "EmptyDeserializer[" +
+                    "emptyConstructor=" + emptyConstructor + ']';
+        }
+
+    }
 
     private static <P extends Packet> PacketDescriptor<P> desc(Side recipientSide, Packet.Deserializer<P> constructor) {
         return new PacketDescriptor<>(recipientSide, constructor);
@@ -67,7 +98,44 @@ public class Packets {
         return new EmptyDeserializer<>(emptyConstructor);
     }
 
-    public record PacketDescriptor<P extends Packet>(Side side, Packet.Deserializer<P> constructor) {
+    public static final class PacketDescriptor<P extends Packet> {
+        private final Side side;
+        private final Packet.Deserializer<P> constructor;
+
+        public PacketDescriptor(Side side, Packet.Deserializer<P> constructor) {
+            this.side = side;
+            this.constructor = constructor;
+        }
+
+        public Side side() {
+            return side;
+        }
+
+        public Packet.Deserializer<P> constructor() {
+            return constructor;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            PacketDescriptor that = (PacketDescriptor) obj;
+            return Objects.equals(this.side, that.side) &&
+                    Objects.equals(this.constructor, that.constructor);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(side, constructor);
+        }
+
+        @Override
+        public String toString() {
+            return "PacketDescriptor[" +
+                    "side=" + side + ", " +
+                    "constructor=" + constructor + ']';
+        }
+
 
     }
 }

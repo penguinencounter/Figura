@@ -1,6 +1,7 @@
 package org.figuramc.figura.server.packets.handlers.c2s;
 
 import org.figuramc.figura.server.FiguraServer;
+import org.figuramc.figura.server.FiguraUser;
 import org.figuramc.figura.server.FiguraUserManager;
 import org.figuramc.figura.server.events.Events;
 import org.figuramc.figura.server.events.HandshakeEvent;
@@ -30,7 +31,7 @@ public class C2SHandshakeHandler implements C2SPacketHandler<C2SBackendHandshake
         }
         else {
             FiguraUserManager manager = parent.userManager();
-            var user = manager.setupOnlinePlayer(sender);
+            FiguraUser user = manager.setupOnlinePlayer(sender);
             user.sendPacket(parent.getHandshake());
             manager.forEachUser(u -> {
                 if (u != user) {

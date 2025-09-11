@@ -14,7 +14,7 @@ public class HashNotMatchingException extends RuntimeException {
 
     @Override
     public String toString() {
-        return "Expected hash %s for avatar data, got %s".formatted(
+        return String.format("Expected hash %s for avatar data, got %s",
                 expectedHash, actualHash);
     }
 

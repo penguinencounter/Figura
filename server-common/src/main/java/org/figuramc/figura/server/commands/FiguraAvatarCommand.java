@@ -81,7 +81,7 @@ public class FiguraAvatarCommand {
     private static int immortalizeEquippedAvatar(CommandContext<FiguraServerCommandSource> ctx) {
         FiguraServerCommandSource source = ctx.getSource();
         FiguraUser executor = source.getExecutor();
-        var equipped = executor.equippedAvatar();
+        Pair<String, EHashPair> equipped = executor.equippedAvatar();
         Hash avatar = equipped != null ? equipped.right().hash() : null;
         if (avatar != null) {
             return immortalize(avatar, source);

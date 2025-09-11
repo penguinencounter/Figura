@@ -41,7 +41,7 @@ public abstract class FiguraServer {
         INSTANCE = this;
     }
 
-    private final HashMap<Identifier, C2SPacketHandler<?>> PACKET_HANDLERS = new HashMap<>() {{
+    private final HashMap<Identifier, C2SPacketHandler<?>> PACKET_HANDLERS = new HashMap<Identifier, C2SPacketHandler<?>>() {{
         put(C2SBackendHandshakePacket.PACKET_ID, new C2SHandshakeHandler(FiguraServer.this));
         put(C2SFetchAvatarPacket.PACKET_ID, new C2SFetchAvatarPacketHandler(FiguraServer.this));
         put(C2SFetchUserdataPacket.PACKET_ID, new C2SFetchUserdataPacketHandler(FiguraServer.this));
@@ -81,25 +81,25 @@ public abstract class FiguraServer {
     }
 
     public Path getAvatar(byte[] hash) {
-        return getAvatarsFolder().resolve("%s.nbt".formatted(Utils.hexFromBytes(hash)));
+        return getAvatarsFolder().resolve(String.format("%s.nbt", Utils.hexFromBytes(hash)));
     }
 
     public Path getAvatarMetadata(byte[] hash) {
-        return getAvatarsFolder().resolve("%s.mtd.json".formatted(Utils.hexFromBytes(hash)));
+        return getAvatarsFolder().resolve(String.format("%s.mtd.json", Utils.hexFromBytes(hash)));
     }
 
-    @Deprecated(forRemoval = true)
+    @Deprecated()
     public Path getOldAvatarMetadata(byte[] hash) {
-        return getAvatarsFolder().resolve("%s.mtd".formatted(Utils.hexFromBytes(hash)));
+        return getAvatarsFolder().resolve(String.format("%s.mtd", Utils.hexFromBytes(hash)));
     }
 
     public Path getUserdataFile(UUID user) {
-        return getUsersFolder().resolve("%s.pl.json".formatted(Utils.uuidToHex(user)));
+        return getUsersFolder().resolve(String.format("%s.pl.json", Utils.uuidToHex(user)));
     }
 
-    @Deprecated(forRemoval = true)
+    @Deprecated()
     public Path getOldUserdataFile(UUID user) {
-        return getUsersFolder().resolve("%s.pl".formatted(Utils.uuidToHex(user)));
+        return getUsersFolder().resolve(String.format("%s.pl", Utils.uuidToHex(user)));
     }
 
     public final void init() {
@@ -119,7 +119,7 @@ public abstract class FiguraServer {
         File cfg = getConfigFile().toFile();
         if (cfg.exists()) {
             try (FileInputStream fis = new FileInputStream(cfg)) {
-                String configString = new String(fis.readAllBytes(), StandardCharsets.UTF_8);
+                String configString = Utils.readStreamToString(fis, StandardCharsets.UTF_8);
                 config = GSON.fromJson(configString, FiguraServerConfig.class);
                 return;
             }
