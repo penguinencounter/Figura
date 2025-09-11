@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Vector3f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -254,7 +255,7 @@ public class ActionWheel {
 
         // need special handling to replicate gui transforms for item tasks, blegh
         poseStack.scale(-1.0F, -1.0F, -1.0F);
-        poseStack.last().normal().scale(-1.0F, 1.0F, -1.0F);
+        poseStack.last().normal().mul(Matrix3f.createScaleMatrix(-1.0F, 1.0F, -1.0F));
 
         Avatar avatar = action.owner;
 

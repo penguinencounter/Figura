@@ -40,6 +40,9 @@ public abstract class MinecraftMixin {
 
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
+    @Shadow
+    @Nullable
+    public ClientLevel level;
     @Unique
     private boolean scriptMouseUnlock = false;
 
@@ -150,8 +153,10 @@ public abstract class MinecraftMixin {
 
     @Inject(at = @At("RETURN"), method = "tick")
     private void startTick(CallbackInfo ci) {
-        FiguraMod.pushProfiler(FiguraMod.MOD_ID);
-        FiguraMod.tick();
-        FiguraMod.popProfiler();
+        if (level != null) {
+            FiguraMod.pushProfiler(FiguraMod.MOD_ID);
+            FiguraMod.tick();
+            FiguraMod.popProfiler();
+        }
     }
 }

@@ -12,7 +12,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
@@ -606,7 +606,7 @@ public class HostAPI {
             itemKey = id.toString();
         } else {
             stack = (ItemStackAPI) id;
-            itemKey = BuiltInRegistries.ITEM.getKey(stack.itemStack.getItem()).toString();
+            itemKey = Registry.ITEM.getKey(stack.itemStack.getItem()).toString();
         }
 
         int timesMined = 0; // init to 0 for if it's not a block

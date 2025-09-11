@@ -23,8 +23,9 @@ public class SignRendererMixin {
 
     @Unique private SignBlockEntity figura$signEntity;
 
-    @Inject(method = "renderSignText", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/SignBlockEntity;getRenderMessages(ZLjava/util/function/Function;)[Lnet/minecraft/util/FormattedCharSequence;", shift = At.Shift.BEFORE))
-    private void captureSignText(SignBlockEntity sign, PoseStack matrices, MultiBufferSource vertexConsumers, int light, float signOffset, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/world/level/block/entity/SignBlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/entity/SignBlockEntity;getRenderMessages(ZLjava/util/function/Function;)[Lnet/minecraft/util/FormattedCharSequence;", shift = At.Shift.BEFORE))
+    private void captureSignText(SignBlockEntity sign, float f, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, CallbackInfo ci) {
         figura$signEntity = sign;
     }
 
