@@ -81,6 +81,7 @@ public class FiguraAPIManager {
         add(LuaEvent.class);
 
         add(Vertex.class);
+        add(MutablePart.class);
         add(FiguraModelPart.class);
         add(PartCollection.class);
         add(RenderTask.class);

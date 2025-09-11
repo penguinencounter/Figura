@@ -22,6 +22,8 @@ public class LuaTypeManager {
     private final Map<Class<?>, LuaTable> metatables = new HashMap<>();
 
     public void generateMetatableFor(Class<?> clazz) {
+        if (clazz == null || clazz == Object.class)
+            return;
         if (metatables.containsKey(clazz))
             return;
         if (!clazz.isAnnotationPresent(LuaWhitelist.class))
@@ -30,13 +32,45 @@ public class LuaTypeManager {
         // Ensure that all whitelisted superclasses are loaded before this one
         try {
             generateMetatableFor(clazz.getSuperclass());
+            for (Class<?> iface : clazz.getInterfaces())
+                generateMetatableFor(iface);
         } catch (IllegalArgumentException ignored) {}
 
         LuaTable metatable = new LuaTable();
 
         LuaTable indexTable = new LuaTable();
+        extracted(clazz, metatable, indexTable);
+
+        if (metatable.rawget("__index") == LuaValue.NIL)
+            metatable.set("__index", indexTable);
+
+        // if we don't have a special toString, then have our toString give the type name from the annotation
+        if (metatable.rawget("__tostring") == LuaValue.NIL) {
+            metatable.set("__tostring", new OneArgFunction() {
+                private final LuaString val = LuaString.valueOf(clazz.getName());
+                @Override
+                public LuaValue call(LuaValue arg) {
+                    return val;
+                }
+            });
+        }
+
+        // if we don't have a special __index, then have our indexer look in the next metatable up in the java inheritance.
+        if (indexTable.rawget("__index") == LuaValue.NIL) {
+            LuaTable superclassMetatable = metatables.get(clazz.getSuperclass());
+            if (superclassMetatable != null) {
+                LuaTable newMetatable = new LuaTable();
+                newMetatable.set("__index", superclassMetatable.get("__index"));
+                indexTable.setmetatable(newMetatable);
+            }
+        }
+
+        metatables.put(clazz, metatable);
+    }
+
+    private void extracted(Class<?> clazz, LuaTable metatable, LuaTable indexTable) {
         Class<?> currentClass = clazz;
-        while (currentClass.isAnnotationPresent(LuaWhitelist.class)) {
+        while (currentClass != null && currentClass.isAnnotationPresent(LuaWhitelist.class)) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (!method.isAnnotationPresent(LuaWhitelist.class)) {
                     continue;
@@ -64,34 +98,9 @@ public class LuaTypeManager {
                     indexTable.set(name, getWrapper(method));
                 }
             }
+            for (Class<?> iface: currentClass.getInterfaces()) extracted(iface, metatable, indexTable);
             currentClass = currentClass.getSuperclass();
         }
-
-        if (metatable.rawget("__index") == LuaValue.NIL)
-            metatable.set("__index", indexTable);
-
-        // if we don't have a special toString, then have our toString give the type name from the annotation
-        if (metatable.rawget("__tostring") == LuaValue.NIL) {
-            metatable.set("__tostring", new OneArgFunction() {
-                private final LuaString val = LuaString.valueOf(clazz.getName());
-                @Override
-                public LuaValue call(LuaValue arg) {
-                    return val;
-                }
-            });
-        }
-
-        // if we don't have a special __index, then have our indexer look in the next metatable up in the java inheritance.
-        if (indexTable.rawget("__index") == LuaValue.NIL) {
-            LuaTable superclassMetatable = metatables.get(clazz.getSuperclass());
-            if (superclassMetatable != null) {
-                LuaTable newMetatable = new LuaTable();
-                newMetatable.set("__index", superclassMetatable.get("__index"));
-                indexTable.setmetatable(newMetatable);
-            }
-        }
-
-        metatables.put(clazz, metatable);
     }
 
     public void dumpMetatables(LuaTable table) {
