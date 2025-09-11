@@ -293,7 +293,8 @@ public class Avatar {
         if (scriptError || luaRuntime == null || !loaded)
             return;
 
-        render.reset(permissions.get(Permissions.RENDER_INST));
+        // render.reset(permissions.get(Permissions.RENDER_INST));
+		// Moved to GameRenderMixin for preRender
         worldRender.reset(permissions.get(Permissions.WORLD_RENDER_INST));
         run("WORLD_RENDER", worldRender, delta);
     }
