@@ -2,6 +2,7 @@ package org.figuramc.figura.server.commands;
 
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import org.figuramc.figura.server.FiguraPermissionNodes;
 import org.figuramc.figura.server.FiguraServer;
 
 import java.util.function.Predicate;
@@ -18,16 +19,16 @@ public class FiguraServerCommands {
     }
 
     public static class PermissionPredicate implements Predicate<FiguraServerCommandSource> {
-        public final String permission;
+        public final FiguraPermissionNodes permission;
 
-        public PermissionPredicate(String permission) {
+        public PermissionPredicate(FiguraPermissionNodes permission) {
             this.permission = permission;
         }
 
         @Override
         public boolean test(FiguraServerCommandSource source) {
             try {
-                return source.permission(permission);
+                return source.permission(permission.toString());
             }
             catch (Exception e) {
                 FiguraServer.getInstance().logError("Error occured while processing permission check: ", e);
@@ -36,7 +37,7 @@ public class FiguraServerCommands {
         }
     }
 
-    public static PermissionPredicate permissionCheck(String permission) {
+    public static PermissionPredicate permissionCheck(FiguraPermissionNodes permission) {
         return new PermissionPredicate(permission);
     }
 }
