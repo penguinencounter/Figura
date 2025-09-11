@@ -4,6 +4,7 @@
   "package": "org.figuramc.figura.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ClientPacketListenerMixin"
   ],
   "client": [
     "AABBInvoker",
@@ -22,7 +23,9 @@
     "MinecraftMixin",
     "NbtIoAccessor",
     "ParticleMixin",
+    "PlayerSocialManagerMixin",
     "ReloadableResourceManagerMixin",
+    "ServerDataMixin",
     "SkullBlockEntityAccessor",
     "SNIHelperMixin",
     "compat.SimpleVCMixin",
@@ -31,6 +34,7 @@
     "font.FontAccessor",
     "font.FontMixin",
     "font.FontSetMixin",
+    "gui.BossHealthOverlayAccessor",
     "font.StyleAccessor",
     "gui.ChatComponentAccessor",
     "gui.ChatComponentMixin",
@@ -38,6 +42,7 @@
     "gui.ChatScreenMixin",
     "gui.ClickEventActionMixin",
     "gui.DebugScreenOverlayMixin",
+    "gui.EditServerScreenMixin",
     "gui.GuiAccessor",
     "gui.GuiMessageMixin",
     "gui.GuiMixin",
@@ -71,6 +76,7 @@
     "render.LevelRendererMixin",
     "render.MissingTextureAtlasSpriteAccessor",
     "render.PlayerModelMixin",
+    "render.PoseStackAccessor",
     "render.TextureAtlasMixin",
     "render.TextureManagerAccessor",
     "render.layers.CapeLayerMixin",
@@ -86,6 +92,7 @@
     "render.renderers.BlockEntityWithoutLevelRendererMixin",
     "render.renderers.EntityRendererMixin",
     "render.renderers.HandRenderSelectionAccessor",
+    "render.renderers.ItemEntityRendererMixin",
     "render.renderers.ItemInHandRendererMixin",
     "render.renderers.ItemRendererMixin",
     "render.renderers.LivingEntityRendererMixin",
@@ -93,10 +100,12 @@
     "render.renderers.ScreenEffectRendererMixin",
     "render.renderers.SignRendererMixin",
     "render.renderers.SkullBlockRendererMixin",
+    "render.renderers.StuckArrowsFeatureRendererMixin",
     "render.renderers.TridentRendererMixin",
-    "render.PoseStackAccessor",
     "sound.ChannelHandleMixin",
     "sound.ChannelMixin",
+    "sound.OggAudioStreamMixin",
+    "sound.OutputConcatAccessor",
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
     "sound.SubtitleOverlayMixin",
@@ -105,6 +114,8 @@
     "font.StringRenderOutputMixin"
   ],
   "server": [
+    "CommandSourceStackMixin",
+    "network.server.PlayerListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

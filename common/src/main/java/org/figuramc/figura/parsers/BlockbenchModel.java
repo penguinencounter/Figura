@@ -2,6 +2,7 @@ package org.figuramc.figura.parsers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +15,7 @@ public class BlockbenchModel {
     Texture[] textures;
     Element[] elements;
     Animation[] animations;
+    BCollection @Nullable[] collections;
 
     // do not reflection-parse the outliner
     // as it can be either an object or a string
@@ -122,5 +124,11 @@ public class BlockbenchModel {
 
     public static class KeyFrameData {
         String x, y, z;
+    }
+
+    public static class BCollection {
+        String uuid;
+        String name;
+        String[] children;
     }
 }

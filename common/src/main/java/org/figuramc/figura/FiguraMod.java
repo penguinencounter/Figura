@@ -15,10 +15,10 @@ import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.avatar.local.CacheAvatarLoader;
 import org.figuramc.figura.avatar.local.LocalAvatarFetcher;
 import org.figuramc.figura.avatar.local.LocalAvatarLoader;
+import org.figuramc.figura.backend2.FSB;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.compat.GeckoLibCompat;
 import org.figuramc.figura.compat.SimpleVCCompat;
-import org.figuramc.figura.config.ConfigManager;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.entries.EntryPointManager;
 import org.figuramc.figura.font.Emojis;
@@ -87,6 +87,7 @@ public class FiguraMod {
     public static void tick() {
         pushProfiler("network");
         NetworkStuff.tick();
+        FSB.instance().tick();
         popPushProfiler("files");
         LocalAvatarLoader.tick();
         LocalAvatarFetcher.tick();
@@ -130,6 +131,10 @@ public class FiguraMod {
 
     public static boolean isLocal(UUID other) {
         return getLocalPlayerUUID().equals(other);
+    }
+
+    public static boolean isOffline(UUID other) {
+        return !Minecraft.getInstance().getConnection().getOnlinePlayerIds().contains(other);
     }
 
     /**

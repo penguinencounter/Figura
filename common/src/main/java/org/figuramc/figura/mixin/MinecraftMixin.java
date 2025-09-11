@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
+import org.figuramc.figura.backend2.FSB;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.gui.ActionWheel;
@@ -38,6 +39,9 @@ public abstract class MinecraftMixin {
 
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
+    @Shadow
+    @Nullable
+    public ClientLevel level;
     @Unique
     private boolean scriptMouseUnlock = false;
 
@@ -129,6 +133,7 @@ public abstract class MinecraftMixin {
         AvatarManager.clearAllAvatars();
         FiguraLuaPrinter.clearPrintQueue();
         NetworkStuff.unsubscribeAll();
+        FSB.instance().onDisconnect();
     }
 
     @Inject(at = @At("RETURN"), method = "setLevel")
@@ -148,8 +153,10 @@ public abstract class MinecraftMixin {
 
     @Inject(at = @At("RETURN"), method = "tick")
     private void startTick(CallbackInfo ci) {
-        FiguraMod.pushProfiler(FiguraMod.MOD_ID);
-        FiguraMod.tick();
-        FiguraMod.popProfiler();
+        if (level != null) {
+            FiguraMod.pushProfiler(FiguraMod.MOD_ID);
+            FiguraMod.tick();
+            FiguraMod.popProfiler();
+        }
     }
 }

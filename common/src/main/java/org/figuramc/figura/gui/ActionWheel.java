@@ -1,17 +1,22 @@
 package org.figuramc.figura.gui;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Vector3f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -19,7 +24,17 @@ import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.api.action_wheel.Action;
 import org.figuramc.figura.lua.api.action_wheel.Page;
+import org.figuramc.figura.math.matrix.FiguraMat3;
+import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.model.FiguraModelPart;
+import org.figuramc.figura.model.PartCustomization;
+import org.figuramc.figura.model.TextureCustomization;
+import org.figuramc.figura.model.rendering.PartFilterScheme;
+import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
+import org.figuramc.figura.model.rendering.texture.RenderTypes;
+import org.figuramc.figura.model.rendertasks.ItemTask;
+import org.figuramc.figura.model.rendertasks.RenderTask;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.TextUtils;
@@ -211,22 +226,67 @@ public class ActionWheel {
                         texture.texture.getWidth(), texture.texture.getHeight());
             }
 
-            // no item, no render
-            ItemStack item = action.getItem(isSelected);
-            if (item == null || item.isEmpty())
+            // no part, no render
+            FiguraModelPart part = action.getPart(isSelected);
+            if (part == null || !part.getVisible())
                 continue;
 
             // render
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(x, y, 0);
-            RenderSystem.scalef(scale, scale, scale);
+            renderPart(stack, action, part, (float) xOff, (float) yOff, minecraft.getDeltaFrameTime());
 
-            minecraft.getItemRenderer().renderGuiItem(item, (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
-            if (Configs.ACTION_WHEEL_DECORATIONS.value)
-                minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, item, (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+            // this is so ugly lol, i could do better
+            for (RenderTask task : part.renderTasks.values())
+                if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                    minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
 
-            RenderSystem.popMatrix();
+            for (FiguraModelPart child : part.getChildren().values()) {
+                for (RenderTask task : child.renderTasks.values())
+                    if (Configs.ACTION_WHEEL_DECORATIONS.value && task instanceof ItemTask itemTask)
+                        minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, itemTask.getItem(), (int) Math.round(xOff - 8), (int) Math.round(yOff - 8));
+            }
         }
+    }
+
+    private static void renderPart(PoseStack poseStack, Action action, FiguraModelPart part, float xOff, float yOff, float tickDelta) {
+        int x = Math.round(xOff - 8);
+        int y = Math.round(yOff - 8);
+
+        poseStack.pushPose();
+        poseStack.translate((float)(x + 8), (float)(y + 8), (float)(150));
+
+        // need special handling to replicate gui transforms for item tasks, blegh
+        RenderSystem.scalef(-1.0F, -1.0F, -1.0F);
+        //poseStack.last().normal().mul(Matrix3f.createScaleMatrix(-1.0F, 1.0F, -1.0F));
+
+        Avatar avatar = action.owner;
+
+        int[] prev = new int[]{avatar.complexity.remaining};
+        avatar.renderer.entity = minecraft.player;
+        MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
+        avatar.renderer.setupRenderer(PartFilterScheme.MODEL, bufferSource, poseStack, tickDelta, LightTexture.FULL_BRIGHT, 1f, net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, false, false);
+
+        PartCustomization customization = new PartCustomization();
+        customization.setPositionMatrix(new FiguraMat4().set(poseStack.last().pose()));
+        customization.setNormalMatrix(new FiguraMat3().set(poseStack.last().normal()));
+        customization.light = LightTexture.FULL_BRIGHT;
+        customization.alpha = 1f;
+        customization.overlay = net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY;
+        customization.setPrimaryRenderType(RenderTypes.TRANSLUCENT);
+        customization.setSecondaryRenderType(RenderTypes.EMISSIVE);
+
+        customization.primaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.PRIMARY, null);
+        customization.secondaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.SECONDARY, null);
+
+        avatar.renderer.pushToCustomizationStack(customization);
+        Lighting.setupForFlatItems();
+
+        avatar.renderer.doSetupForPart();
+        avatar.renderer.renderPart(part, prev, true);
+        avatar.renderer.flushBuffers();
+        avatar.renderer.popCustomizationStack();
+
+        bufferSource.endBatch();
+        poseStack.popPose();
     }
 
     private static void renderTexts(PoseStack stack, Page page) {

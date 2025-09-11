@@ -2,6 +2,7 @@ package org.figuramc.figura.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.SerializableUUID;
 import net.minecraft.nbt.*;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.FiguraMod;
@@ -21,6 +22,7 @@ import org.figuramc.figura.utils.MathUtils;
 import org.figuramc.figura.utils.NbtType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Take the reading code out of FiguraModelPart itself, since that class
@@ -88,7 +90,10 @@ public class FiguraModelPartReader {
                 children.add(read(owner, (CompoundTag) tag, textureSets, smoothNormals));
         }
 
-        FiguraModelPart result = new FiguraModelPart(owner, name, customization, vertices, children);
+		String collections[] = partCompound.contains("cn") ? partCompound.getList("cn", Tag.TAG_STRING).stream().map(Tag::getAsString).toArray(String[]::new) : null;
+		byte collectionInfo[] = partCompound.contains("pr") ? partCompound.getByteArray("pr") : null;
+		String savedUUID = partCompound.contains("nr") ? partCompound.get("nr") instanceof IntArrayTag list ? SerializableUUID.uuidFromIntArray(list.getAsIntArray()).toString() : partCompound.get("nr").getAsString() : null;
+        FiguraModelPart result = new FiguraModelPart(owner, name, savedUUID, customization, vertices, children, partCompound.contains("cn") ? partCompound.getList("cn", Tag.TAG_STRING).stream().map(Tag::getAsString).toArray(String[]::new) : null, partCompound.contains("pr") ? partCompound.getByteArray("pr") : null);
 
         for (FiguraModelPart child : children)
             child.parent = result;

@@ -251,7 +251,8 @@ public class LuaUtils {
             } catch (Exception e) {
                 throw new LuaError("Could not parse item stack from string: " + string);
             }
-        }
+        } else if (item instanceof ItemStack)
+            return (ItemStack) item;
 
         throw new LuaError("Illegal argument to " + methodName + "(): " + item);
     }
@@ -271,6 +272,8 @@ public class LuaUtils {
                 throw new LuaError("Could not parse block state from string: " + string);
             }
         }
+        else if (block instanceof BlockState)
+            return (BlockState) block;
 
         throw new LuaError("Illegal argument to " + methodName + "(): " + block);
     }

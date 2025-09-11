@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.PlayerTeam;
 import org.figuramc.figura.ducks.FoodDataAccesor;
+import net.minecraft.network.chat.Component;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.NbtToLua;
@@ -76,6 +77,13 @@ public class PlayerAPI extends LivingEntityAPI<Player> {
     public float getExperienceProgress() {
         checkEntity();
         return entity.experienceProgress;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("player.get_xp_for_next_level")
+    public int getExperienceForNextLevel(){
+        checkEntity();
+        return entity.getXpNeededForNextLevel();
     }
 
     @LuaWhitelist
@@ -181,6 +189,8 @@ public class PlayerAPI extends LivingEntityAPI<Player> {
         map.put("name", team.getName());
         map.put("display_name", team.getDisplayName().getString());
         map.put("color", team.getColor().getName());
+        map.put("suffixJson", Component.Serializer.toJson(team.getPlayerSuffix()));
+        map.put("prefixJson", Component.Serializer.toJson(team.getPlayerPrefix()));
         map.put("prefix", team.getPlayerPrefix().getString());
         map.put("suffix", team.getPlayerSuffix().getString());
         map.put("friendly_fire", team.isAllowFriendlyFire());

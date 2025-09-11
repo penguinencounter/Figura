@@ -89,6 +89,15 @@ public class BlockTask extends RenderTask {
     }
 
     @Override
+    public RenderTask copy() {
+        BlockTask copy = new BlockTask(name + "_copy", owner, parent);
+        copy.block = this.block;
+        copy.cachedComplexity = this.cachedComplexity;
+        this.customization.copyTo(copy.customization);
+        return copy;
+    }
+
+    @Override
     public String toString() {
         return name + " (Block Render Task)";
     }

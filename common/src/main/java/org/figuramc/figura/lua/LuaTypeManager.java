@@ -22,6 +22,8 @@ public class LuaTypeManager {
     private final Map<Class<?>, LuaTable> metatables = new HashMap<>();
 
     public void generateMetatableFor(Class<?> clazz) {
+        if (clazz == null || clazz == Object.class)
+            return;
         if (metatables.containsKey(clazz))
             return;
         if (!clazz.isAnnotationPresent(LuaWhitelist.class))
@@ -30,13 +32,45 @@ public class LuaTypeManager {
         // Ensure that all whitelisted superclasses are loaded before this one
         try {
             generateMetatableFor(clazz.getSuperclass());
+            for (Class<?> iface : clazz.getInterfaces())
+                generateMetatableFor(iface);
         } catch (IllegalArgumentException ignored) {}
 
         LuaTable metatable = new LuaTable();
 
         LuaTable indexTable = new LuaTable();
+        extracted(clazz, metatable, indexTable);
+
+        if (metatable.rawget("__index") == LuaValue.NIL)
+            metatable.set("__index", indexTable);
+
+        // if we don't have a special toString, then have our toString give the type name from the annotation
+        if (metatable.rawget("__tostring") == LuaValue.NIL) {
+            metatable.set("__tostring", new OneArgFunction() {
+                private final LuaString val = LuaString.valueOf(clazz.getName());
+                @Override
+                public LuaValue call(LuaValue arg) {
+                    return val;
+                }
+            });
+        }
+
+        // if we don't have a special __index, then have our indexer look in the next metatable up in the java inheritance.
+        if (indexTable.rawget("__index") == LuaValue.NIL) {
+            LuaTable superclassMetatable = metatables.get(clazz.getSuperclass());
+            if (superclassMetatable != null) {
+                LuaTable newMetatable = new LuaTable();
+                newMetatable.set("__index", superclassMetatable.get("__index"));
+                indexTable.setmetatable(newMetatable);
+            }
+        }
+
+        metatables.put(clazz, metatable);
+    }
+
+    private void extracted(Class<?> clazz, LuaTable metatable, LuaTable indexTable) {
         Class<?> currentClass = clazz;
-        while (currentClass.isAnnotationPresent(LuaWhitelist.class)) {
+        while (currentClass != null && currentClass.isAnnotationPresent(LuaWhitelist.class)) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (!method.isAnnotationPresent(LuaWhitelist.class)) {
                     continue;
@@ -64,34 +98,9 @@ public class LuaTypeManager {
                     indexTable.set(name, getWrapper(method));
                 }
             }
+            for (Class<?> iface: currentClass.getInterfaces()) extracted(iface, metatable, indexTable);
             currentClass = currentClass.getSuperclass();
         }
-
-        if (metatable.rawget("__index") == LuaValue.NIL)
-            metatable.set("__index", indexTable);
-
-        // if we don't have a special toString, then have our toString give the type name from the annotation
-        if (metatable.rawget("__tostring") == LuaValue.NIL) {
-            metatable.set("__tostring", new OneArgFunction() {
-                private final LuaString val = LuaString.valueOf(clazz.getName());
-                @Override
-                public LuaValue call(LuaValue arg) {
-                    return val;
-                }
-            });
-        }
-
-        // if we don't have a special __index, then have our indexer look in the next metatable up in the java inheritance.
-        if (indexTable.rawget("__index") == LuaValue.NIL) {
-            LuaTable superclassMetatable = metatables.get(clazz.getSuperclass());
-            if (superclassMetatable != null) {
-                LuaTable newMetatable = new LuaTable();
-                newMetatable.set("__index", superclassMetatable.get("__index"));
-                indexTable.setmetatable(newMetatable);
-            }
-        }
-
-        metatables.put(clazz, metatable);
     }
 
     public void dumpMetatables(LuaTable table) {
@@ -138,8 +147,18 @@ public class LuaTypeManager {
             @Override
             public Varargs invoke(Varargs args) {
 
-                if (!isStatic)
-                    caller = args.checkuserdata(1, clazz);
+                if (!isStatic) {
+                    try {
+                        caller = args.checkuserdata(1, clazz);
+                    } catch (LuaError e) {
+                        String methodName = method.getName();
+                        String targetType = getTypeName(clazz);
+                        throw new LuaError(String.format(
+                                "Use a colon (:) to call %s on a %s, instead of a dot.\nFor example, change .%s( to :%s(",
+                                methodName, targetType, methodName, methodName
+                        ));
+                    }
+                }
 
                 // dirty hack for QOL of ignoring the first argument if the method is static and the arg matches the class type
                 int offset = isStatic && argumentTypes.length > 0 && !argumentTypes[0].isAssignableFrom(clazz) && args.isuserdata(1) && clazz.isAssignableFrom(args.checkuserdata(1).getClass()) ? 1 : 0;
@@ -149,7 +168,7 @@ public class LuaTypeManager {
                     int argIndex = i + (isStatic ? 1 : 2) + offset;
                     boolean nil = args.isnil(argIndex);
                     if (nil && requiredNotNil[i])
-                        throw new LuaError("bad argument: " + method.getName() + " " + argIndex + " do not allow nil values, expected " + FiguraDocsManager.getNameFor(argumentTypes[i]));
+                        throw new LuaError("bad argument: " + method.getName() + " " + argIndex + " does not allow nil values, expected " + FiguraDocsManager.getNameFor(argumentTypes[i]));
                     if (argIndex <= args.narg() && !nil) {
                         try {
                             switch (argumentTypes[i].getName()) {

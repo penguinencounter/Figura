@@ -6,6 +6,7 @@ accessible class net/minecraft/client/gui/screens/inventory/BookEditScreen$LineI
 accessible class net/minecraft/client/gui/Font$StringRenderOutput
 accessible field net/minecraft/client/gui/Font$StringRenderOutput x F
 accessible field net/minecraft/client/gui/Font$StringRenderOutput y F
+accessible class com/mojang/blaze3d/audio/OggAudioStream$OutputConcat
 
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;IILnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;IIZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
@@ -20,3 +21,6 @@ accessible method net/minecraft/client/gui/components/MultiLineLabel$TextWithWid
 
 accessible field net/minecraft/client/renderer/texture/TextureAtlas$Preparations width I
 accessible field net/minecraft/client/renderer/texture/TextureAtlas$Preparations height I
+
+accessible method com/mojang/blaze3d/platform/NativeImage checkAllocated ()V
+accessible field com/mojang/blaze3d/platform/NativeImage pixels J
