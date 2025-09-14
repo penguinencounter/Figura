@@ -60,11 +60,11 @@ public class Permissions {
             OFFSCREEN_RENDERING,
             CUSTOM_SOUNDS,
             CANCEL_SOUNDS,
+            CANCEL_DAMAGE,
             CUSTOM_SKULL,
             BUFFER_SIZE,
             BUFFERS_COUNT,
-            NETWORKING,
-            CANCEL_DAMAGE
+            NETWORKING
     );
 
 
