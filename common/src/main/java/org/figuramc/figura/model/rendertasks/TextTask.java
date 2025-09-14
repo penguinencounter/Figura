@@ -117,6 +117,7 @@ public class TextTask extends RenderTask {
         component = Badges.appendBadges(component, this.owner.owner, (this.textCached.contains("${badges}") || this.textCached.contains("${segdab}")));
         component = Emojis.applyEmojis(component);
         component = Emojis.removeBlacklistedEmojis(component);
+        component = TextUtils.replaceInText(component, "\\$\\{name\\}", this.owner.entityName);
         this.text = TextUtils.formatInBounds(component, Minecraft.getInstance().font, width, wrap);
 
         Font font = Minecraft.getInstance().font;
