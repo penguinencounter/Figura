@@ -35,21 +35,20 @@ public abstract class LivingEntityMixin extends Entity {
     private void handleDamageEvent(DamageSource source, CallbackInfo ci) {
         Avatar avatar = AvatarManager.getAvatar(this);
         if (avatar != null) {
-            if(avatar.damageEvent(
+            if(!avatar.damageEvent(
                     source.typeHolder().unwrapKey().get().location().toString(),
                     EntityAPI.wrap(source.getEntity()),
                     EntityAPI.wrap(source.getDirectEntity()),
                     source.getSourcePosition() != null ? FiguraVec3.fromVec3(source.getSourcePosition()) : null
-                )
-            ){
-                if (avatar.permissions.get(Permissions.CANCEL_DAMAGE) >= 1) {
-                    avatar.noPermissions.remove(Permissions.CANCEL_DAMAGE);
-                    ci.cancel();
-			                return;
-                }
-                    avatar.noPermissions.add(Permissions.CANCEL_DAMAGE);
-                
+                )) return;
+            if (avatar.permissions.get(Permissions.CANCEL_DAMAGE) >= 1) {
+                avatar.noPermissions.remove(Permissions.CANCEL_DAMAGE);
+                ci.cancel();
+                return;
             }
+            avatar.noPermissions.add(Permissions.CANCEL_DAMAGE);
+                
+            
         }
     }
 }
