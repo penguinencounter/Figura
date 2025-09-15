@@ -452,19 +452,16 @@ public class TextTask extends RenderTask {
         return name + " (Text Render Task)";
     }
 
-    // Internally, the line spacing will be 1 less than what's returned to the user. This is because in reality, a spacing of 1 is 2 pixels.
-    // This is so the user can set the spacing to 0 to make multiple lines of emojis sit flush
-
     @LuaWhitelist
     @LuaMethodDoc("text_task.get_spacing")
     public float getSpacing() {
-        return this.lineSpace + 1;
+        return this.lineSpace;
     }
 
     @LuaWhitelist
     @LuaMethodDoc(overloads = @LuaMethodOverload(argumentTypes = Integer.class, argumentNames = "spacing"), aliases = "lineSpacing", value = "text_task.set_spacing")
     public TextTask setSpacing(int spacing) {
-        this.lineSpace = spacing - 1;
+        this.lineSpace = spacing;
         updateText();
         return this;
     }
