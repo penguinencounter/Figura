@@ -45,9 +45,10 @@ public abstract class LivingEntityMixin extends Entity {
                 if (avatar.permissions.get(Permissions.CANCEL_DAMAGE) >= 1) {
                     avatar.noPermissions.remove(Permissions.CANCEL_DAMAGE);
                     ci.cancel();
-                } else {
-                    avatar.noPermissions.add(Permissions.CANCEL_DAMAGE);
+			                return;
                 }
+                    avatar.noPermissions.add(Permissions.CANCEL_DAMAGE);
+                
             }
         }
     }
