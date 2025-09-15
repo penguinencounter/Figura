@@ -323,8 +323,7 @@ public class NetworkStuff {
     }
 
     public static void getUser(UserData user) {
-        boolean fetchUser = fsb().isPlayerConnected(user.id) || FiguraMod.isOffline(user.id);
-        if (fsb().connected() && fetchUser) {
+        if (fsb().connected()) {
             fsb().getUserAndApply(user);
             return;
         }
