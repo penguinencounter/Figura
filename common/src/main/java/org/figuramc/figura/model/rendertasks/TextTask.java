@@ -45,6 +45,7 @@ public class TextTask extends RenderTask {
     private int width = 0;
     private boolean wrap = true;
     private int lineSpace = 1;
+    private boolean hasBadges;
 
     private int cachedComplexity, cacheWidth, cacheHeight;
 
@@ -68,6 +69,10 @@ public class TextTask extends RenderTask {
         int op = opacity << 24 | 0xFFFFFF;
         Font.DisplayMode displayMode = seeThrough ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET;
         float vertexOffset = outline ? FiguraMod.VERTEX_OFFSET : 0f;
+
+        // badges
+        if (this.hasBadges)
+            updateText();
 
         // background
         if (bg != 0) {
@@ -114,7 +119,8 @@ public class TextTask extends RenderTask {
 
         Component component = TextUtils.tryParseJson(this.textCached);
         component = Badges.noBadges4U(component);
-        component = Badges.appendBadges(component, this.owner.owner, Badges.hasCustomBadges(component));
+        this.hasBadges = Badges.hasCustomBadges(component);
+        component = Badges.appendBadges(component, this.owner.owner, this.hasBadges);
         component = Emojis.applyEmojis(component);
         component = Emojis.removeBlacklistedEmojis(component);
         component = TextUtils.replaceInText(component, "\\$\\{name\\}", this.owner.entityName);
