@@ -114,7 +114,7 @@ public class TextTask extends RenderTask {
 
         Component component = TextUtils.tryParseJson(this.textCached);
         component = Badges.noBadges4U(component);
-        component = Badges.appendBadges(component, this.owner.owner, (this.textCached.contains("${badges}") || this.textCached.contains("${segdab}")));
+        component = Badges.appendBadges(component, this.owner.owner, Badges.hasCustomBadges(component));
         component = Emojis.applyEmojis(component);
         component = Emojis.removeBlacklistedEmojis(component);
         component = TextUtils.replaceInText(component, "\\$\\{name\\}", this.owner.entityName);
