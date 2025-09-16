@@ -790,7 +790,7 @@ public class ClientAPI {
             overloads = {
                     @LuaMethodOverload(argumentTypes = String.class, argumentNames = "enumName"),
             },
-            value = "client.getEnum"
+            value = "client.get_enum"
     )
     public static List<String> getEnum(@LuaNotNil String enumName) {
         try {
@@ -879,7 +879,7 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("host.get_chat_width")
+    @LuaMethodDoc("client.get_chat_width")
     public static Double getChatWidth() {
         // 0 -> 40
         // 1 -> 320
@@ -887,7 +887,7 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("host.get_focused_chat_height")
+    @LuaMethodDoc("client.get_focused_chat_height")
     public static Double getFocusedChatHeight() {
         // 0 -> 20
         // 1 -> 180
@@ -895,7 +895,7 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("host.get_unfocused_chat_height")
+    @LuaMethodDoc("client.get_unfocused_chat_height")
     public static Double getUnfocusedChatHeight() {
         // 0 -> 20
         // 1 -> 180
