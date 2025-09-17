@@ -309,9 +309,7 @@ public abstract class RenderTask {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc(
-            value = "copy"
-    )
+    @LuaMethodDoc("render_task.copy")
     public abstract RenderTask copy();
 
     @Override
