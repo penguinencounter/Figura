@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 /**
- * Navigates through the file system, finding all folders containing avatar.json & avatar.jsonc
+ * Navigates through the file system, finding all folders containing avatar.json or avatar.jsonc
  */
 public class LocalAvatarFetcher {
 
