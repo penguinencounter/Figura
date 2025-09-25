@@ -20,7 +20,7 @@ import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.NbtToLua;
-import org.figuramc.figura.lua.ReadOnlyLuaTable;
+import org.figuramc.figura.lua.transfer.ReadOnlyLuaTable;
 import org.figuramc.figura.lua.api.world.ItemStackAPI;
 import org.figuramc.figura.lua.docs.LuaMetamethodDoc;
 import org.figuramc.figura.lua.docs.LuaMetamethodDoc.LuaMetamethodOverload;

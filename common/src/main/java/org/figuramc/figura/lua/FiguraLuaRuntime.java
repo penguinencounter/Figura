@@ -15,6 +15,7 @@ import org.figuramc.figura.lua.api.keybind.KeybindAPI;
 import org.figuramc.figura.lua.api.nameplate.NameplateAPI;
 import org.figuramc.figura.lua.api.ping.PingAPI;
 import org.figuramc.figura.lua.api.vanilla_model.VanillaModelAPI;
+import org.figuramc.figura.lua.transfer.ReadOnlyLuaTable;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.PathUtils;
 import net.minecraft.nbt.ByteArrayTag;

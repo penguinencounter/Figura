@@ -1,14 +1,12 @@
 package org.figuramc.figura.lua.api;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.Badges;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.NbtToLua;
+import org.figuramc.figura.lua.transfer.FunctionProtectLevel;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
@@ -16,13 +14,12 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
-import org.figuramc.figura.utils.TextUtils;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Locale;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -33,6 +30,9 @@ public class AvatarAPI {
 
     private final Avatar avatar;
     public final LuaTable storedStuff = new LuaTable();
+
+    public FunctionProtectLevel providing = FunctionProtectLevel.DEFAULT;
+    public FunctionProtectLevel consuming = FunctionProtectLevel.DEFAULT;
 
     public AvatarAPI(Avatar avatar) {
         this.avatar = avatar;
@@ -59,6 +59,54 @@ public class AvatarAPI {
     public AvatarAPI store(@LuaNotNil String key, LuaValue value) {
         storedStuff.set(key, value == null ? LuaValue.NIL : value);
         return this;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = @LuaMethodOverload(
+                    argumentTypes = {FunctionProtectLevel.class},
+                    argumentNames = {"level"}
+            ),
+            value = "avatar.setProvideProtection"
+    )
+    public AvatarAPI setProvideProtection(@LuaNotNil String level) {
+        String key = level.toUpperCase(Locale.ENGLISH);
+        try {
+            providing = FunctionProtectLevel.valueOf(key);
+        } catch (IllegalArgumentException e) {
+            throw new LuaError(String.format(
+                    "Unknown protection level '%s', acceptable values are %s",
+                    key,
+                    FunctionProtectLevel.hint
+            ));
+        }
+        return this;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = @LuaMethodOverload(
+                    argumentTypes = {FunctionProtectLevel.class},
+                    argumentNames = {"level"}
+            ),
+            value = "avatar.setConsumeProtection"
+    )
+    public AvatarAPI setConsumeProtection(@LuaNotNil String level) {
+        String key = level.toUpperCase(Locale.ENGLISH);
+        try {
+            consuming = FunctionProtectLevel.valueOf(key);
+        } catch (IllegalArgumentException e) {
+            throw new LuaError(String.format(
+                    "Unknown protection level '%s', acceptable values are %s",
+                    key,
+                    FunctionProtectLevel.hint
+            ));
+        }
+        return this;
+    }
+
+    public LuaFunction protectNone(LuaFunction fn) {
+        return null;
     }
 
     @LuaWhitelist
@@ -103,7 +151,7 @@ public class AvatarAPI {
             value = "avatar.set_color"
     )
     public AvatarAPI setColor(Object r, Object g, Double b, String badge) {
-        if ((g instanceof Number || g == null) && (badge == null || badge.isEmpty())){
+        if ((g instanceof Number || g == null) && (badge == null || badge.isEmpty())) {
             FiguraVec3 vec = LuaUtils.parseOneArgVec("setColor", r, (Number) g, b, 1d);
             avatar.color = ColorUtils.rgbToHex(vec);
         } else if (g instanceof String && r instanceof FiguraVec3) {

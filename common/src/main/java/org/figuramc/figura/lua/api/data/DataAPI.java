@@ -5,6 +5,12 @@ import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
+import org.figuramc.figura.lua.transfer.FunctionProtectLevel;
+import org.figuramc.figura.lua.transfer.PartiallyProtectedFunction;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaFunction;
+
+import java.util.Locale;
 
 @LuaWhitelist
 @LuaTypeDoc(name = "DataAPI", value = "data")
@@ -32,6 +38,27 @@ public class DataAPI {
     )
     public FiguraBuffer createBuffer(Integer len) {
         return len == null ? new FiguraBuffer(parent) : new FiguraBuffer(parent, len);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            value = "data.protect",
+            overloads = @LuaMethodOverload(
+                    returnType = LuaFunction.class,
+                    argumentNames = { "func", "level" },
+                    argumentTypes = { LuaFunction.class, FunctionProtectLevel.class }
+            )
+    )
+    public PartiallyProtectedFunction protect(LuaFunction func, String level) {
+        try {
+            return new PartiallyProtectedFunction(func, FunctionProtectLevel.valueOf(level.toUpperCase(Locale.ENGLISH)));
+        } catch (IllegalArgumentException e) {
+            throw new LuaError(String.format(
+                    "Unknown protection level '%s', acceptable values are %s",
+                    level,
+                    FunctionProtectLevel.hint
+            ));
+        }
     }
 
     @Override
