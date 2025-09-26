@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Function;
@@ -120,6 +122,18 @@ public class FiguraLuaRuntime {
 
     public Entity getUser() {
         return entityAPI != null && entityAPI.isLoaded() ? entityAPI.getEntity() : null;
+    }
+
+    // context //
+    public static final ThreadLocal<Deque<Avatar>> contextStack = ThreadLocal.withInitial(LinkedList::new);
+
+    public static void beginContext(Avatar avatar) {
+        contextStack.get().push(avatar);
+    }
+
+    public static void endContext(Avatar avatar) {
+        Avatar top = contextStack.get().pop();
+        if (top != avatar) throw new IllegalStateException("mismatched context stack: want " + avatar + " but top is actually " + top);
     }
 
     // init runtime //
@@ -457,7 +471,11 @@ public class FiguraLuaRuntime {
         // load
         String directory = PathUtils.computeSafeString(path.getParent());
         String fileName = PathUtils.computeSafeString(path.getFileName());
+
+        beginContext(owner);
         Varargs value = userGlobals.load(src, name).invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
+        endContext(owner);
+        
         if (value == LuaValue.NIL)
             value = LuaValue.TRUE;
 
