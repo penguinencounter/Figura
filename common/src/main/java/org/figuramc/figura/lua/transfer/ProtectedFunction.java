@@ -18,13 +18,16 @@ public class ProtectedFunction extends VarArgFunction {
         }
     }
 
-    private static class Nothing extends ProtectionTransformer {}
+    private static class Nothing extends ProtectionTransformer {
+    }
 
     private class Low extends ProtectionTransformer {
+        protected final boolean isInward;
         private final LuaTypeManager targetTypes;
 
         public Low(boolean isInward) {
             this.targetTypes = isInward ? provider.luaRuntime.typeManager : consumer.luaRuntime.typeManager;
+            this.isInward = isInward;
         }
 
         @Override
@@ -36,15 +39,27 @@ public class ProtectedFunction extends VarArgFunction {
         public @NotNull LuaTable table(LuaTable t) {
             return new LazySyncTable(t, this, inverse);
         }
+
+        @Override
+        public @NotNull LuaValue function(LuaFunction f) {
+            if (isInward) {
+                // i.e. consumer passes a function to provider
+                // NOTE: switched 'consumer' and 'provider', because the person calling the function
+                // is the 'owner' of this function, but we still want to enforce the callee's rules
+                return new ProtectedFunction(f, consumer, provider);
+            } else {
+                // i.e. returns a callback; inherit pretty much everything
+                return new ProtectedFunction(f, provider, consumer);
+            }
+        }
     }
 
-    private class Default extends ProtectionTransformer {
+    private class Default extends Low {
         protected final LuaTypeManager targetTypes;
         protected final boolean isProvider;
-        protected final boolean isInward;
 
         public Default(boolean isInward, boolean isProvider) {
-            this.isInward = isInward;
+            super(isInward);
             this.targetTypes = isInward ? provider.luaRuntime.typeManager : consumer.luaRuntime.typeManager;
             this.isProvider = isProvider;
         }
@@ -68,31 +83,11 @@ public class ProtectedFunction extends VarArgFunction {
         }
     }
 
-    private class Maximum extends Default {
-        public Maximum(boolean isInward, boolean isProvider) {
-            super(isInward, isProvider);
-        }
-
-        @Override
-        public @NotNull LuaValue function(LuaFunction f) {
-            if (isInward) {
-                // i.e. consumer passes a function to provider
-                // NOTE: switched 'consumer' and 'provider', because the person calling the function
-                // is the 'owner' of this function, but we still want to enforce the callee's rules
-                return new ProtectedFunction(f, consumer, provider);
-            } else {
-                // i.e. returns a callback; inherit pretty much everything
-                return new ProtectedFunction(f, provider, consumer);
-            }
-        }
-    }
-
     private ProtectionTransformer getTransformer(FunctionProtectLevel level, boolean inward, boolean provider) {
         return switch (level) {
             case NOTHING -> new Nothing();
             case LOW -> new Low(inward);
             case DEFAULT -> new Default(inward, provider);
-            case MAXIMUM -> new Maximum(inward, provider);
         };
     }
 
@@ -103,7 +98,8 @@ public class ProtectedFunction extends VarArgFunction {
 
     /**
      * Create a new protected function wrapper.
-     * @param around Target function
+     *
+     * @param around   Target function
      * @param provider Owner of function
      * @param consumer Consumer of function
      */
@@ -131,7 +127,6 @@ public class ProtectedFunction extends VarArgFunction {
         );
     }
 
-    // is this too expensive for something called on a regular basis?
     @Override
     public Varargs invoke(Varargs args) {
         FiguraLuaRuntime consumerRuntime = this.consumer.luaRuntime;
@@ -159,7 +154,10 @@ public class ProtectedFunction extends VarArgFunction {
             transformedArgs[i - 1] =
                     inTransform2.visit(inTransform1.visit(args.arg(i)));
         // Call the actual function...
-        Varargs rets = around.invoke(transformedArgs);
+        Varargs rets;
+        try (FiguraLuaRuntime.AvatarContext ignored = FiguraLuaRuntime.context(provider)) {
+            rets = around.invoke(transformedArgs);
+        }
         // Transform outputs...
         LuaValue[] transformedRets = new LuaValue[rets.narg()];
         for (int i = 1; i <= rets.narg(); i++)

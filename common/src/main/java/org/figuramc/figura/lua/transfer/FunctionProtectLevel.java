@@ -5,13 +5,6 @@ package org.figuramc.figura.lua.transfer;
  */
 public enum FunctionProtectLevel {
     /**
-     * Default, plus:
-     * <ul>
-     *     <li>Apply protection rules to functions sent and received</li>
-     * </ul>
-     */
-    MAXIMUM,
-    /**
      * Low, plus:
      * <ul>
      *     <li>Remove metatables from received tables</li>
@@ -24,6 +17,7 @@ public enum FunctionProtectLevel {
      * <ul>
      *     <li>Repackage userdata (i.e. prevent Figura type metatable leakage)</li>
      *     <li>Wrap sent tables (linkage)</li>
+     *     <li>Apply protection rules to functions sent and received</li>
      * </ul>
      */
     LOW,

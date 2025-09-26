@@ -127,6 +127,22 @@ public class FiguraLuaRuntime {
     // context //
     public static final ThreadLocal<Deque<Avatar>> contextStack = ThreadLocal.withInitial(LinkedList::new);
 
+    @FunctionalInterface
+    public interface AvatarContext extends AutoCloseable {
+        @Override
+        void close(); // note: no 'throws'
+    }
+
+    public static AvatarContext context(Avatar avatar) {
+        contextStack.get().push(avatar);
+        return () -> {
+            Avatar last = contextStack.get().pop();
+            if (last != avatar) throw new IllegalStateException(
+                    "Context stack state is corrupt (expected " + avatar + " on top, was actually " + last + ")"
+            );
+        };
+    }
+
     public static void beginContext(Avatar avatar) {
         contextStack.get().push(avatar);
     }
@@ -472,9 +488,11 @@ public class FiguraLuaRuntime {
         String directory = PathUtils.computeSafeString(path.getParent());
         String fileName = PathUtils.computeSafeString(path.getFileName());
 
-        beginContext(owner);
-        Varargs value = userGlobals.load(src, name).invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
-        endContext(owner);
+        Varargs value;
+        try (AvatarContext ignored = context(owner)) {
+            value = userGlobals.load(src, name)
+                    .invoke(LuaValue.varargsOf(LuaValue.valueOf(directory), LuaValue.valueOf(fileName)));
+        }
         
         if (value == LuaValue.NIL)
             value = LuaValue.TRUE;
@@ -483,7 +501,7 @@ public class FiguraLuaRuntime {
         loadedScripts.put(name, value);
         loadingScripts.pop();
         return value;
-    };
+    }
 
     public boolean init(ListTag autoScripts) {
         if (scripts.isEmpty())
@@ -567,7 +585,7 @@ public class FiguraLuaRuntime {
         setInstructionLimit(limit.remaining);
 
         // get and call event
-        try {
+        try (AvatarContext ignored = context(owner)){
             Varargs ret;
             if (toRun instanceof LuaEvent event)
                 ret = event.call(val);
