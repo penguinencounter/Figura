@@ -143,15 +143,6 @@ public class FiguraLuaRuntime {
         };
     }
 
-    public static void beginContext(Avatar avatar) {
-        contextStack.get().push(avatar);
-    }
-
-    public static void endContext(Avatar avatar) {
-        Avatar top = contextStack.get().pop();
-        if (top != avatar) throw new IllegalStateException("mismatched context stack: want " + avatar + " but top is actually " + top);
-    }
-
     // init runtime //
 
     private void setupFiguraSandbox() {

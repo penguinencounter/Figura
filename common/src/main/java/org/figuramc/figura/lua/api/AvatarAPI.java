@@ -15,7 +15,6 @@ import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
 import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
@@ -103,10 +102,6 @@ public class AvatarAPI {
             ));
         }
         return this;
-    }
-
-    public LuaFunction protectNone(LuaFunction fn) {
-        return null;
     }
 
     @LuaWhitelist

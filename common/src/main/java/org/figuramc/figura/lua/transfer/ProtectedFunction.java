@@ -91,10 +91,10 @@ public class ProtectedFunction extends VarArgFunction {
         };
     }
 
-    private final LuaFunction around;
-    private final @Nullable FunctionProtectLevel ownerOverride;
-    private final Avatar provider;
-    private final Avatar consumer;
+    public final LuaFunction around;
+    public final @Nullable FunctionProtectLevel ownerOverride;
+    public final Avatar provider;
+    public final Avatar consumer;
 
     /**
      * Create a new protected function wrapper.
@@ -120,10 +120,10 @@ public class ProtectedFunction extends VarArgFunction {
     @Override
     public String tojstring() {
         return String.format(
-                "protected: %s owned by %s used by %s",
+                "prot %s (%s → %s)",
                 around.tojstring(),
-                provider.toString(),
-                consumer.toString()
+                provider.entityName,
+                consumer.entityName
         );
     }
 

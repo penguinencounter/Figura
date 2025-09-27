@@ -2,9 +2,10 @@ package org.figuramc.figura.lua.transfer;
 
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 public class LazySyncTable extends LuaTable {
-    private final LuaTable reference;
+    public final LuaTable reference;
     private final LuaTransformer outTransform;
     private final LuaTransformer inTransform;
 
@@ -38,6 +39,12 @@ public class LazySyncTable extends LuaTable {
     @Override
     public void rawset(LuaValue key, LuaValue value) {
         reference.rawset(inTransform.visit(key), inTransform.visit(value));
+    }
+
+    @Override
+    public Varargs next(LuaValue key) {
+        Varargs v = reference.next(key);
+        return varargsOf(outTransform.visit(v.arg(1)), outTransform.visit(v.arg(2)));
     }
 
     public LazySyncTable removeMeta() {
