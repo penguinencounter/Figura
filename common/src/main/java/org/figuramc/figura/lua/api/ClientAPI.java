@@ -39,6 +39,7 @@ import org.figuramc.figura.lua.docs.FiguraListDocs;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
+import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.mixin.gui.BossHealthOverlayAccessor;
@@ -240,11 +241,28 @@ public class ClientAPI {
         return FiguraVec2.of(window.getWidth(), window.getHeight());
     }
 
-    @LuaWhitelist
-    @LuaMethodDoc("client.get_fov")
-    public static double getFOV() {
-        return Minecraft.getInstance().options.fov().get();
+    @LuaMethodDoc(
+        overloads = @LuaMethodOverload(
+                    argumentTypes = boolean.class,
+                    argumentNames = "trueFOV"
+            ),
+            value = "client.get_fov"
+    )
+    public static double getFOV(boolean trueFOV) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        // Fallback to getting options FOV (Working fallback as passing false into $getFov's changingFov returns 70 instead of client fov)
+        if (!trueFOV)
+            return minecraft.options.fov().get();
+
+        return ((GameRendererAccessor) minecraft.gameRenderer).figura$getFov(minecraft.gameRenderer.getMainCamera(), minecraft.getFrameTime(), true);
     }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_view_matrix")
+    public static FiguraMat4 getViewMatrix() {
+        Matrix4f bobbingMatrix = ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).figura$getBobbingMatrix();
+        return FiguraMat4.of().set(bobbingMatrix);
 
     @LuaWhitelist
     @LuaMethodDoc("client.get_system_time")
