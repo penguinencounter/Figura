@@ -7,5 +7,5 @@ import net.minecraft.client.Camera;
 public interface GameRendererAccessor {
     Matrix4f figura$getBobbingMatrix();
 
-	double figura$getFov(Camera camera, float tickDelta, boolean changingFov);
+    double figura$getFov(Camera camera, float tickDelta, boolean changingFov);
 }
