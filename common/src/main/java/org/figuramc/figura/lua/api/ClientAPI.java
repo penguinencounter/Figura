@@ -243,6 +243,7 @@ public class ClientAPI {
         return FiguraVec2.of(window.getWidth(), window.getHeight());
     }
 
+    @LuaWhitelist
     @LuaMethodDoc(
         overloads = @LuaMethodOverload(
                     argumentTypes = boolean.class,
