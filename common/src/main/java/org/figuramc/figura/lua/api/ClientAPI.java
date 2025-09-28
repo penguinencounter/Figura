@@ -31,6 +31,7 @@ import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.backend2.FSB;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.config.Configs;
+import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.api.entity.EntityAPI;
@@ -307,7 +308,12 @@ public class ClientAPI {
             value = "client.get_text_width"
     )
     public static int getTextWidth(@LuaNotNil String text) {
-        return TextUtils.getWidth(TextUtils.splitText(TextUtils.tryParseJson(text), "\n"), Minecraft.getInstance().font);
+        Component component = TextUtils.tryParseJson(text);
+        component = Emojis.applyEmojis(component);
+
+        List<Component> components = TextUtils.splitText(component, "\n");
+
+        return TextUtils.getWidth(components, Minecraft.getInstance().font);
     }
 
     @LuaWhitelist
