@@ -346,10 +346,14 @@ public class ClientAPI {
     )
     public static FiguraVec2 getTextDimensions(@LuaNotNil String text, int maxWidth, Boolean wrap, Integer lineSpacing) {
         Component component = TextUtils.tryParseJson(text);
+        component = Emojis.applyEmojis(component);
+
         Font font = Minecraft.getInstance().font;
         List<Component> list = TextUtils.formatInBounds(component, font, maxWidth, wrap == null || wrap);
+
         int x = TextUtils.getWidth(list, font);
         int y = TextUtils.getHeight(list, font, (lineSpacing == null ? 1 : lineSpacing));
+
         return FiguraVec2.of(x, y);
     }
 
