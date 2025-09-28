@@ -262,8 +262,8 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_view_matrix")
-    public static FiguraMat4 getViewMatrix() {
+    @LuaMethodDoc("client.get_view_bobbing_matrix")
+    public static FiguraMat4 getViewBobbingMatrix() {
         Matrix4f bobbingMatrix = ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).figura$getBobbingMatrix();
         return FiguraMat4.of().set(bobbingMatrix);
     }
