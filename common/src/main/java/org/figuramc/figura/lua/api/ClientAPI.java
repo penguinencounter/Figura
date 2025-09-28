@@ -31,7 +31,6 @@ import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.backend2.FSB;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.config.Configs;
-import org.figuramc.figura.font.EmojiUnicodeLookup;
 import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
