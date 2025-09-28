@@ -898,7 +898,12 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_chat_height")
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = Boolean.class, argumentNames = "focused"),
+            },
+            value = "client.get_chat_height"
+    )
     public static Double getChatHeight(Boolean focused) {
         // 0 -> 20
         // 1 -> 180
