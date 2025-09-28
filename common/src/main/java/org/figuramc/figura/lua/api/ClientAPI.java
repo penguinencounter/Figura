@@ -898,18 +898,13 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_focused_chat_height")
-    public static Double getFocusedChatHeight() {
+    @LuaMethodDoc("client.get_chat_height")
+    public static Double getChatHeight(Boolean focused) {
         // 0 -> 20
         // 1 -> 180
-        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
-    }
+        if (focused)
+            return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
 
-    @LuaWhitelist
-    @LuaMethodDoc("client.get_unfocused_chat_height")
-    public static Double getUnfocusedChatHeight() {
-        // 0 -> 20
-        // 1 -> 180
         return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused().get());
     }
 
