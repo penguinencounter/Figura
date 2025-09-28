@@ -31,6 +31,7 @@ import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.backend2.FSB;
 import org.figuramc.figura.backend2.NetworkStuff;
 import org.figuramc.figura.config.Configs;
+import org.figuramc.figura.font.EmojiUnicodeLookup;
 import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
@@ -910,6 +911,31 @@ public class ClientAPI {
         // 0 -> 20
         // 1 -> 180
         return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused().get());
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "category"),
+            },
+            value = "client.get_emojis"
+    )
+    public static List<String> getEmojis(String category) {
+        List<String> emojis = new ArrayList<>();
+
+        if (category == null)
+            Emojis.getCategoryNames().forEach(name -> {
+                Emojis.getCategory(name).getLookup().getNames().stream().forEach(emojis::add);
+            });
+        else {
+            try {
+                Emojis.getCategory(category).getLookup().getNames().stream().forEach(emojis::add);
+            } catch (Exception e) {
+                throw new LuaError("\"" + category + "\" is not a valid emoji category");
+            }
+        }
+
+        return emojis;
     }
 
     @Override
