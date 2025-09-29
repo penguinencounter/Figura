@@ -342,6 +342,11 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
                 // fix pivots
                 FiguraMod.pushProfiler("fixMatricesPivot");
 
+                // Store calculated light level and current overlay effect before pushing pose stack
+                PartCustomization oldPeek = customizationStack.peek();
+                int light = oldPeek.light;
+                int overlay = oldPeek.overlay;
+
                 FiguraVec3 pivot = custom.getPivot().copy().add(custom.getOffsetPivot());
                 pivotOffsetter.setPos(pivot);
                 pivotOffsetter.recalculate();
@@ -358,8 +363,6 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
                 // render tasks
                 if (renderTasks) {
                     FiguraMod.popPushProfiler("renderTasks");
-                    int light = peek.light;
-                    int overlay = peek.overlay;
                     interceptRendersIntoFigura = false;
                     for (RenderTask task : part.renderTasks.values()) {
                         if (!task.shouldRender())
