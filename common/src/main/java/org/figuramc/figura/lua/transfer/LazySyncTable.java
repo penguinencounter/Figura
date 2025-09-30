@@ -28,7 +28,7 @@ public class LazySyncTable extends LuaTable {
 
     @Override
     public LuaValue rawget(LuaValue key) {
-        return outTransform.visit(reference.rawget(key));
+        return outTransform.visit(reference.rawget(inTransform.visit(key)));
     }
 
     @Override
