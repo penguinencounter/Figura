@@ -13,12 +13,12 @@ import java.util.HashMap;
 
 public class FiguraForgePermissions {
 
-    private static final HashMap<FiguraPermissionNodes, String> registeredPermission = new HashMap<String, String>() {{
+    private static final HashMap<FiguraPermissionNodes, String> registeredPermission = new HashMap<FiguraPermissionNodes, String>() {{
         FiguraPermissions.PERMISSIONS_LIST.forEach((pair) -> {
             put(pair.left(), createNode(pair));
         });
     }};
-    private static final HashMap<FiguraPermissionNodes, PermissionNode<?>> registeredOption = new HashMap<>() {{
+    private static final HashMap<FiguraPermissionNodes, String> registeredOption = new HashMap<FiguraPermissionNodes, String>() {{
         FiguraPermissions.OPTIONS_LIST.forEach((pair) -> {
             put(pair.left(), createOption(pair));
         });
@@ -27,19 +27,13 @@ public class FiguraForgePermissions {
     public static String createNode(Pair<FiguraPermissionNodes, Boolean> pair) {
         String name = pair.left().toString();
         boolean defaultVal = pair.right();
-        return new PermissionNode<>(FiguraModServer.MOD_ID, name, PermissionTypes.BOOLEAN, (a,b,c) -> defaultVal);
+        return (PermissionAPI.getPermissionHandler() instanceof FiguraPermissionHandler) ? ((FiguraPermissionHandler) PermissionAPI.getPermissionHandler()).registerNode(FiguraModServer.MOD_ID+"."+name, defaultVal,"") : null;
     }
 
-    public static PermissionNode<String> createOption(Pair<FiguraPermissionNodes, String> pair) {
+    public static String createOption(Pair<FiguraPermissionNodes, String> pair) {
         String name = pair.left().toString();
         String defaultVal = pair.right();
-        return new PermissionNode<>(FiguraModServer.MOD_ID, name, PermissionTypes.STRING, (a,b,c) -> defaultVal);
-    }
-
-    @SubscribeEvent
-    public void registerPermissions(PermissionGatherEvent.Nodes event) {
-        event.addNodes(registeredPermission.values());
-        event.addNodes(registeredOption.values());
+        return (PermissionAPI.getPermissionHandler() instanceof FiguraPermissionHandler) ? ((FiguraPermissionHandler) PermissionAPI.getPermissionHandler()).registerNode(FiguraModServer.MOD_ID+"."+name, defaultVal,"") : null;
     }
 
     @SuppressWarnings("unchecked")
@@ -48,7 +42,7 @@ public class FiguraForgePermissions {
     }
 
     @SuppressWarnings("unchecked")
-    public static PermissionNode<String> getOption(FiguraPermissionNodes option) {
-        return (PermissionNode<String>) registeredOption.get(option);
+    public static String getOption(FiguraPermissionNodes option) {
+        return registeredOption.get(option);
     }
 }

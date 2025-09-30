@@ -12,6 +12,7 @@ import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.event.EventNetworkChannel;
+import net.minecraftforge.server.permission.PermissionAPI;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.packets.handlers.c2s.C2SPacketHandler;
@@ -30,6 +31,7 @@ public class FiguraModServerForge {
         MinecraftForge.EVENT_BUS.addListener(FiguraModServerForge::onInitializeServer);
         MinecraftForge.EVENT_BUS.addListener(FiguraModServerForge::onTick);
         MinecraftForge.EVENT_BUS.addListener(FiguraModServerForge::onServerStop);
+        PermissionAPI.setPermissionHandler(new FiguraPermissionHandler());
         MinecraftForge.EVENT_BUS.register(new FiguraForgePermissions());
     }
 

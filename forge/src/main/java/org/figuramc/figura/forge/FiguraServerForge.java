@@ -6,11 +6,15 @@ import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.server.permission.IPermissionHandler;
 import net.minecraftforge.server.permission.PermissionAPI;
+import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.FiguraPermissionNodes;
+import org.figuramc.figura.server.FiguraPermissions;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.utils.Identifier;
+import org.figuramc.figura.server.utils.Pair;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
 import java.util.Optional;
@@ -38,12 +42,18 @@ public class FiguraServerForge extends FiguraModServer {
     @Override
     public Optional<String> getOption(UUID player, FiguraPermissionNodes permission) {
         ServerPlayer pl = getServer().getPlayerList().getPlayer(player);
-        PermissionNode<String> perm = FiguraForgePermissions.getOption(permission);
+        String perm = FiguraForgePermissions.getOption(permission);
         if (pl == null || perm == null) {
             return Optional.empty();
         }
-        String value = PermissionAPI.getPermission(pl, perm);
-        return Optional.of(value);
+        IPermissionHandler handler = PermissionAPI.getPermissionHandler();
+        Optional<String> value;
+
+        if (handler instanceof FiguraPermissionHandler)
+            value = Optional.of(((FiguraPermissionHandler) handler).getOption(pl.getGameProfile(), perm, null));
+        else
+            value = FiguraPermissions.OPTIONS_LIST.stream().filter(p -> p.left() == permission).findFirst().map(Pair::right);
+        return value;
     }
 
 
