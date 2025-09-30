@@ -24,6 +24,7 @@ import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.utils.ColorUtils;
+import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.RenderUtils;
 import org.joml.Matrix4f;
@@ -212,6 +213,11 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             original.call(instance, stack, f);
     }
 
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetProjectionMatrix(Lorg/joml/Matrix4f;)V"))
+    private void renderLevelResetProjectionMatrix(float tickDelta, long limitTime, PoseStack matrix, CallbackInfo ci) {
+        if (hasShaders) return;
+        matrix.last().pose().mul(bobbingMatrix);
+    }
 
     @WrapOperation(method = "renderLevel",
             at = @At(value = "INVOKE",
@@ -219,5 +225,19 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     private<T> T figura$disableConfusionOnMatrix(OptionInstance<T> instance, Operation<T> original) {
         Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
         return (!RenderUtils.vanillaModelAndScript(avatar) || hasShaders) ? original.call(instance) : (T) (Object) 0.0;
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void preRender(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+        Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity());
+        if (avatar == null)
+            return;
+        avatar.preRender.reset(avatar.permissions.get(Permissions.RENDER_INST));
+
+        AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tickDelta));
+    }
+
+    public Matrix4f figura$getBobbingMatrix() {
+        return this.bobbingMatrix;
     }
 }

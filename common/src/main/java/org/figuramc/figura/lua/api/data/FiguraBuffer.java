@@ -304,7 +304,7 @@ public class FiguraBuffer implements AutoCloseable {
         position++;
     }
 
-    private void writeBytes(byte[] bytes) {
+    public void writeBytes(byte[] bytes) {
         for (byte aByte : bytes) {
             write(aByte & 0xff);
         }
@@ -607,7 +607,7 @@ public class FiguraBuffer implements AutoCloseable {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("clear")
+    @LuaMethodDoc("buffer.clear")
     public void clear() {
         checkIsClosed();
         position = 0;

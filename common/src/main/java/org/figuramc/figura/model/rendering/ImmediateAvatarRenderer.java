@@ -49,6 +49,32 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         sortParts();
     }
 
+    @Override
+    public void pushToCustomizationStack(PartCustomization stack) {
+        this.customizationStack.push(stack);
+    }
+
+    @Override
+    public void popCustomizationStack() {
+        this.customizationStack.pop();
+    }
+
+    @Override
+    public void doSetupForPart() {
+        for (FiguraTextureSet set : textureSets)
+            set.uploadIfNeeded();
+        for (FiguraTexture texture : customTextures.values())
+            texture.uploadIfDirty();
+
+        VIEW_TO_WORLD_MATRIX.set(AvatarRenderer.worldToViewMatrix().invert());
+    }
+
+    @Override
+    public void flushBuffers() {
+        VERTEX_BUFFER.consume(true, bufferSource);
+        VERTEX_BUFFER.consume(false, bufferSource);
+    }
+
     public void checkEmpty() {
         if (!customizationStack.isEmpty())
             throw new IllegalStateException("Customization stack not empty!");
@@ -199,10 +225,12 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         customization.primaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.PRIMARY, null);
         customization.secondaryTexture = new TextureCustomization(FiguraTextureSet.OverrideType.SECONDARY, null);
 
+        customization.shade = shade;
+
         return customization;
     }
 
-    protected boolean renderPart(FiguraModelPart part, int[] remainingComplexity, boolean prevPredicate) {
+    public boolean renderPart(FiguraModelPart part, int[] remainingComplexity, boolean prevPredicate) {
         FiguraMod.pushProfiler(part.name);
 
         PartCustomization custom = part.customization;
@@ -316,6 +344,11 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
                 // fix pivots
                 FiguraMod.pushProfiler("fixMatricesPivot");
 
+                // Store calculated light level and current overlay effect before pushing pose stack
+                PartCustomization oldPeek = customizationStack.peek();
+                int light = oldPeek.light;
+                int overlay = oldPeek.overlay;
+
                 FiguraVec3 pivot = custom.getPivot().copy().add(custom.getOffsetPivot());
                 pivotOffsetter.setPos(pivot);
                 pivotOffsetter.recalculate();
@@ -332,8 +365,6 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
                 // render tasks
                 if (renderTasks) {
                     FiguraMod.popPushProfiler("renderTasks");
-                    int light = peek.light;
-                    int overlay = peek.overlay;
                     interceptRendersIntoFigura = false;
                     for (RenderTask task : part.renderTasks.values()) {
                         if (!task.shouldRender())
@@ -545,6 +576,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
 
         int overlay = customization.overlay;
         int light = vertexData.fullBright ? LightTexture.FULL_BRIGHT : customization.light;
+        boolean shade = customization.shade != null && customization.shade;
 
         VERTEX_BUFFER.getBufferFor(vertexData.renderType, vertexData.primary, vertexConsumer -> {
             for (int i = 0; i < vertCount; i++) {
@@ -553,8 +585,12 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
                 pos.set(vertex.x, vertex.y, vertex.z, 1);
                 pos.transform(customization.positionMatrix);
                 pos.add(pos.normalized().scale(vertexData.vertexOffset));
-                normal.set(vertex.nx, vertex.ny, vertex.nz);
-                normal.transform(customization.normalMatrix);
+                if (shade) {
+                    normal.set(vertex.nx, vertex.ny, vertex.nz);
+                    normal.transform(customization.normalMatrix);
+                } else {
+                    normal.set(0f, 1f, 0f);
+                }
                 uv.set(vertex.u, vertex.v, 1);
                 uv.divide(uvFixer);
                 uv.transform(customization.uvMatrix);
