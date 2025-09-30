@@ -95,27 +95,6 @@ public class DataAPI {
         throw new LuaError("Function is not protected");
     }
 
-    @LuaWhitelist
-    @LuaMethodDoc(
-            value = "data.deepcopy",
-            overloads = @LuaMethodOverload(
-                    returnType = LuaValue.class,
-                    argumentNames = {"input", "metatables", "copyExtra"},
-                    argumentTypes = {LuaValue.class, DeepCopyTransformer.MetatableRule.class, Boolean.class}
-            )
-    )
-    public LuaValue deepcopy(LuaValue input, @Nullable String metatables, @Nullable Boolean copyExtra) {
-        DeepCopyTransformer.MetatableRule meta = metatables != null
-                ? DeepCopyTransformer.MetatableRule.getFor(metatables)
-                : DeepCopyTransformer.MetatableRule.LINK_SOFT;
-        DeepCopyTransformer transformer = new DeepCopyTransformer(
-                parent.luaRuntime.typeManager,
-                meta,
-                Boolean.TRUE.equals(copyExtra)
-        );
-        return transformer.visit(input);
-    }
-
     @Override
     public String toString() {
         return "DataAPI";
