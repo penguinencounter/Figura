@@ -11,12 +11,12 @@ import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.NamedGuiOverlay;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.network.EventNetworkChannel;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.event.EventNetworkChannel;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -93,7 +93,7 @@ public class FiguraModClientForge extends FiguraMod {
         if (handler != null) channel.addListener(new ForgeNetworkListener<>(id, handler));
     }
 
-    private static final class ForgeNetworkListener<P extends Packet> implements Consumer<NetworkEvent> {
+    private static final class ForgeNetworkListener<P extends Packet> implements Consumer<CustomPayloadEvent> {
         private final Identifier id;
         private final S2CPacketHandler<P> handler;
 
@@ -103,9 +103,9 @@ public class FiguraModClientForge extends FiguraMod {
         }
 
         @Override
-        public void accept(NetworkEvent event) {
+        public void accept(CustomPayloadEvent event) {
             if (event.getPayload() == null) return;
-            var ctx = event.getSource().get();
+            var ctx = event.getSource();
             if (ctx.getDirection().equals(NetworkDirection.PLAY_TO_CLIENT)) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));

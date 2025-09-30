@@ -130,6 +130,10 @@ public abstract class MinecraftMixin {
         AvatarManager.clearAllAvatars();
         FiguraLuaPrinter.clearPrintQueue();
         NetworkStuff.unsubscribeAll();
+    }
+
+    @Inject(at = @At("HEAD"), method = "disconnect()V")
+    private void onDisconnect(CallbackInfo ci) {
         FSB.instance().onDisconnect();
     }
 

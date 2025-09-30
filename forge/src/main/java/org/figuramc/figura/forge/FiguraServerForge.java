@@ -2,10 +2,9 @@ package org.figuramc.figura.forge;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.PacketDistributor;
+import org.figuramc.figura.backend2.ForgeNetworking;
 import net.minecraftforge.server.permission.PermissionAPI;
 import net.minecraftforge.server.permission.nodes.PermissionNode;
 import org.figuramc.figura.server.FiguraModServer;
@@ -22,10 +21,11 @@ public class FiguraServerForge extends FiguraModServer {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
         if (player == null) return;
         var id = packet.getId();
-        var resLoc = new ResourceLocation(id.namespace(), id.path());
+        var channel = ForgeNetworking.getChannel(id);
+        if (channel == null) return;
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packet.write(new FriendlyByteBufWrapper(buf));
-        PacketDistributor.PLAYER.with(() -> player).send(new ClientboundCustomPayloadPacket(resLoc, buf));
+        channel.send(buf, PacketDistributor.PLAYER.with(player));
     }
 
     @Override
