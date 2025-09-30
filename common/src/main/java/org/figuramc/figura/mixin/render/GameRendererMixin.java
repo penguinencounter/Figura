@@ -16,6 +16,7 @@ import org.figuramc.figura.lua.api.ClientAPI;
 import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.RenderUtils;
 import org.joml.Matrix4f;
@@ -128,7 +129,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
         FiguraMod.popProfiler(2);
     }
 
-    // bobbing fix courtesy of Iris; https://github.com/IrisShaders/Iris/blob/1.20/src/main/java/net/coderbot/iris/mixin/MixinModelViewBobbing.java
+    // bobbing fix courtesy of Iris; https://github.com/IrisShaders/Iris/blob/1.20.1/src/main/java/net/irisshaders/iris/mixin/MixinModelViewBobbing.java
     @Inject(method = "renderLevel", at = @At("HEAD"))
     private void onRenderLevel(float tickDelta, long limitTime, PoseStack stack, CallbackInfo ci) {
         hasShaders = ClientAPI.hasShaderPack();
@@ -171,11 +172,24 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     private void renderLevelResetProjectionMatrix(float tickDelta, long limitTime, PoseStack matrix, CallbackInfo ci) {
         if (hasShaders) return;
         matrix.last().pose().mul(bobbingMatrix);
-        bobbingMatrix = null;
     }
 
     @Override @Intrinsic
     public double figura$getFov(Camera camera, float tickDelta, boolean changingFov) {
         return this.getFov(camera, tickDelta, changingFov);
+    }
+    
+    @Inject(method = "render", at = @At("HEAD"))
+    private void preRender(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+        Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity());
+        if (avatar == null)
+            return;
+        avatar.preRender.reset(avatar.permissions.get(Permissions.RENDER_INST));
+
+        AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tickDelta));
+    }
+
+    public Matrix4f figura$getBobbingMatrix() {
+        return this.bobbingMatrix;
     }
 }

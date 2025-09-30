@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.components.BossHealthOverlay;
+import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.server.IntegratedServer;
@@ -17,9 +19,16 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.world.BossEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.*;
 import org.figuramc.figura.FiguraMod;
+import org.figuramc.figura.backend2.FSB;
+import org.figuramc.figura.backend2.NetworkStuff;
+import org.figuramc.figura.config.Configs;
+import org.figuramc.figura.ducks.GameRendererAccessor;
+import org.figuramc.figura.font.Emojis;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.api.entity.EntityAPI;
@@ -28,19 +37,25 @@ import org.figuramc.figura.lua.docs.FiguraListDocs;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
 import org.figuramc.figura.lua.docs.LuaTypeDoc;
+import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.mixin.gui.BossHealthOverlayAccessor;
 import org.figuramc.figura.mixin.gui.GuiAccessor;
 import org.figuramc.figura.mixin.gui.PlayerTabOverlayAccessor;
 import org.figuramc.figura.mixin.render.ModelManagerAccessor;
 import org.figuramc.figura.utils.*;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.FloatBuffer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -219,16 +234,45 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_window_size")
-    public static FiguraVec2 getWindowSize() {
+    @LuaMethodDoc(
+            overloads = @LuaMethodOverload(
+                    argumentTypes = Boolean.class,
+                    argumentNames = "originalSize"
+            ),
+            value = "client.get_window_size"
+    )
+    public static FiguraVec2 getWindowSize(Boolean originalSize) {
         Window window = Minecraft.getInstance().getWindow();
-        return FiguraVec2.of(window.getWidth(), window.getHeight());
+        if (Boolean.TRUE.equals(originalSize)) {
+            return FiguraVec2.of(window.getWidth(), window.getWidth());
+        } else {
+            return FiguraVec2.of(window.getScreenWidth(), window.getScreenHeight());
+        }
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_fov")
-    public static double getFOV() {
-        return Minecraft.getInstance().options.fov().get();
+    @LuaMethodDoc(
+        overloads = @LuaMethodOverload(
+                    argumentTypes = boolean.class,
+                    argumentNames = "trueFOV"
+            ),
+            value = "client.get_fov"
+    )
+    public static double getFOV(boolean trueFOV) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        // Fallback to getting options FOV (Working fallback as passing false into $getFov's changingFov returns 70 instead of client fov)
+        if (!trueFOV)
+            return minecraft.options.fov().get();
+
+        return ((GameRendererAccessor) minecraft.gameRenderer).figura$getFov(minecraft.gameRenderer.getMainCamera(), minecraft.getFrameTime(), true);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_view_bobbing_matrix")
+    public static FiguraMat4 getViewBobbingMatrix() {
+        Matrix4f bobbingMatrix = ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).figura$getBobbingMatrix();
+        return FiguraMat4.of().set(bobbingMatrix);
     }
 
     @LuaWhitelist
@@ -289,19 +333,26 @@ public class ClientAPI {
             value = "client.get_text_width"
     )
     public static int getTextWidth(@LuaNotNil String text) {
-        return TextUtils.getWidth(TextUtils.splitText(TextUtils.tryParseJson(text), "\n"), Minecraft.getInstance().font);
+        Component component = TextUtils.tryParseJson(text);
+        component = Emojis.applyEmojis(component);
+
+        List<Component> components = TextUtils.splitText(component, "\n");
+
+        return TextUtils.getWidth(components, Minecraft.getInstance().font);
     }
 
     @LuaWhitelist
     @LuaMethodDoc(
-            overloads = @LuaMethodOverload(
-                    argumentTypes = String.class,
-                    argumentNames = "text"
-            ),
+            overloads = {
+                @LuaMethodOverload(
+                    argumentTypes = {String.class, Integer.class},
+                    argumentNames = {"text", "lineSpacing"}
+                )
+            },
             value = "client.get_text_height"
     )
-    public static int getTextHeight(String text) {
-        return TextUtils.getHeight(TextUtils.splitText(TextUtils.tryParseJson(text), "\n"), Minecraft.getInstance().font);
+    public static int getTextHeight(String text, Integer lineSpacing) {
+        return TextUtils.getHeight(TextUtils.splitText(TextUtils.tryParseJson(text), "\n"), Minecraft.getInstance().font, (lineSpacing == null ? 1 : lineSpacing));
     }
 
     @LuaWhitelist
@@ -312,18 +363,22 @@ public class ClientAPI {
                             argumentNames = "text"
                     ),
                     @LuaMethodOverload(
-                            argumentTypes = {String.class, Integer.class, Boolean.class},
-                            argumentNames = {"text", "maxWidth", "wrap"}
+                            argumentTypes = {String.class, Integer.class, Boolean.class, Integer.class},
+                            argumentNames = {"text", "maxWidth", "wrap", "lineSpacing"}
                     )
             },
             value = "client.get_text_dimensions"
     )
-    public static FiguraVec2 getTextDimensions(@LuaNotNil String text, int maxWidth, Boolean wrap) {
+    public static FiguraVec2 getTextDimensions(@LuaNotNil String text, int maxWidth, Boolean wrap, Integer lineSpacing) {
         Component component = TextUtils.tryParseJson(text);
+        component = Emojis.applyEmojis(component);
+
         Font font = Minecraft.getInstance().font;
         List<Component> list = TextUtils.formatInBounds(component, font, maxWidth, wrap == null || wrap);
+
         int x = TextUtils.getWidth(list, font);
-        int y = TextUtils.getHeight(list, font);
+        int y = TextUtils.getHeight(list, font, (lineSpacing == null ? 1 : lineSpacing));
+
         return FiguraVec2.of(x, y);
     }
 
@@ -347,6 +402,18 @@ public class ClientAPI {
 
         LOADED_MODS.putIfAbsent(id, PlatformUtils.isModLoaded(id));
         return LOADED_MODS.get(id);
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_mod_version")
+    public static String getModVersion(@LuaNotNil String id) {
+        return PlatformUtils.isModLoaded(id) ? PlatformUtils.getModVersion(id) : null;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_mod_name")
+    public static String getModName(@LuaNotNil String id) {
+        return PlatformUtils.isModLoaded(id) ? PlatformUtils.getModName(id) : null;
     }
 
     @LuaWhitelist
@@ -623,6 +690,28 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
+    @LuaMethodDoc("client.get_bossbars")
+    public static Map<String, Object> getBossbars() {
+        BossHealthOverlay bossBars = Minecraft.getInstance().gui.getBossOverlay();
+        Map<String, Object> bosses = new HashMap<String, Object>();
+        for (Map.Entry<UUID, LerpingBossEvent> entry : ((BossHealthOverlayAccessor) bossBars).getBossEvents().entrySet()) {
+            Map<String, Object> contents = new HashMap<String, Object>();
+
+            BossEvent event = entry.getValue();
+            contents.put("name",event.getName());
+            contents.put("progress",event.getProgress());
+            contents.put("color",event.getColor().getName());
+            contents.put("style",event.getOverlay().getName());
+            contents.put("darkenScreen", event.shouldDarkenScreen());
+            contents.put("bossMusic",event.shouldPlayBossMusic());
+            contents.put("fog",event.shouldCreateWorldFog());
+
+            bosses.put(entry.getKey().toString(),contents);
+        }
+        return bosses;
+    }
+
+    @LuaWhitelist
     @LuaMethodDoc("client.list_atlases")
     public static List<String> listAtlases() {
         List<String> list = new ArrayList<>();
@@ -729,7 +818,7 @@ public class ClientAPI {
             overloads = {
                     @LuaMethodOverload(argumentTypes = String.class, argumentNames = "enumName"),
             },
-            value = "client.getEnum"
+            value = "client.get_enum"
     )
     public static List<String> getEnum(@LuaNotNil String enumName) {
         try {
@@ -737,6 +826,133 @@ public class ClientAPI {
         } catch (Exception e) {
             throw new LuaError("Enum " + enumName + " does not exist");
         }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.fsb_connected")
+    public static boolean fsbConnected() {
+        return FSB.instance().connected();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.ping_rate_limit")
+    public static int pingRateLimit() {
+        return NetworkStuff.pingsRateLimit();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.ping_size_limit")
+    public static int pingSizeLimit() {
+        return NetworkStuff.pingsSizeLimit();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "key"),
+            },
+            value = "client.get_figura_config"
+    )
+    public static Object getFiguraConfig(String key) {
+        if (key == null)
+            return Configs.REGISTRY;
+        try {
+            return Configs.REGISTRY.get(key.toLowerCase());
+        } catch (Exception e) {
+            throw new LuaError("Config " + key + " does not exist");
+        }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "source"),
+            },
+            value = "client.get_volume"
+    )
+    public static float getVolume(String source) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (source == null)
+            return minecraft.options.getSoundSourceVolume(SoundSource.MASTER);
+        try {
+            return minecraft.options.getSoundSourceVolume(SoundSource.valueOf(source.toUpperCase()));
+        } catch (Exception e) {
+            throw new LuaError("Sound source " + source + " does not exist");
+        }
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_mouse_sensitivity")
+    public static double getMouseSensitivity() {
+        // https://www.spigotmc.org/threads/determining-a-players-sensitivity.468373/#post-3976392
+        return Math.pow(Minecraft.getInstance().options.sensitivity().get() * 0.6 + 0.2, 3) * 8;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_mouse_inverted")
+    public static Boolean getMouseInverted() {
+        return Minecraft.getInstance().options.invertYMouse().get();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_scroll_sensitivity")
+    public static double getScrollSensitivity() {
+        return Minecraft.getInstance().options.mouseWheelSensitivity().get();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_discrete_scrolling")
+    public static Boolean getDiscreteScrolling() {
+        return Minecraft.getInstance().options.discreteMouseScroll().get();
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_chat_width")
+    public static Double getChatWidth() {
+        // 0 -> 40
+        // 1 -> 320
+        return Math.floor(40 + 280 * Minecraft.getInstance().options.chatWidth().get());
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = Boolean.class, argumentNames = "focused"),
+            },
+            value = "client.get_chat_height"
+    )
+    public static Double getChatHeight(Boolean focused) {
+        // 0 -> 20
+        // 1 -> 180
+        if (focused)
+            return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
+
+        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused().get());
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc(
+            overloads = {
+                    @LuaMethodOverload(argumentTypes = String.class, argumentNames = "category"),
+            },
+            value = "client.get_emojis"
+    )
+    public static List<String> getEmojis(String category) {
+        List<String> emojis = new ArrayList<>();
+
+        if (category == null)
+            Emojis.getCategoryNames().forEach(name -> {
+                Emojis.getCategory(name).getLookup().getNames().stream().forEach(emojis::add);
+            });
+        else {
+            try {
+                Emojis.getCategory(category).getLookup().getNames().stream().forEach(emojis::add);
+            } catch (Exception e) {
+                throw new LuaError("\"" + category + "\" is not a valid emoji category");
+            }
+        }
+
+        return emojis;
     }
 
     @Override
