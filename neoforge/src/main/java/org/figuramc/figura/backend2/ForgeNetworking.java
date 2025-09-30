@@ -1,38 +1,39 @@
 package org.figuramc.figura.backend2;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.network.NetworkEvent;
-import net.neoforged.neoforge.network.NetworkRegistry;
-import net.neoforged.neoforge.network.event.EventNetworkChannel;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 import org.figuramc.figura.neoforge.FiguraModClientNeoForge;
 import org.figuramc.figura.neoforge.FiguraModServerForge;
+import org.figuramc.figura.server.FiguraModServer;
+import org.figuramc.figura.server.PayloadWrapper;
+import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.packets.Packets;
 import org.figuramc.figura.server.packets.Side;
-import org.figuramc.figura.server.utils.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
-import java.util.HashMap;
-import java.util.function.BiConsumer;
-
+@Mod.EventBusSubscriber(modid = FiguraModServer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ForgeNetworking {
-    private static final HashMap<Identifier, EventNetworkChannel> channels = new HashMap<>();
-    public static void init() {
-        Side currentSide = currentSide();
-        System.out.println(currentSide);
-        var packetListenerRegisterer = getCurrentListenerRegisterer();
-        Packets.forEachPacket((id, desc) -> {
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
-            EventNetworkChannel channel = NetworkRegistry.ChannelBuilder.named(resLoc)
-                    .networkProtocolVersion(() -> NetworkRegistry.ACCEPTVANILLA)
-                    .clientAcceptedVersions(NetworkRegistry.acceptMissingOr(NetworkRegistry.ACCEPTVANILLA))
-                    .serverAcceptedVersions(NetworkRegistry.acceptMissingOr(NetworkRegistry.ACCEPTVANILLA))
-                    .eventNetworkChannel();
-            channels.put(id, channel);
-            Side packetSide = desc.side();
-            if (packetSide.receivedBy(currentSide)) packetListenerRegisterer.accept(id, channel);
-        });
+    public static void init() {}
+
+    @SubscribeEvent
+    public static void register(final RegisterPayloadHandlerEvent event) {
+        final IPayloadRegistrar registrar = event.registrar(FiguraModServer.MOD_ID).optional();
+        final IPlayPayloadHandler<PayloadWrapper> currentHandler = getCurrentHandler();
+        Packets.forEachPacket(((id, desc) -> {
+            ResourceLocation resLoc = new ResourceLocation(id.namespace(), id.path());
+            registrar.play(resLoc, new PayloadWrapperInitializer<>(desc.constructor()), currentHandler);
+        }));
+    }
+
+    public static IPlayPayloadHandler<PayloadWrapper> getCurrentHandler() {
+        return currentSide() == Side.CLIENT ? FiguraModClientNeoForge::handlePayload : FiguraModServerForge::handlePayload;
     }
 
     public static Side currentSide() {
@@ -40,12 +41,16 @@ public class ForgeNetworking {
         else return Side.SERVER;
     }
 
-    public static BiConsumer<Identifier, EventNetworkChannel> getCurrentListenerRegisterer() {
-        if (FMLEnvironment.dist == Dist.CLIENT) return FiguraModClientNeoForge::registerPacketListener;
-        else return FiguraModServerForge::registerPacketListener;
-    }
+    public static class PayloadWrapperInitializer<P extends Packet> implements FriendlyByteBuf.Reader<PayloadWrapper> {
+        private final Packet.Deserializer<P> deserializer;
 
-    public static @Nullable EventNetworkChannel getChannel(Identifier id) {
-        return channels.get(id);
+        public PayloadWrapperInitializer(Packet.Deserializer<P> deserializer) {
+            this.deserializer = deserializer;
+        }
+
+        @Override
+        public PayloadWrapper apply(FriendlyByteBuf buf) {
+            return new PayloadWrapper(deserializer.read(new FriendlyByteBufWrapper(buf)));
+        }
     }
 }

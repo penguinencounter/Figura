@@ -2,6 +2,7 @@ package org.figuramc.figura.backend2;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
@@ -334,7 +335,7 @@ public abstract class FSB {
 
                 try {
                     ByteArrayInputStream bais = new ByteArrayInputStream(avatarData);
-                    CompoundTag tag = NbtIo.readCompressed(bais);
+                    CompoundTag tag = NbtIo.readCompressed(bais, NbtAccounter.unlimitedHeap());
                     CacheAvatarLoader.save(hash.toString(), tag);
                     target.loadAvatar(tag);
                 }

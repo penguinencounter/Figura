@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.permission.PermissionAPI;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
-import org.figuramc.figura.backend2.ForgeNetworking;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.FiguraPermissionNodes;
 import org.figuramc.figura.server.PayloadWrapper;
@@ -19,10 +18,7 @@ public class FiguraServerForge extends FiguraModServer {
     protected void sendPacketInternal(UUID receiver, Packet packet) {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
         if (player == null) return;
-        var id = packet.getId();
-        var channel = ForgeNetworking.getChannel(id);
-        if (channel == null) return;
-        PacketDistributor.PLAYER.with(() -> player).send(new ClientboundCustomPayloadPacket(new PayloadWrapper(packet)));
+        PacketDistributor.PLAYER.with(player).send(new ClientboundCustomPayloadPacket(new PayloadWrapper(packet)));
     }
 
     @Override

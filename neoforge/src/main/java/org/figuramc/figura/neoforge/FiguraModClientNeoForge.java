@@ -6,7 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
@@ -16,9 +15,7 @@ import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
 import net.neoforged.neoforge.client.gui.overlay.NamedGuiOverlay;
 import net.neoforged.neoforge.client.gui.overlay.VanillaGuiOverlay;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.NetworkEvent;
-import net.neoforged.neoforge.network.PlayNetworkDirection;
-import net.neoforged.neoforge.network.event.EventNetworkChannel;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -27,11 +24,10 @@ import org.figuramc.figura.config.ConfigManager;
 import org.figuramc.figura.config.neoforge.ModConfig;
 import org.figuramc.figura.gui.neoforge.GuiOverlay;
 import org.figuramc.figura.gui.neoforge.GuiUnderlay;
+import org.figuramc.figura.server.PayloadWrapper;
 import org.figuramc.figura.server.packets.Packet;
 import org.figuramc.figura.server.packets.handlers.s2c.Handlers;
 import org.figuramc.figura.server.packets.handlers.s2c.S2CPacketHandler;
-import org.figuramc.figura.server.utils.Identifier;
-import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 import org.figuramc.figura.utils.neoforge.FiguraResourceListenerImpl;
 
 import java.util.ArrayList;
@@ -90,34 +86,11 @@ public class FiguraModClientNeoForge extends FiguraMod {
         new FSBForge();
     }
 
-    public static void registerPacketListener(Identifier id, EventNetworkChannel channel) {
-        var handler = Handlers.getHandler(id);
-        if (handler != null) channel.addListener(new ForgeNetworkListener<>(id, handler));
-    }
-
-    private static final class ForgeNetworkListener<P extends Packet> implements Consumer<NetworkEvent> {
-        private final Identifier id;
-        private final S2CPacketHandler<P> handler;
-
-        private ForgeNetworkListener(Identifier id, S2CPacketHandler<P> handler) {
-            this.id = id;
-            this.handler = handler;
-        }
-
-        @Override
-        public void accept(NetworkEvent event) {
-            if (event.getPayload() == null) return;
-            var ctx = event.getSource();
-            if (ctx.getDirection().equals(PlayNetworkDirection.PLAY_TO_CLIENT)) {
-                try {
-                    P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
-                    Minecraft.getInstance().execute(() -> handler.handle(packet));
-                    ctx.setPacketHandled(true);
-                }
-                catch (Exception e) {
-                    FiguraMod.LOGGER.error("Failed to handle packet %s".formatted(id), e);
-                }
-            }
+    public static void handlePayload(PayloadWrapper wrapper, PlayPayloadContext playPayloadContext) {
+        Packet source = wrapper.source();
+        S2CPacketHandler<Packet> handler = Handlers.getHandler(source.getId());
+        if (handler != null) {
+            Minecraft.getInstance().execute(() -> handler.handle(source));
         }
     }
 }
