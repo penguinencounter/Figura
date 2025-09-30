@@ -127,7 +127,7 @@ public class FiguraLuaRuntime {
     }
 
     // context //
-    public static final ThreadLocal<Deque<Avatar>> contextStack = ThreadLocal.withInitial(LinkedList::new);
+    public static final ThreadLocal<LinkedList<Avatar>> contextStack = ThreadLocal.withInitial(LinkedList::new);
 
     @FunctionalInterface
     public interface AvatarContext extends AutoCloseable {

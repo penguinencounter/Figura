@@ -3,9 +3,7 @@ package org.figuramc.figura.lua.api;
 import net.minecraft.network.chat.Component;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.Badges;
-import org.figuramc.figura.lua.LuaNotNil;
-import org.figuramc.figura.lua.LuaWhitelist;
-import org.figuramc.figura.lua.NbtToLua;
+import org.figuramc.figura.lua.*;
 import org.figuramc.figura.lua.transfer.FunctionProtectLevel;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
 import org.figuramc.figura.lua.docs.LuaMethodOverload;
@@ -19,6 +17,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
 import java.util.Locale;
+import java.util.UUID;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -102,6 +101,17 @@ public class AvatarAPI {
             ));
         }
         return this;
+    }
+
+    @LuaWhitelist
+    @LuaMethodDoc("avatar.getCaller")
+    public String getCaller() {
+        try {
+            Avatar caller = FiguraLuaRuntime.contextStack.get().get(1);
+            return caller.owner.toString();
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
     @LuaWhitelist
