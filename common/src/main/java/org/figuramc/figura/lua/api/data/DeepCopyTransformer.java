@@ -64,7 +64,7 @@ public class DeepCopyTransformer implements LuaTransformer {
 
     @Override
     public @NotNull LuaValue userdata(LuaUserdata usr) {
-        if (copyExtra && usr instanceof CopyOnTransfer<?> copyable)
+        if (copyExtra && usr.m_instance instanceof CopyOnTransfer<?> copyable)
             return types.wrap(copyable.copy());
         return usr;
     }
