@@ -5,9 +5,15 @@
   "minVersion": "0.8",
   "client": [
     "CommandSuggestionsMixinNeoForge",
+    "ClientPacketListenerMixin",
     "ClientCommandSourceMixinNeoForge"
   ],
   "mixins": [
+    "ClientboundCustomPayloadMixin",
+    "ServerboundCustomPayloadMixin"
+  ],
+  "server": [
+    "ServerPacketListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -35,6 +35,9 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
+
+    common(project(path: ":server-common")) { transitive false }
+    shadowCommon(project(path: ":server-common")) { transitive false }
 }
 
 processResources {
