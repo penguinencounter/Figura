@@ -17,7 +17,6 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
 import java.util.Locale;
-import java.util.UUID;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -65,7 +64,7 @@ public class AvatarAPI {
                     argumentTypes = {FunctionProtectLevel.class},
                     argumentNames = {"level"}
             ),
-            value = "avatar.setProvideProtection"
+            value = "avatar.set_provide_protection"
     )
     public AvatarAPI setProvideProtection(@LuaNotNil String level) {
         String key = level.toUpperCase(Locale.ENGLISH);
@@ -87,7 +86,7 @@ public class AvatarAPI {
                     argumentTypes = {FunctionProtectLevel.class},
                     argumentNames = {"level"}
             ),
-            value = "avatar.setConsumeProtection"
+            value = "avatar.set_consume_protection"
     )
     public AvatarAPI setConsumeProtection(@LuaNotNil String level) {
         String key = level.toUpperCase(Locale.ENGLISH);

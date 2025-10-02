@@ -18,7 +18,7 @@ public class FiguraTableDocs {
      */
     @LuaWhitelist
     @LuaMethodDoc(
-            value = "data.deepcopy",
+            value = "table.deepcopy",
             overloads = @LuaMethodOverload(
                     returnType = LuaValue.class,
                     argumentNames = {"input", "metatables", "copyExtra"},
