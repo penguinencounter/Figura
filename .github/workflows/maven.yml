@@ -1,0 +1,46 @@
+name: maven.yml
+on:
+  push:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: "Maven Publishing"
+    concurrency: "maven"
+    steps:
+      - name: Checkout Figura
+        uses: actions/checkout@v5
+        with:
+          path: figura
+      - name: Checkout Maven repository
+        uses: actions/checkout@v5
+        with:
+          repository: penguinencounter/mvn
+          filter: 'tree:0'
+          fetch-depth: 0
+          token: ${{ secrets.MAVEN_GH_PAT }}
+          path: mvn
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish Figura
+        run: pushd figura && ./gradlew "-PmavenPath=$(realpath ../mvn/snapshots)" "-Psnapshot=true" publishMavenPublicationToMountedRepository; popd
+
+      - name: Push changes
+        run: |
+          pushd mvn || exit 1
+          git add .
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "(Nothing to do...)"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "🚀 Automated snapshot: penguinencounter/Figura"
+          git push -u origin main
+          popd
