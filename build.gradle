@@ -41,7 +41,14 @@ allprojects {
 
 	java_version = rootProject.java_version
 	archivesBaseName = rootProject.archives_base_name
-	version = rootProject.mod_version + "+" + rootProject.minecraft_version
+
+	def snapshot = providers.gradleProperty("snapshot").present
+	if (snapshot) {
+		version = rootProject.mod_version + "+" + rootProject.minecraft_version + "-SNAPSHOT"
+	} else {
+		version = rootProject.mod_version + "+" + rootProject.minecraft_version
+	}
+
 	group = rootProject.maven_group
 	if (project.hasProperty("release")) {
 		jarVersion = version
@@ -67,5 +74,17 @@ allprojects {
 		sourceCompatibility = JavaVersion.VERSION_17
 		targetCompatibility = JavaVersion.VERSION_17
 		withSourcesJar()
+	}
+
+	publishing {
+		repositories {
+			def mavenPath = providers.gradleProperty("mavenPath")
+			if (mavenPath.present) {
+				maven {
+					name = "mounted"
+					url = uri(mavenPath.get())
+				}
+			}
+		}
 	}
 }
