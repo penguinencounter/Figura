@@ -2,23 +2,18 @@ package org.figuramc.figura.parsers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.gson.*;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.*;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.math.vector.FiguraVec3;
-import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.utils.IOUtils;
-import org.figuramc.figura.FiguraMod;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.regex.Pattern;
 
 //main class to convert a blockbench model (json) into nbt
 //default fields are omitted from the nbt to save up space
@@ -39,7 +34,7 @@ public class BlockbenchModelParser {
     private final HashMap<Integer, String> textureIdMap = new HashMap<>();
 
     //parser
-    public ModelData parseModel(Path avatarFolder, Path sourceFile, String json, String modelName, String folders) throws Exception {
+    public ModelParseResult parseModel(Path avatarFolder, Path sourceFile, String json, String modelName, String folders) throws Exception {
         // parse json -> object
         BlockbenchModel model = GSON.fromJson(json, BlockbenchModel.class);
 
@@ -56,7 +51,7 @@ public class BlockbenchModelParser {
         //object -> nbt
         CompoundTag nbt = new CompoundTag();
         nbt.putString("name", modelName);
-        parseParent(modelName, nbt);
+        BlockbenchCommonTypes.parseParent(modelName, nbt);
 
         //parse textures first
         //we want to save the textures in a separated list
@@ -94,13 +89,7 @@ public class BlockbenchModelParser {
         textureIdMap.clear();
 
         //return the parsed data
-        return new ModelData(textures, animationList, nbt);
-    }
-
-    public static void parseParent(String name, CompoundTag nbt) {
-        ParentType parentType = ParentType.get(name);
-        if (parentType != ParentType.None)
-            nbt.putString("pt", parentType.name());
+        return new ModelParseResult(textures, animationList, nbt);
     }
 
     // -- internal functions -- //
@@ -688,7 +677,7 @@ public class BlockbenchModelParser {
                 groupNbt.put("rot", toNbtList(group.rotation));
 
             //parent type
-            parseParent(group.name, groupNbt);
+            BlockbenchCommonTypes.parseParent(group.name, groupNbt);
 
             //find collections
             var prs = new ArrayList<>(collectionMap.get(group.uuid));
@@ -781,6 +770,7 @@ public class BlockbenchModelParser {
 
     //get texture size
     public static int[] getTextureSize(byte[] texture) {
+        // duplicated in BlockbenchV5Parser.Intermediary.TextureRepresentation.getPNGDimensions
         int w = (int) texture[16] & 0xFF;
         w = (w << 8) + ((int) texture[17] & 0xFF);
         w = (w << 8) + ((int) texture[18] & 0xFF);
@@ -808,7 +798,4 @@ public class BlockbenchModelParser {
 
     //dummy texture data
     private record TextureData(int id, float[] fixedSize) {}
-
-    //dummy class containing the return object of the parser
-    public record ModelData(CompoundTag textures, List<CompoundTag> animationList, CompoundTag modelNbt) {}
 }
