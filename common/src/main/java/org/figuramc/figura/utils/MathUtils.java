@@ -80,7 +80,7 @@ public class MathUtils {
         FiguraVec3 ret = vec.copy();
         ret.subtract(pos.x, pos.y, pos.z);
         ret.transform(transformMatrix);
-        // ret.multiply(-1, 1, 1);
+        ret.multiply(-1, 1, -1); // 1.21 bug causes the z to flip. All other values are normal when comparing to <1.21
 
         return ret;
     }
