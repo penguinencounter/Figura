@@ -32,6 +32,7 @@ import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin implements GameRendererAccessor {
@@ -55,6 +56,8 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     @Shadow @Final private Camera mainCamera;
     @Unique
     private boolean avatarPostShader = false;
+    @Unique
+    private Matrix4f bobbingMatrix;
     @Unique
     private boolean hasShaders;
 
@@ -213,10 +216,13 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             original.call(instance, stack, f);
     }
 
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetProjectionMatrix(Lorg/joml/Matrix4f;)V"))
-    private void renderLevelResetProjectionMatrix(float tickDelta, long limitTime, PoseStack matrix, CallbackInfo ci) {
-        if (hasShaders) return;
-        matrix.last().pose().mul(bobbingMatrix);
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;last()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;", shift = At.Shift.BEFORE),
+            slice = @Slice(
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lcom/mojang/blaze3d/vertex/PoseStack;F)V"),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetProjectionMatrix(Lorg/joml/Matrix4f;)V")
+            ), locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)
+    private void renderLevelSaveBobbing(float tickDelta, long limitTime, CallbackInfo ci, boolean bl, Camera camera, Entity entity, double d, Matrix4f matrix4f, @Local PoseStack poseStack) {
+        bobbingMatrix = new Matrix4f(poseStack.last().pose());
     }
 
     @WrapOperation(method = "renderLevel",

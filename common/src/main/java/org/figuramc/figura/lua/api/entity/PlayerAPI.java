@@ -1,5 +1,6 @@
 package org.figuramc.figura.lua.api.entity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.world.entity.player.Player;
@@ -188,8 +189,8 @@ public class PlayerAPI extends LivingEntityAPI<Player> {
         map.put("name", team.getName());
         map.put("display_name", team.getDisplayName().getString());
         map.put("color", team.getColor().getName());
-        map.put("suffixJson", Component.Serializer.toJson(team.getPlayerSuffix()));
-        map.put("prefixJson", Component.Serializer.toJson(team.getPlayerPrefix()));
+        map.put("suffixJson", Component.Serializer.toJson(team.getPlayerSuffix(), Minecraft.getInstance().player.registryAccess()));
+        map.put("prefixJson", Component.Serializer.toJson(team.getPlayerPrefix(), Minecraft.getInstance().player.registryAccess()));
         map.put("prefix", team.getPlayerPrefix().getString());
         map.put("suffix", team.getPlayerSuffix().getString());
         map.put("friendly_fire", team.isAllowFriendlyFire());

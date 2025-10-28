@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.providers.GlyphProviderType;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import org.figuramc.figura.FiguraMod;
@@ -39,7 +40,7 @@ public class FiguraModFabric extends FiguraMod implements ClientModInitializer {
         new FSBFabric();
     }
 
-    private static class FabricClientHandler<P extends Packet> implements ClientPlayNetworking.PlayChannelHandler {
+    private static class FabricClientHandler<P extends Packet> implements ClientPlayNetworking.PlayPayloadHandler {
         private final S2CPacketHandler<P> parent;
 
         private FabricClientHandler(S2CPacketHandler<P> parent) {
@@ -47,8 +48,8 @@ public class FiguraModFabric extends FiguraMod implements ClientModInitializer {
         }
 
         @Override
-        public void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-            P packet = parent.serialize(new FriendlyByteBufWrapper(buf));
+        public void receive(CustomPacketPayload customPacketPayload, ClientPlayNetworking.Context context) {
+            P packet = parent.serialize(new FriendlyByteBufWrapper(customPacketPayload.da));
             Minecraft.getInstance().execute(() -> parent.handle(packet));
         }
     }

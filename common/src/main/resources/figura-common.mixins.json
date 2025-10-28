@@ -99,8 +99,6 @@
     "sound.SoundEngineMixin",
     "sound.SoundManagerAccessor",
     "sound.SubtitleOverlayMixin",
-    "sound.OggAudioStreamMixin",
-    "sound.OutputConcatAccessor",
     "sound.SubtitleOverlayMixin",
     "sound.SoundBufferLibraryMixin"
   ],

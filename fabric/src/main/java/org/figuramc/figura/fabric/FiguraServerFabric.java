@@ -7,6 +7,7 @@ import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,7 +57,7 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
         return (player != null) ? Options.get(player, option.toString()) : Optional.empty();
     }
 
-    private static class FabricServerHandler<P extends Packet> implements ServerPlayNetworking.PlayChannelHandler {
+    private static class FabricServerHandler<P extends Packet> implements ServerPlayNetworking.PlayPayloadHandler {
         private final C2SPacketHandler<P> parent;
 
         private FabricServerHandler(C2SPacketHandler<P> parent) {
@@ -64,9 +65,9 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
         }
 
         @Override
-        public void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
+        public void receive(CustomPacketPayload customPacketPayload, ServerPlayNetworking.Context context) {
             P packet = parent.serialize(new FriendlyByteBufWrapper(buf));
-            parent.handle(player.getUUID(), packet);
+            parent.handle(context.player().getUUID(), packet);
         }
     }
 }

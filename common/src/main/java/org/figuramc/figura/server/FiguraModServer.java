@@ -52,7 +52,7 @@ public abstract class FiguraModServer extends FiguraServer {
     @Override
     public void sendMessage(UUID receiver, JsonObject component) {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
-        if (player != null) player.sendSystemMessage(Component.Serializer.fromJson(component));
+        if (player != null) player.sendSystemMessage(Component.Serializer.fromJson(component, player.registryAccess()));
     }
 
     protected MinecraftServer getServer() {

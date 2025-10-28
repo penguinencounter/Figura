@@ -66,7 +66,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         for (FiguraTexture texture : customTextures.values())
             texture.uploadIfDirty();
 
-        VIEW_TO_WORLD_MATRIX.set(AvatarRenderer.worldToViewMatrix().invert());
+        CAMERA_POS_TO_WORLD_MATRIX.set(AvatarRenderer.worldToViewMatrix().invert());
     }
 
     @Override
