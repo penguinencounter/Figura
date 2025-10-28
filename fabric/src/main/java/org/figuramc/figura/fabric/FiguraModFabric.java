@@ -13,11 +13,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.backend2.FSBFabric;
+import org.figuramc.figura.backend2.FabricNetworking;
 import org.figuramc.figura.commands.fabric.FiguraCommandsFabric;
 import org.figuramc.figura.config.ConfigManager;
+import org.figuramc.figura.server.PayloadWrapper;
 import org.figuramc.figura.server.packets.Packet;
+import org.figuramc.figura.server.packets.Side;
 import org.figuramc.figura.server.packets.handlers.s2c.Handlers;
 import org.figuramc.figura.server.packets.handlers.s2c.S2CPacketHandler;
+import org.figuramc.figura.server.utils.Identifier;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 import org.figuramc.figura.utils.fabric.FiguraResourceListenerImpl;
 
@@ -31,16 +35,19 @@ public class FiguraModFabric extends FiguraMod implements ClientModInitializer {
         // register reload listener
         ResourceManagerHelper managerHelper = ResourceManagerHelper.get(PackType.CLIENT_RESOURCES);
         getResourceListeners().forEach(figuraResourceListener -> managerHelper.registerReloadListener((FiguraResourceListenerImpl)figuraResourceListener));
-
-        Handlers.forEachHandler((id, handler) -> {
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
-            ClientPlayNetworking.registerGlobalReceiver(resLoc, new FabricClientHandler<>(handler));
-        });
-
         new FSBFabric();
+        FabricNetworking.init(this::registerHandler, Side.CLIENT);
     }
 
-    private static class FabricClientHandler<P extends Packet> implements ClientPlayNetworking.PlayPayloadHandler {
+    public <P extends Packet> void registerHandler(CustomPacketPayload.Type<PayloadWrapper<P>> type) {
+        ResourceLocation resLoc = type.id();
+        S2CPacketHandler<P> handler = Handlers.getHandler(resLoc);
+        if (handler != null) {
+            ClientPlayNetworking.registerGlobalReceiver(type, new FabricClientHandler<>(handler));
+        }
+    }
+
+    private static class FabricClientHandler<P extends Packet> implements ClientPlayNetworking.PlayPayloadHandler<PayloadWrapper<P>> {
         private final S2CPacketHandler<P> parent;
 
         private FabricClientHandler(S2CPacketHandler<P> parent) {
@@ -48,9 +55,8 @@ public class FiguraModFabric extends FiguraMod implements ClientModInitializer {
         }
 
         @Override
-        public void receive(CustomPacketPayload customPacketPayload, ClientPlayNetworking.Context context) {
-            P packet = parent.serialize(new FriendlyByteBufWrapper(customPacketPayload.da));
-            Minecraft.getInstance().execute(() -> parent.handle(packet));
+        public void receive(PayloadWrapper<P> payload, ClientPlayNetworking.Context context) {
+            Minecraft.getInstance().execute(() -> parent.handle(payload.source()));
         }
     }
 }

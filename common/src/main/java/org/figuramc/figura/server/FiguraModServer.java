@@ -1,13 +1,18 @@
 package org.figuramc.figura.server;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.figuramc.figura.server.packets.Packet;
+import org.figuramc.figura.server.packets.handlers.c2s.C2SPacketHandler;
+import org.figuramc.figura.server.utils.Identifier;
 import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +57,17 @@ public abstract class FiguraModServer extends FiguraServer {
     @Override
     public void sendMessage(UUID receiver, JsonObject component) {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
-        if (player != null) player.sendSystemMessage(Component.Serializer.fromJson(component, player.registryAccess()));
+        DataResult<Component> text = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, component);
+        if (text.isSuccess() && player != null) player.sendSystemMessage(text.getOrThrow());
     }
 
     protected MinecraftServer getServer() {
         return server;
+    }
+
+    public <P extends Packet> C2SPacketHandler<P> getPacketHandler(ResourceLocation resLoc) {
+        Identifier id = new Identifier(resLoc.getNamespace(), resLoc.getPath());
+        return getPacketHandler(id);
     }
 
     @Override

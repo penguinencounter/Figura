@@ -4,20 +4,17 @@ import io.netty.buffer.Unpooled;
 import me.lucko.fabric.api.permissions.v0.Options;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.figuramc.figura.backend2.FabricNetworking;
 import org.figuramc.figura.commands.fabric.FiguraServerCommandsFabric;
 import org.figuramc.figura.server.FiguraModServer;
 import org.figuramc.figura.server.FiguraPermissionNodes;
+import org.figuramc.figura.server.PayloadWrapper;
 import org.figuramc.figura.server.packets.Packet;
+import org.figuramc.figura.server.packets.Side;
 import org.figuramc.figura.server.packets.handlers.c2s.C2SPacketHandler;
-import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -26,22 +23,22 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
     @Override
     public void onInitializeServer() {
         init();
-        forEachHandler((id, handler) -> {
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
-            ServerPlayNetworking.registerGlobalReceiver(resLoc, new FabricServerHandler<>(handler));
-        });
+        FabricNetworking.init(this::registerHandler, Side.SERVER);
         FiguraServerCommandsFabric.init();
+    }
+
+    public <P extends Packet> void registerHandler(CustomPacketPayload.Type<PayloadWrapper<P>> type) {
+        C2SPacketHandler<P> handler = getPacketHandler(type.id());
+        if (handler != null) {
+            ServerPlayNetworking.registerGlobalReceiver(type, new FabricServerHandler<>(handler));
+        }
     }
 
     @Override
     protected void sendPacketInternal(UUID receiver, Packet packet) {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
         if (player != null) {
-            var id = packet.getId();
-            var resLoc = new ResourceLocation(id.namespace(), id.path());
-            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            packet.write(new FriendlyByteBufWrapper(buf));
-            ServerPlayNetworking.send(player, resLoc, buf);
+            ServerPlayNetworking.send(player, new PayloadWrapper<>(packet));
         }
     }
 
@@ -57,7 +54,8 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
         return (player != null) ? Options.get(player, option.toString()) : Optional.empty();
     }
 
-    private static class FabricServerHandler<P extends Packet> implements ServerPlayNetworking.PlayPayloadHandler {
+    private static class FabricServerHandler<P extends Packet> implements ServerPlayNetworking.PlayPayloadHandler<PayloadWrapper<P>> {
+
         private final C2SPacketHandler<P> parent;
 
         private FabricServerHandler(C2SPacketHandler<P> parent) {
@@ -65,9 +63,9 @@ public class FiguraServerFabric extends FiguraModServer implements DedicatedServ
         }
 
         @Override
-        public void receive(CustomPacketPayload customPacketPayload, ServerPlayNetworking.Context context) {
-            P packet = parent.serialize(new FriendlyByteBufWrapper(buf));
-            parent.handle(context.player().getUUID(), packet);
+        public void receive(PayloadWrapper<P> payload, ServerPlayNetworking.Context context) {
+            P source = payload.source();
+            parent.handle(context.player().getUUID(), source);
         }
     }
 }

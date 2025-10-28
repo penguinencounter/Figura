@@ -18,7 +18,7 @@ public class FiguraServerForge extends FiguraModServer {
     protected void sendPacketInternal(UUID receiver, Packet packet) {
         ServerPlayer player = getServer().getPlayerList().getPlayer(receiver);
         if (player == null) return;
-        PacketDistributor.PLAYER.with(player).send(new ClientboundCustomPayloadPacket(new PayloadWrapper(packet)));
+        PacketDistributor.sendToPlayer(player, new PayloadWrapper(packet));
     }
 
     @Override

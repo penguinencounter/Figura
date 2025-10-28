@@ -1,6 +1,7 @@
 package org.figuramc.figura.forge;
 
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -55,7 +56,6 @@ public class FiguraModClientForge extends FiguraMod {
     }
 
     static void initClient() {
-        MinecraftForge.EVENT_BUS.addListener(FiguraModClientForge::cancelVanillaOverlays);
         new FSBForge();
     }
 
@@ -77,7 +77,7 @@ public class FiguraModClientForge extends FiguraMod {
         public void accept(CustomPayloadEvent event) {
             if (event.getPayload() == null) return;
             var ctx = event.getSource();
-            if (ctx.getDirection().equals(NetworkDirection.PLAY_TO_CLIENT)) {
+            if (ctx.isClientSide()) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
                     Minecraft.getInstance().execute(() -> handler.handle(packet));

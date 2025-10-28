@@ -63,7 +63,7 @@ public class FiguraModServerForge {
         public void accept(CustomPayloadEvent event) {
             if (event.getPayload() == null) return;
             var ctx = event.getSource();
-            if (ctx.getDirection().equals(NetworkDirection.PLAY_TO_SERVER)) {
+            if (ctx.isServerSide()) {
                 try {
                     P packet = handler.serialize(new FriendlyByteBufWrapper(event.getPayload()));
                     ServerPlayer sender = ctx.getSender();

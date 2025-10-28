@@ -9,19 +9,20 @@ import org.figuramc.figura.utils.FriendlyByteBufWrapper;
 
 import java.util.function.Function;
 
-public class PayloadWrapper implements CustomPacketPayload {
-    private final Packet source;
+public class PayloadWrapper<P extends Packet> implements CustomPacketPayload {
+    private final P source;
     public static final Function<ResourceLocation,Type<PayloadWrapper>> TYPE = id -> CustomPacketPayload.createType(id.toString());
 
-    public PayloadWrapper(Packet source) {
+    public PayloadWrapper(P source) {
         this.source = source;
     }
+
 
     public void write(FriendlyByteBuf buf) {
         source.write(new FriendlyByteBufWrapper(buf));
     }
 
-    public Packet source() {
+    public P source() {
         return source;
     }
 
@@ -31,7 +32,7 @@ public class PayloadWrapper implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE.apply(this.id());
+    public Type<PayloadWrapper<P>> type() {
+        return new Type<>(id());
     }
 }

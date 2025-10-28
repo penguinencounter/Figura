@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -83,7 +83,7 @@ public class FiguraModClientNeoForge extends FiguraMod {
         new FSBForge();
     }
 
-    public static void handlePayload(PayloadWrapper wrapper, PlayPayloadContext playPayloadContext) {
+    public static void handlePayload(PayloadWrapper wrapper, IPayloadContext playPayloadContext) {
         Packet source = wrapper.source();
         S2CPacketHandler<Packet> handler = Handlers.getHandler(source.getId());
         if (handler != null) {
