@@ -20,9 +20,6 @@ classes/
 run/
 runV2/
 
-# Standalone testing log output
-logs/
-
 # VScode
 
 .settings/
