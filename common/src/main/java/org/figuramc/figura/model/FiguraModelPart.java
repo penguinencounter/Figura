@@ -1,11 +1,8 @@
 package org.figuramc.figura.model;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.util.Either;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.UUIDUtil;
-import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
@@ -30,11 +27,11 @@ import org.figuramc.figura.utils.ui.UIHelper;
 import org.jetbrains.annotations.Nullable;
 import org.luaj.vm2.*;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
+
+import static org.figuramc.figura.parsers.BlockbenchCommonTypes.FORMATLESS;
 
 @LuaWhitelist
 @LuaTypeDoc(
@@ -59,6 +56,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
     public final @Nullable Map<String, PartCollection> collections;
     public final List<FiguraModelPart> children;
     private final byte[] collectionInfo;
+    public final byte formatVersion;
 
     public List<Integer> facesByTexture;
 
@@ -85,7 +83,30 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
     @LuaFieldDoc("model_part.post_render")
     public LuaFunction postRender; // after children
 
-    public FiguraModelPart(Avatar owner, String name, @Nullable String uuid, PartCustomization customization, Map<Integer, List<Vertex>> vertices, List<FiguraModelPart> children, String @Nullable[] collections, byte[] collectionInfo) {
+    public FiguraModelPart(
+            Avatar owner,
+            String name,
+            @Nullable String uuid,
+            PartCustomization customization,
+            Map<Integer, List<Vertex>> vertices,
+            List<FiguraModelPart> children,
+            String @Nullable [] collections,
+            byte[] collectionInfo
+    ) {
+        this(owner, name, uuid, customization, vertices, children, collections, collectionInfo, FORMATLESS);
+    }
+
+    public FiguraModelPart(
+            Avatar owner,
+            String name,
+            @Nullable String uuid,
+            PartCustomization customization,
+            Map<Integer, List<Vertex>> vertices,
+            List<FiguraModelPart> children,
+            String @Nullable [] collections,
+            byte[] collectionInfo,
+            byte formatVersion
+    ) {
         this.owner = owner;
         this.name = name;
         this.uuid = uuid;
@@ -93,6 +114,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
         this.vertices = vertices;
         this.children = children;
         this.collectionInfo = collectionInfo;
+        this.formatVersion = formatVersion;
         if (collections != null) {
             this.collections = new HashMap<>();
             Map<String, ImmutableSet.Builder<FiguraModelPart>> builder = new HashMap<>();
@@ -1529,7 +1551,20 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
 		if (name == null) name = this.name;
         PartCustomization customization = new PartCustomization();
         this.customization.copyTo(customization);
-        FiguraModelPart result = new FiguraModelPart(owner, name, uuid != null ? UUID.nameUUIDFromBytes((uuid + ":" + cloneSeed++).getBytes(StandardCharsets.UTF_8)).toString() : null, customization, copyVertices(), new ArrayList<>(children), null, null);
+        String derivedUUID = uuid != null
+                ? UUID.nameUUIDFromBytes((uuid + ":" + cloneSeed++).getBytes(StandardCharsets.UTF_8)).toString()
+                : null;
+        FiguraModelPart result = new FiguraModelPart(
+                owner,
+                name,
+                derivedUUID,
+                customization,
+                copyVertices(),
+                new ArrayList<>(children),
+                null,
+                null,
+                formatVersion
+        );
         result.facesByTexture = new ArrayList<>(facesByTexture);
         result.textures = new ArrayList<>(textures);
         result.parentType = parentType;
@@ -1560,7 +1595,20 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
         for (FiguraModelPart child : children) {
             figuraModelParts.add(child.deepCopy(child.name));
         }
-        FiguraModelPart result = new FiguraModelPart(owner, name, uuid != null ? UUID.nameUUIDFromBytes((uuid + ":" + cloneSeed++).getBytes(StandardCharsets.UTF_8)).toString() : null, customization, copyVertices(), figuraModelParts, null, null);
+        String derivedUUID = uuid != null
+                ? UUID.nameUUIDFromBytes((uuid + ":" + cloneSeed++).getBytes(StandardCharsets.UTF_8)).toString()
+                : null;
+        FiguraModelPart result = new FiguraModelPart(
+                owner,
+                name,
+                derivedUUID,
+                customization,
+                copyVertices(),
+                figuraModelParts,
+                null,
+                null,
+                formatVersion
+        );
         result.facesByTexture = new ArrayList<>(facesByTexture);
         result.textures = new ArrayList<>(textures);
         result.parentType = parentType;
@@ -1601,7 +1649,16 @@ public class FiguraModelPart implements Comparable<FiguraModelPart>, MutablePart
             value = "model_part.new_part"
     )
     public FiguraModelPart newPart(@LuaNotNil String name, String parentType) {
-        FiguraModelPart newer = new FiguraModelPart(owner, name, null, new PartCustomization(), new HashMap<>(), new ArrayList<>(), null, null);
+        FiguraModelPart newer = new FiguraModelPart(
+                owner,
+                name,
+                null,
+                new PartCustomization(),
+                new HashMap<>(),
+                new ArrayList<>(),
+                null,
+                null
+        );
         newer.facesByTexture = new ArrayList<>();
         newer.textures = new ArrayList<>();
 
