@@ -253,7 +253,7 @@ public class ActionWheel {
 
         // need special handling to replicate gui transforms for item tasks, blegh
         gui.pose().scale(-1.0F, -1.0F, -1.0F);
-        gui.pose().last().normal().scale(-1.0F, 1.0F, -1.0F);
+        gui.pose().last().normal().scale(-1.0F, -1.0F,1.0F);
 
         Avatar avatar = action.owner;
 
