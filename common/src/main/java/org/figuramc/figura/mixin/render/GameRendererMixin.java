@@ -224,7 +224,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
                     from = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lcom/mojang/blaze3d/vertex/PoseStack;F)V"),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetProjectionMatrix(Lorg/joml/Matrix4f;)V")
             ), locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)
-    private void renderLevelSaveBobbing(float tickDelta, long limitTime, CallbackInfo ci, boolean bl, Camera camera, Entity entity, double d, Matrix4f matrix4f, @Local PoseStack poseStack) {
+    private void renderLevelSaveBobbing(DeltaTracker tracker, CallbackInfo ci, float f, boolean bl, Camera camera, Entity entity, float g, double d, Matrix4f matrix4f, PoseStack poseStack) {
         bobbingMatrix = new Matrix4f(poseStack.last().pose());
     }
 
@@ -237,13 +237,13 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     }
 
     @Inject(method = "render", at = @At("HEAD"))
-    private void preRender(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+    private void preRender(DeltaTracker tracker, boolean tick, CallbackInfo ci) {
         Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity());
         if (avatar == null)
             return;
         avatar.preRender.reset(avatar.permissions.get(Permissions.RENDER_INST));
 
-        AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tickDelta));
+        AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tracker.getGameTimeDeltaPartialTick(false)));
     }
 
     public Matrix4f figura$getBobbingMatrix() {
