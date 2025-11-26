@@ -229,7 +229,7 @@ public class ActionWheel {
                 continue;
 
             // render
-            renderPart(gui, action, part, (float) xOff, (float) yOff, minecraft.getDeltaFrameTime());
+            renderPart(gui, action, part, (float) xOff, (float) yOff, minecraft.getTimer().getGameTimeDeltaPartialTick(false));
 
             // this is so ugly lol, i could do better
             for (RenderTask task : part.renderTasks.values())

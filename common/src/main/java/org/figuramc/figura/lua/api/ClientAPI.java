@@ -267,7 +267,7 @@ public class ClientAPI {
         if (!trueFOV)
             return minecraft.options.fov().get();
 
-        return ((GameRendererAccessor) minecraft.gameRenderer).figura$getFov(minecraft.gameRenderer.getMainCamera(), minecraft.getFrameTime(), true);
+        return ((GameRendererAccessor) minecraft.gameRenderer).figura$getFov(minecraft.gameRenderer.getMainCamera(), minecraft.getTimer().getGameTimeDeltaPartialTick(false), true);
     }
 
     @LuaWhitelist
