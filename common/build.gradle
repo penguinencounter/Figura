@@ -12,6 +12,13 @@ repositories {
     }
 }
 
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+}
+
 dependencies {
     mappings loom.layered {
         mappings("org.quiltmc:quilt-mappings:$minecraft_version+build.$mappings:intermediary-v2")
@@ -22,6 +29,8 @@ dependencies {
     implementation("com.github.FiguraMC.luaj:luaj-core:$luaj-figura")
     implementation("com.github.FiguraMC.luaj:luaj-jse:$luaj-figura")
     implementation("com.neovisionaries:nv-websocket-client:$nv_websocket")
+    implementation("org.chenliang.oggus:oggus:1.2.0")
+    implementation("org.concentus:Concentus:1.0-SNAPSHOT")
 
     // Mods
     modCompileOnly ("software.bernie.geckolib:geckolib-fabric-$geckolib_version") {
@@ -40,6 +49,9 @@ dependencies {
     // Mods
     modCompileOnly "maven.modrinth:iris:$iris"
     modCompileOnly "maven.modrinth:immediatelyfast:$immediately_fast"
+
+    common(project(path: ":server-common")) { transitive false }
+    shadowCommon(project(path: ":server-common")) { transitive false }
 }
 
 publishing {

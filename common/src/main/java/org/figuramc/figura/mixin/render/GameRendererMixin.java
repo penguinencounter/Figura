@@ -25,6 +25,7 @@ import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.utils.ColorUtils;
+import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.EntityUtils;
 import org.figuramc.figura.utils.RenderUtils;
 import org.joml.Matrix4f;
@@ -34,6 +35,7 @@ import org.luaj.vm2.LuaError;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin implements GameRendererAccessor {
@@ -57,6 +59,8 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     @Shadow @Final private Camera mainCamera;
     @Unique
     private boolean avatarPostShader = false;
+    @Unique
+    private Matrix4f bobbingMatrix;
     @Unique
     private boolean hasShaders;
 
@@ -215,6 +219,14 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             original.call(instance, stack, f);
     }
 
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;last()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;", shift = At.Shift.BEFORE),
+            slice = @Slice(
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;bobHurt(Lcom/mojang/blaze3d/vertex/PoseStack;F)V"),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetProjectionMatrix(Lorg/joml/Matrix4f;)V")
+            ), locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)
+    private void renderLevelSaveBobbing(float tickDelta, long limitTime, CallbackInfo ci, boolean bl, Camera camera, Entity entity, double d, Matrix4f matrix4f, @Local PoseStack poseStack) {
+        bobbingMatrix = new Matrix4f(poseStack.last().pose());
+    }
 
     @WrapOperation(method = "renderLevel",
             at = @At(value = "INVOKE",
@@ -222,5 +234,19 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
     private<T> T figura$disableConfusionOnMatrix(OptionInstance<T> instance, Operation<T> original) {
         Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
         return (!RenderUtils.vanillaModelAndScript(avatar) || hasShaders) ? original.call(instance) : (T) (Object) 0.0;
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void preRender(float tickDelta, long startTime, boolean tick, CallbackInfo ci) {
+        Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity());
+        if (avatar == null)
+            return;
+        avatar.preRender.reset(avatar.permissions.get(Permissions.RENDER_INST));
+
+        AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tickDelta));
+    }
+
+    public Matrix4f figura$getBobbingMatrix() {
+        return this.bobbingMatrix;
     }
 }

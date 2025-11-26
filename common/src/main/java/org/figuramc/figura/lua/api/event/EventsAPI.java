@@ -92,6 +92,8 @@ public class EventsAPI {
     public final LuaEvent TOTEM = new LuaEvent();
     @LuaFieldDoc("events.damage")
     public final LuaEvent DAMAGE = new LuaEvent();
+    @LuaFieldDoc("events.pre_render")
+    public final LuaEvent PRE_RENDER = new LuaEvent();
 
     private final Map<String, LuaEvent> events = new HashMap<>();
     
@@ -119,6 +121,7 @@ public class EventsAPI {
         events.put("RESOURCE_RELOAD", RESOURCE_RELOAD);
         events.put("TOTEM", TOTEM);
         events.put("DAMAGE", DAMAGE);
+        events.put("PRE_RENDER", PRE_RENDER);
 
         for (FiguraEvent entrypoint : ENTRYPOINTS) {
             String ID = entrypoint.getID().toUpperCase(Locale.US);

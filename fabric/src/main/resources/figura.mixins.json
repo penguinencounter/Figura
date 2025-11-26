@@ -8,6 +8,9 @@
     "GuiMixin",
     "HumanoidArmorLayerMixinFabric"
   ],
+  "server": [
+    "MinecraftServerMixin"
+  ],
   "mixins": [
   ],
   "injectors": {

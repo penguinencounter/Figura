@@ -42,6 +42,11 @@ dependencies {
     include(forgeRuntimeLibrary("com.neovisionaries:nv-websocket-client:$nv_websocket"))
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.6"))
     implementation(include("io.github.llamalad7:mixinextras-forge:0.3.6"))
+    include(forgeRuntimeLibrary("org.chenliang.oggus:oggus:1.2.0"))
+    include(forgeRuntimeLibrary("org.concentus:Concentus:1.0-SNAPSHOT"))
+
+    include(forgeRuntimeLibrary("org.chenliang.oggus:oggus:1.2.0"))
+    include(forgeRuntimeLibrary("org.concentus:Concentus:1.0-SNAPSHOT"))
 
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
 
@@ -51,6 +56,9 @@ dependencies {
     }
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    common(project(path: ":server-common")) { transitive false }
+    shadowCommon(project(path: ":server-common")) { transitive false }
 }
 
 processResources {

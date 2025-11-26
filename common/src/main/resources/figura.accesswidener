@@ -11,6 +11,9 @@ accessible method net/minecraft/client/gui/components/AbstractScrollWidget getSc
 accessible method net/minecraft/client/gui/Font renderText (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)F
 extendable method net/minecraft/client/gui/Font renderText (Ljava/lang/String;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)F
 
+accessible method com/mojang/blaze3d/platform/NativeImage checkAllocated ()V
+accessible field com/mojang/blaze3d/platform/NativeImage pixels J
+
 accessible class net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData
 accessible method net/minecraft/util/datafix/fixes/ItemStackComponentizationFix fixItemStack (Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Lcom/mojang/serialization/Dynamic;)V
 accessible field net/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData tag Lcom/mojang/serialization/Dynamic;

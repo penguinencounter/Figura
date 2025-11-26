@@ -6,9 +6,15 @@
   "client": [
     "CommandSuggestionsMixinNeoForge",
     "HumanoidArmorLayerMixinNeoForge",
+    "ClientPacketListenerMixin",
     "ClientCommandSourceMixinNeoForge"
   ],
   "mixins": [
+    "ClientboundCustomPayloadMixin",
+    "ServerboundCustomPayloadMixin"
+  ],
+  "server": [
+    "ServerPacketListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
