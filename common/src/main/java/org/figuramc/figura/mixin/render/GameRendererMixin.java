@@ -188,8 +188,4 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
 
         AvatarManager.executeAll("preRender", renderedAvatar -> renderedAvatar.preRenderEvent(tickDelta));
     }
-
-    public Matrix4f figura$getBobbingMatrix() {
-        return this.bobbingMatrix;
-    }
 }
