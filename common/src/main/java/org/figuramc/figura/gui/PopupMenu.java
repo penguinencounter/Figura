@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
+
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -84,20 +86,29 @@ public class PopupMenu {
     private static int index = 0;
     private static boolean enabled = false;
     private static Entity entity;
+    private static SkullBlockEntity skull;
     private static UUID id;
 
     public static void render(GuiGraphics gui) {
         if (!isEnabled()) return;
-
-        if (entity == null) {
-            id = null;
-            return;
-        }
-
-        id = entity.getUUID();
+        
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || (entity.isInvisibleTo(minecraft.player) && entity != minecraft.player)) {
-            entity = null;
+        
+        if (entity != null) {
+            id = entity.getUUID();
+            if (minecraft.player == null || (entity.isInvisibleTo(minecraft.player) && entity != minecraft.player)) {
+                entity = null;
+                id = null;
+                return;
+            }
+        } else if (skull != null) {
+            id = skull.getOwnerProfile().getId();
+            if (id == null || skull.isRemoved() || AvatarManager.getAvatarForPlayer(id) == null) {
+                skull = null;
+                id = null;
+                return;
+            }
+        } else {
             id = null;
             return;
         }
@@ -107,10 +118,17 @@ public class PopupMenu {
         pose.pushPose();
 
         // world to screen space
-        FiguraVec3 worldPos = FiguraVec3.fromVec3(entity.getPosition(minecraft.getFrameTime()));
-        worldPos.add(0f, entity.getBbHeight() + 0.1f, 0f);
+        FiguraVec4 vec;
+        if (entity != null) {
+            FiguraVec3 worldPos = FiguraVec3.fromVec3(entity.getPosition(minecraft.getFrameTime()));
+            worldPos.add(0f, entity.getBbHeight() + 0.1f, 0f);
+            vec = MathUtils.worldToScreenSpace(worldPos);
+        } else {
+            FiguraVec3 blockPos = FiguraVec3.fromBlockPos(skull.getBlockPos());
+            blockPos.add(0.5, 0.6, 0.5);
+            vec = MathUtils.worldToScreenSpace(blockPos);
+        }
 
-        FiguraVec4 vec = MathUtils.worldToScreenSpace(worldPos);
         if (vec.z < 1) return; // too close
 
         Window window = minecraft.getWindow();
@@ -142,7 +160,8 @@ public class PopupMenu {
         PermissionPack tc = PermissionManager.get(id);
         MutableComponent permissionName = tc.getCategoryName().append(tc.hasChanges() ? "*" : "");
 
-        MutableComponent name = entity.getName().copy();
+        Avatar avatar = AvatarManager.getAvatarForPlayer(id);
+        MutableComponent name = avatar != null ? Component.literal(avatar.entityName) : entity.getName().copy();
 
         boolean error = false;
         boolean version = false;
@@ -151,8 +170,7 @@ public class PopupMenu {
         Component badges = Badges.fetchBadges(id);
         if (!badges.getString().isEmpty())
             name.append(" ").append(badges);
-
-        Avatar avatar = AvatarManager.getAvatarForPlayer(id);
+        
         if (avatar != null) {
             error = avatar.scriptError;
             version = avatar.versionStatus > 0;
@@ -194,6 +212,7 @@ public class PopupMenu {
 
         enabled = false;
         entity = null;
+        skull = null;
         id = null;
         index = 0;
     }
@@ -207,14 +226,24 @@ public class PopupMenu {
     }
 
     public static boolean hasEntity() {
-        return entity != null;
+        return entity != null || skull != null;
     }
 
     public static void setEntity(Entity entity) {
         PopupMenu.entity = entity;
+        PopupMenu.skull = null;
+    }
+
+    public static void setEntity(SkullBlockEntity skull) {
+        PopupMenu.skull = skull;
+        PopupMenu.entity = null;
     }
 
     public static UUID getEntityId() {
         return id;
+    }
+
+    public static boolean isSkull() {
+        return skull != null;
     }
 }
