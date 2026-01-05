@@ -21,6 +21,7 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.permissions.PermissionManager;
 import org.figuramc.figura.permissions.PermissionPack;
+import org.figuramc.figura.permissions.Permissions;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.MathUtils;
@@ -63,6 +64,18 @@ public class PopupMenu {
                 PermissionPack pack = PermissionManager.get(id);
                 if (PermissionManager.decreaseCategory(pack))
                     FiguraToast.sendToast(FiguraText.of("toast.permission_change"), pack.getCategoryName());
+            }),
+            Pair.of(FiguraText.of("popup_menu.change_volume"), id -> {
+                PermissionPack pack = PermissionManager.get(id);
+
+                int volume = pack.get(Permissions.VOLUME);
+                int state = (int) Math.floor(volume / 50);
+                state = Math.floorMod((state - 1), 3);
+                volume = state * 50;
+
+                pack.insert(Permissions.VOLUME, volume, FiguraMod.MOD_ID);
+                PermissionManager.saveToDisk();
+                FiguraToast.sendToast(FiguraText.of("toast.volume_change"), volume + "%");
             })
     );
     private static final int LENGTH = BUTTONS.size();
