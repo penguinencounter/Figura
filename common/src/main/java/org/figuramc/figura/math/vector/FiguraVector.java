@@ -1,11 +1,11 @@
 package org.figuramc.figura.math.vector;
 
-import org.figuramc.figura.lua.transfer.CopyOnTransfer;
+import org.figuramc.figura.lua.transfer.DeepCopyInto;
 import org.figuramc.figura.lua.FiguraLuaPrinter;
 import org.figuramc.figura.math.matrix.FiguraMatrix;
 import org.figuramc.figura.utils.MathUtils;
 
-public abstract class FiguraVector<T extends FiguraVector<T, M>, M extends FiguraMatrix<M, T>> implements CopyOnTransfer<T> {
+public abstract class FiguraVector<T extends FiguraVector<T, M>, M extends FiguraMatrix<M, T>> implements DeepCopyInto<T> {
 
     public abstract double lengthSquared();
     public double length() {

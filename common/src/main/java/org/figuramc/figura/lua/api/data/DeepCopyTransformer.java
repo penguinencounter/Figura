@@ -1,7 +1,7 @@
 package org.figuramc.figura.lua.api.data;
 
 import org.figuramc.figura.lua.LuaTypeManager;
-import org.figuramc.figura.lua.transfer.CopyOnTransfer;
+import org.figuramc.figura.lua.transfer.DeepCopyInto;
 import org.figuramc.figura.lua.transfer.LuaTransformer;
 import org.jetbrains.annotations.NotNull;
 import org.luaj.vm2.*;
@@ -11,7 +11,7 @@ import java.util.Locale;
 
 /**
  * Simple deep copy with optional metatable and some userdata support
- * @see CopyOnTransfer
+ * @see DeepCopyInto
  */
 public class DeepCopyTransformer implements LuaTransformer {
     private final LuaTypeManager types;
@@ -64,7 +64,7 @@ public class DeepCopyTransformer implements LuaTransformer {
 
     @Override
     public @NotNull LuaValue userdata(LuaUserdata usr) {
-        if (copyExtra && usr.m_instance instanceof CopyOnTransfer<?> copyable)
+        if (copyExtra && usr.m_instance instanceof DeepCopyInto<?> copyable)
             return types.wrap(copyable.copy());
         return usr;
     }

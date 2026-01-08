@@ -24,7 +24,6 @@ import org.figuramc.figura.lua.FiguraLuaRuntime;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.transfer.AvatarVarsTransformer;
-import org.figuramc.figura.lua.transfer.ReadOnlyLuaTable;
 import org.figuramc.figura.lua.api.entity.EntityAPI;
 import org.figuramc.figura.lua.api.entity.PlayerAPI;
 import org.figuramc.figura.lua.docs.LuaMethodDoc;
@@ -530,7 +529,7 @@ public class WorldAPI {
         Avatar caller = FiguraLuaRuntime.contextStack.get().peek();
         if (caller == null) return null;
         for (Avatar avatar : AvatarManager.getLoadedAvatars()) {
-            AvatarVarsTransformer transform = new AvatarVarsTransformer(avatar, caller);
+            AvatarVarsTransformer transform = new AvatarVarsTransformer(caller);
             LuaTable tbl = avatar.luaRuntime == null ? new LuaTable() : avatar.luaRuntime.avatar_meta.storedStuff;
             varList.put(avatar.owner.toString(), TransformerLuaTable.make(tbl, transform));
         }
