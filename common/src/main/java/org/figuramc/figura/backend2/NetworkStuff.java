@@ -394,8 +394,21 @@ public class NetworkStuff {
         }
     }
 
-    // TODO: multiple modes of upload (Backend, FSB, Backend + FSB)
+    private static long lastUploadedAt = 0;
+
     public static void uploadAvatar(Avatar avatar, Destination destination) {
+        uploadAvatar(avatar, destination, 0.5);
+    }
+
+    // TODO: multiple modes of upload (Backend, FSB, Backend + FSB)
+    public static void uploadAvatar(Avatar avatar, Destination destination, double cooldown) {
+        long now = System.currentTimeMillis();
+        if (now - lastUploadedAt < cooldown * 1000) {
+            FiguraToast.sendToast(FiguraText.of("backend.upload_too_fast"), FiguraToast.ToastType.ERROR);
+            return;
+        }
+        lastUploadedAt = now;
+
         if (avatar == null || avatar.nbt == null)
             return;
 
@@ -441,8 +454,8 @@ public class NetworkStuff {
         }
     }
 
-    public static void uploadAvatar(Avatar avatar) {
-        uploadAvatar(avatar, Destination.FSB_OR_BACKEND);
+    public static void uploadAvatar(Avatar avatar, double cooldown) {
+        uploadAvatar(avatar, Destination.FSB_OR_BACKEND, cooldown);
     }
 
     public static void fsbDeleteAvatarCompleted() {

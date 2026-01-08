@@ -11,6 +11,7 @@
     "figura.backend.upload_success": "Avatar uploaded!",
     "figura.backend.upload_too_big": "Avatar is too big",
     "figura.backend.upload_too_many": "You have too many Avatars",
+    "figura.backend.upload_too_fast": "Uploading too quickly!",
     "figura.backend.upload_error": "Error on uploading Avatar",
     "figura.backend.delete_success": "Avatar deleted!",
     "figura.backend.delete_error": "Error on deleting Avatar",

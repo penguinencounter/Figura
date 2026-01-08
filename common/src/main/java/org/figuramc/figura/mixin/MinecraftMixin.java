@@ -18,6 +18,7 @@ import org.figuramc.figura.gui.ActionWheel;
 import org.figuramc.figura.gui.FiguraToast;
 import org.figuramc.figura.gui.PopupMenu;
 import org.figuramc.figura.gui.screens.WardrobeScreen;
+import org.figuramc.figura.gui.widgets.lists.AvatarList;
 import org.figuramc.figura.lua.FiguraLuaPrinter;
 import org.figuramc.figura.utils.FiguraText;
 import org.jetbrains.annotations.Nullable;
@@ -43,21 +44,30 @@ public abstract class MinecraftMixin {
     @Unique
     private boolean scriptMouseUnlock = false;
 
+    @Unique
+    private long figura$lastUploaded = 0;
+
     @Inject(at = @At("RETURN"), method = "handleKeybinds")
     private void handleKeybinds(CallbackInfo ci) {
         // don't handle keybinds on panic
         if (AvatarManager.panic)
             return;
 
-        // reload avatar button
         if (Configs.RELOAD_BUTTON.keyBind.consumeClick()) {
             AvatarManager.reloadAvatar(FiguraMod.getLocalPlayerUUID());
             FiguraToast.sendToast(FiguraText.of("toast.reload"));
         }
 
-        // reload avatar button
         if (Configs.WARDROBE_BUTTON.keyBind.consumeClick())
             this.setScreen(new WardrobeScreen(null));
+
+        if (Configs.UPLOAD_BUTTON.keyBind.consumeClick()) {
+            Avatar avatar = AvatarManager.getAvatarForPlayer(FiguraMod.getLocalPlayerUUID());
+
+            // this is intentionally ratelimited to 5 seconds per upload
+            NetworkStuff.uploadAvatar(avatar, 5.0);
+            AvatarList.selectedEntry = null;
+        }
 
         // action wheel button
         Boolean wheel = null;

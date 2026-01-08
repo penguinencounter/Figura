@@ -208,7 +208,8 @@ public class Configs {
             POPUP_BUTTON = new ConfigType.KeybindConfig("popup_button", MISC, "key.keyboard.r"),
             RELOAD_BUTTON = new ConfigType.KeybindConfig("reload_button", MISC, "key.keyboard.unknown"),
             PANIC_BUTTON = new ConfigType.KeybindConfig("panic_button", MISC, "key.keyboard.unknown"),
-            WARDROBE_BUTTON = new ConfigType.KeybindConfig("wardrobe_button", MISC, "key.keyboard.unknown");
+            WARDROBE_BUTTON = new ConfigType.KeybindConfig("wardrobe_button", MISC, "key.keyboard.unknown"),
+            UPLOAD_BUTTON = new ConfigType.KeybindConfig("upload_button", MISC, "key.keyboard.unknown");
     public static final ConfigType.EnumConfig
             BUTTON_LOCATION = new ConfigType.EnumConfig("button_location", MISC, 0, 5),
             UPDATE_CHANNEL = new ConfigType.EnumConfig("update_channel", MISC, 1, 3) {
