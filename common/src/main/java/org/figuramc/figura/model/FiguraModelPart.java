@@ -1,10 +1,7 @@
 package org.figuramc.figura.model;
 
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.phys.Vec3;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
@@ -16,8 +13,8 @@ import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
-import org.figuramc.figura.model.rendering.AvatarRenderer;
-import org.figuramc.figura.model.rendering.ImmediateAvatarRenderer;
+import org.figuramc.figura.model.rendering.FiguraRenderer;
+import org.figuramc.figura.model.rendering.ImmediateFiguraRenderer;
 import org.figuramc.figura.model.rendering.Vertex;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
@@ -25,8 +22,6 @@ import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.model.rendertasks.*;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
-import org.joml.Matrix3f;
-import org.joml.Quaternionf;
 import org.luaj.vm2.*;
 
 import java.util.*;
@@ -85,7 +80,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         this.children = children;
     }
 
-    public boolean pushVerticesImmediate(ImmediateAvatarRenderer avatarRenderer, int[] remainingComplexity) {
+    public boolean pushVerticesImmediate(ImmediateFiguraRenderer avatarRenderer, int[] remainingComplexity) {
         for (int i = 0; i < facesByTexture.size(); i++) {
             if (remainingComplexity[0] <= 0)
                 return false;
@@ -183,7 +178,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
         if (UIHelper.paperdoll) {
             s *= -UIHelper.dollScale;
         } else {
-            prevPartToView.rightMultiply(AvatarRenderer.worldToViewMatrix());
+            prevPartToView.rightMultiply(FiguraRenderer.worldToViewMatrix());
         }
         FiguraVec3 scale = currentTransforms.stackScale.scaled(s);
         FiguraVec3 piv = customization.getPivot();

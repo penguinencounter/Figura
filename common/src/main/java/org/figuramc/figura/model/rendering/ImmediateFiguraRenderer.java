@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -28,7 +29,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-public class ImmediateAvatarRenderer extends AvatarRenderer {
+public class ImmediateFiguraRenderer extends FiguraRenderer {
 
     protected final PartCustomization.PartCustomizationStack customizationStack = new PartCustomization.PartCustomizationStack();
 
@@ -37,7 +38,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
     private static final PartCustomization pivotOffsetter = new PartCustomization();
     protected static final VertexBuffer VERTEX_BUFFER = new VertexBuffer();
 
-    public ImmediateAvatarRenderer(Avatar avatar) {
+    public ImmediateFiguraRenderer(Avatar avatar) {
         super(avatar);
 
         // Vertex data, read model parts
@@ -73,7 +74,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
         customizationStack.push(customization);
 
         // world matrices
-        CAMERA_POS_TO_WORLD_MATRIX.set(AvatarRenderer.worldToCameraPosMatrix().invert());
+        CAMERA_POS_TO_WORLD_MATRIX.set(FiguraRenderer.worldToCameraPosMatrix().invert());
 
         // calculate each part matrices
         calculatePartMatrices(root);
@@ -102,14 +103,14 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
 
         // Set shouldRenderPivots
         int config = Configs.RENDER_DEBUG_PARTS_PIVOT.value;
-        if (!Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes() || (!avatar.isHost && config < 2))
+        if (!Minecraft.getInstance().debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES) || (!avatar.isHost && config < 2))
             shouldRenderPivots = 0;
         else
             shouldRenderPivots = config;
 
         // world matrices
         if (allowMatrixUpdate) {
-            CAMERA_POS_TO_WORLD_MATRIX.set(AvatarRenderer.worldToCameraPosMatrix().invert());
+            CAMERA_POS_TO_WORLD_MATRIX.set(FiguraRenderer.worldToCameraPosMatrix().invert());
         }
 
         // complexity
@@ -391,7 +392,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
 
         PoseStack stack = customization.copyIntoGlobalPoseStack();
 
-        ShapeRenderer.renderLineBox(stack, bufferSource.getBuffer(RenderType.LINES),
+        ShapeRenderer.renderLineBox(stack.last(), bufferSource.getBuffer(RenderType.LINES),
                 -boxSize, -boxSize, -boxSize,
                 boxSize, boxSize, boxSize,
                 (float) color.x, (float) color.y, (float) color.z, 1f);
