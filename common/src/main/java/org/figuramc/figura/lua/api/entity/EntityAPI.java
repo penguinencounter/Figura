@@ -546,7 +546,7 @@ public class EntityAPI<T extends Entity> {
         Avatar a = AvatarManager.getAvatar(entity);
         LuaTable table = a == null || a.luaRuntime == null ? new LuaTable() : a.luaRuntime.avatar_meta.storedStuff;
         if (a != null) {
-            AvatarVarsTransformer transform = new AvatarVarsTransformer(caller);
+            AvatarVarsTransformer transform = new AvatarVarsTransformer(a, caller);
             table = TransformerLuaTable.make(table, transform);
         }
         return key == null ? table : table.get(key);

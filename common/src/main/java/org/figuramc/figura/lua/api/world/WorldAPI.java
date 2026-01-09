@@ -529,7 +529,7 @@ public class WorldAPI {
         Avatar caller = FiguraLuaRuntime.contextStack.get().peek();
         if (caller == null) return null;
         for (Avatar avatar : AvatarManager.getLoadedAvatars()) {
-            AvatarVarsTransformer transform = new AvatarVarsTransformer(caller);
+            AvatarVarsTransformer transform = new AvatarVarsTransformer(avatar, caller);
             LuaTable tbl = avatar.luaRuntime == null ? new LuaTable() : avatar.luaRuntime.avatar_meta.storedStuff;
             varList.put(avatar.owner.toString(), TransformerLuaTable.make(tbl, transform));
         }
