@@ -273,13 +273,6 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc("client.get_view_bobbing_matrix")
-    public static FiguraMat4 getViewBobbingMatrix() {
-        Matrix4f bobbingMatrix = ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).figura$getBobbingMatrix();
-        return FiguraMat4.of().set(bobbingMatrix);
-    }
-
-    @LuaWhitelist
     @LuaMethodDoc("client.get_system_time")
     public static long getSystemTime() {
         return System.currentTimeMillis();
@@ -926,18 +919,18 @@ public class ClientAPI {
     }
 
     @LuaWhitelist
-    @LuaMethodDoc(
-            overloads = {
-                    @LuaMethodOverload(argumentTypes = Boolean.class, argumentNames = "focused"),
-            },
-            value = "client.get_chat_height"
-    )
-    public static Double getChatHeight(Boolean focused) {
+    @LuaMethodDoc("client.get_focused_chat_height")
+    public static Double getFocusedChatHeight() {
         // 0 -> 20
         // 1 -> 180
-        if (focused)
-            return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
+        return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightFocused().get());
+    }
 
+    @LuaWhitelist
+    @LuaMethodDoc("client.get_unfocused_chat_height")
+    public static Double getUnfocusedChatHeight() {
+        // 0 -> 20
+        // 1 -> 180
         return Math.floor(20 + 160 * Minecraft.getInstance().options.chatHeightUnfocused().get());
     }
 

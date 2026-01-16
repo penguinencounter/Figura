@@ -41,7 +41,7 @@ public abstract class FiguraServer {
         INSTANCE = this;
     }
 
-    private final HashMap<Identifier, C2SPacketHandler<?>> PACKET_HANDLERS = new HashMap<>() {{
+    private final HashMap<Identifier, C2SPacketHandler<? extends Packet>> PACKET_HANDLERS = new HashMap<>() {{
         put(C2SBackendHandshakePacket.PACKET_ID, new C2SHandshakeHandler(FiguraServer.this));
         put(C2SFetchAvatarPacket.PACKET_ID, new C2SFetchAvatarPacketHandler(FiguraServer.this));
         put(C2SFetchUserdataPacket.PACKET_ID, new C2SFetchUserdataPacketHandler(FiguraServer.this));
@@ -102,6 +102,7 @@ public abstract class FiguraServer {
         return getUsersFolder().resolve("%s.pl".formatted(Utils.uuidToHex(user)));
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public final void init() {
         // TODO: reading config
         getFiguraFolder().toFile().mkdirs();
@@ -131,6 +132,16 @@ public abstract class FiguraServer {
             fos.write(res.getBytes(StandardCharsets.UTF_8));
         }
         catch (IOException ignored) {}
+    }
+
+    public final int getOptionDefault(FiguraPermissionNodes node) {
+        return switch (node) {
+            case FIGURA_AVATARS_IMMORTALIZE, FIGURA_AVATARS_SET, FIGURA_AVATARS_CLEAR -> throw new IllegalArgumentException();
+            case FIGURA_PINGS_RATELIMIT -> config.getDefaultPingsRateLimit();
+            case FIGURA_PINGS_SIZELIMIT -> config.getDefaultPingsSizeLimit();
+            case FIGURA_AVATARS_SIZELIMIT -> config.getDefaultAvatarSizeLimit();
+            case FIGURA_AVATARS_COUNTLIMIT -> config.getDefaultAvatarsCountLimit();
+        };
     }
 
     public final C2SPacketHandler<Packet> getPacketHandler(Identifier id) {
