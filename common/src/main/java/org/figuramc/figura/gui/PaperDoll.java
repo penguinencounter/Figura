@@ -60,10 +60,11 @@ public class PaperDoll {
         float dollY = (-y / 50f + 1) * scale * 45f;
         dollX += (x / 100f) * screenWidth / guiScale;
         dollY += (y / 100f) * screenHeight / guiScale;
+        dollX += Configs.PAPERDOLL_OFFSET_X.tempValue * scale;
+        dollY += Configs.PAPERDOLL_OFFSET_Y.tempValue * scale;
 
         UIHelper.drawEntity(
-                dollX + Configs.PAPERDOLL_OFFSET_X.tempValue,
-                dollY + Configs.PAPERDOLL_OFFSET_Y.tempValue,
+                dollX, dollY,
                 scale * 30f,
                 Configs.PAPERDOLL_PITCH.tempValue, Configs.PAPERDOLL_YAW.tempValue,
                 entity, gui, EntityRenderMode.PAPERDOLL
