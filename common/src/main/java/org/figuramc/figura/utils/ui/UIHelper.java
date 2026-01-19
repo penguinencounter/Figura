@@ -255,6 +255,7 @@ public final class UIHelper {
         dispatcher.overrideCameraOrientation(quaternion3);
 
         // render
+        paperdoll = true;
         fireRot = -yRot;
         dollScale = scale;
 
