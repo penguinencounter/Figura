@@ -155,10 +155,10 @@ public class AvatarMetadataParser {
 
         for (String texture : metadata.ignoredTextures) {
             byte[] bytes = src.getByteArray(texture);
-            int[] size = BlockbenchModelParser.getTextureSize(bytes);
+            BlockbenchCommonTypes.IntPair size = BlockbenchCommonTypes.getPNGDimensions(bytes);
             ListTag list = new ListTag();
-            list.add(IntTag.valueOf(size[0]));
-            list.add(IntTag.valueOf(size[1]));
+            list.add(IntTag.valueOf(size.x));
+            list.add(IntTag.valueOf(size.y));
             src.put(texture, list);
         }
     }
@@ -239,13 +239,12 @@ public class AvatarMetadataParser {
         return current;
     }
 
-
-
     // json object class
     public static class Metadata {
         public String name, description, author, version, color, background, id;
         public String[] authors, autoScripts, autoAnims, ignoredTextures, resources;
         public HashMap<String, Customization> customizations;
+        public BlockbenchParser2.LoadOptions loadOptions;
     }
 
     /**

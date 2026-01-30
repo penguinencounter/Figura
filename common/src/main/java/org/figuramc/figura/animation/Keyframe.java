@@ -3,9 +3,14 @@ package org.figuramc.figura.animation;
 import com.mojang.datafixers.util.Pair;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.math.vector.FiguraVec3;
+import org.figuramc.figura.model.FiguraModelPart;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
+
+import java.util.regex.Pattern;
+
+import static org.figuramc.figura.parsers.BlockbenchCommonTypes.FORMAT_V5;
 
 public class Keyframe implements Comparable<Keyframe> {
     /**
@@ -28,6 +33,8 @@ public class Keyframe implements Comparable<Keyframe> {
     }
 
     private final Avatar owner;
+    private final FiguraModelPart part;
+    private final TransformType channel;
     private final Animation animation;
     private final float time;
     private final Interpolation interpolation;
@@ -40,6 +47,8 @@ public class Keyframe implements Comparable<Keyframe> {
     private final KeyframeValue[] bCache = {null, null, null};
 
     public Keyframe(Avatar owner,
+                    FiguraModelPart part,
+                    TransformType channel,
                     Animation animation,
                     float time,
                     Interpolation interpolation,
@@ -50,6 +59,8 @@ public class Keyframe implements Comparable<Keyframe> {
                     FiguraVec3 bezierLeftTime,
                     FiguraVec3 bezierRightTime) {
         this.owner = owner;
+        this.part = part;
+        this.channel = channel;
         this.animation = animation;
         this.time = time;
         this.interpolation = interpolation;
@@ -71,6 +82,12 @@ public class Keyframe implements Comparable<Keyframe> {
         return targetB != null ? targetB.copy() : FiguraVec3.of(getB(0, delta), getB(1, delta), getB(2, delta));
     }
 
+    private static final Pattern regex = Pattern.compile("^\\[string \"[^\"]*?\"]:");
+
+    private static String trimErrorMessage(String message) {
+        return regex.matcher(message).replaceAll("");
+    }
+
     /**
      * Get a {@link KeyframeValue} for the provided source and Lua chunk name.
      *
@@ -85,14 +102,41 @@ public class Keyframe implements Comparable<Keyframe> {
             } catch (NumberFormatException fail) {
                 try {
                     // Okay, so it's Lua. Try as an expression first...
-                    LuaValue chunk = owner.loadScript(chunkName, "return " + source);
+                    String exprSrc = "return " + source;
+                    LuaValue chunk = owner.loadScript(chunkName, exprSrc);
                     if (chunk == null) return null;
                     return KeyframeValue.function(chunk, chunkName);
                 } catch (LuaError e) { /* chunk compile failed (probably syntax) */
-                    // Try as a statement.
-                    LuaValue chunk = owner.loadScript(chunkName, source);
-                    if (chunk == null) return null;
-                    return KeyframeValue.function(chunk, chunkName);
+                    try {
+                        // Try as a statement.
+                        LuaValue chunk = owner.loadScript(chunkName, source);
+                        if (chunk == null) return null;
+                        return KeyframeValue.function(chunk, chunkName);
+                    } catch (LuaError e2) { /* garbage! */
+                        String trailers = "";
+                        if (part.formatVersion >= FORMAT_V5) {
+                            // try to tell the user about the issue
+                            //noinspection TextBlockMigration
+                            trailers = "\n\n§6If you opened a 4.12 model file in 5.0, your keyframes might be corrupted.§r\n" +
+                                    "§6You'll have to manually fix them; note that the X and Y values on rotation,§r\n" +
+                                    "§6 as well as the X value on position, need to be negated.§r";
+                        }
+                        // text blocks are java 15+ only
+                        //noinspection TextBlockMigration
+                        throw new LuaError(String.format(
+                                "Syntax error in keyframe [%s]:\n\n" +
+                                        "Not a valid expression, because:\n%s\n" +
+                                        "Not a valid block, because:\n%s\n\n" +
+                                        "script:\n" +
+                                        "%s" +
+                                        "%s",
+                                chunkName,
+                                trimErrorMessage(e.getMessage()),
+                                trimErrorMessage(e2.getMessage()),
+                                source,
+                                trailers
+                        ));
+                    }
                 }
             }
         } catch (Exception e3) {
@@ -145,10 +189,10 @@ public class Keyframe implements Comparable<Keyframe> {
         StringBuilder b = new StringBuilder();
         // note: scripts rely on the animation name followed by "keyframe" being at the start
         b.append(animation.getName())
-                .append(" keyframe (")
-                .append(time)
-                .append("s, ");
-
+                .append(" keyframe (part '");
+        b.append(part.name);
+        b.append("', time ").append(time).append("s, ");
+        b.append(channel.name()).append(" ");
         switch (idx) {
             case 0:
                 b.append("X");
