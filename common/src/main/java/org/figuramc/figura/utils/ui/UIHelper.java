@@ -208,6 +208,7 @@ public final class UIHelper {
         quaternion.mul(quaternion3);
         pose.mulPose(quaternion);
         quaternion3.conjugate();
+        quaternion3.mul(Axis.YP.rotationDegrees(180f));
         pose.translate(offset.x, offset.y, offset.z);
 
         // setup entity renderer
