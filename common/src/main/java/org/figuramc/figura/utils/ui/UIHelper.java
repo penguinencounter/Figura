@@ -252,7 +252,6 @@ public final class UIHelper {
         Quaternionf quaternion3 = Axis.XP.rotationDegrees(xRot);
         quaternion3.mul(quaternion2);
         quaternion.mul(quaternion3);
-        quaternion3.conjugate();
 
         // setup entity renderer
         Minecraft minecraft = Minecraft.getInstance();
@@ -283,7 +282,6 @@ public final class UIHelper {
         ((GuiEntityRenderStateExtension)(Object)state).setYPos(yPos);
 
         ((GuiGraphicsAccessor)gui).figura$getRenderState().submitPicturesInPictureState(state);
-        paperdoll = false;
 
         // restore entity rendering data
         entryList.setStatus(DebugScreenEntries.ENTITY_HITBOXES, renderHitboxes);
