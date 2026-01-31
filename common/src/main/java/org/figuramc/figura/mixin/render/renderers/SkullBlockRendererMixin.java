@@ -1,6 +1,5 @@
 package org.figuramc.figura.mixin.render.renderers;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.SkullModelBase;
@@ -9,7 +8,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -19,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
+import org.figuramc.figura.ducks.PlayerHeadRenderInfoExtension;
 import org.figuramc.figura.ducks.SkullBlockRendererAccessor;
 import org.figuramc.figura.ducks.SkullBlockRendererHelper;
 import org.figuramc.figura.lua.api.entity.EntityAPI;
@@ -33,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SkullBlockRenderer.class)
-public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<SkullBlockEntity> {
+public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<SkullBlockEntity>, PlayerHeadRenderInfoExtension {
 
     @Unique
     private static Avatar avatar;
@@ -43,8 +42,10 @@ public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<Sku
     @Inject(at = @At("HEAD"), method = "renderSkull", cancellable = true)
     private static void renderSkull(Direction direction, float yaw, float animationProgress, PoseStack stack, MultiBufferSource bufferSource, int light, SkullModelBase model, RenderType renderLayer, CallbackInfo ci) {
         // parse block and items first, so we can yeet them in case of a missed event
-        if (avatar == null)
+        if (avatar == null) {
             avatar = SkullBlockRendererHelper.getAvatar();
+            SkullBlockRendererHelper.setAvatar(null);
+        }
 
         SkullBlockEntity localBlock = block;
         block = null;
@@ -97,9 +98,6 @@ public abstract class SkullBlockRendererMixin implements BlockEntityRenderer<Sku
     @Override
     public boolean shouldRenderOffScreen() {
         Avatar localAvatar = avatar; // avatar pointer incase avatar variable is set during render.
-        if (localAvatar == null)
-            localAvatar = SkullBlockRendererHelper.getAvatar();
-
         return localAvatar == null || localAvatar.permissions == null ? BlockEntityRenderer.super.shouldRenderOffScreen() : localAvatar.permissions.get(Permissions.OFFSCREEN_RENDERING) == 1;
     }
 
