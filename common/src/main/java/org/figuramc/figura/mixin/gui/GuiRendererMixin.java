@@ -10,6 +10,7 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.gui.render.state.pip.GuiEntityRenderState;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
+import net.minecraft.client.renderer.CachedOrthoProjectionMatrixBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import org.figuramc.figura.ducks.GuiEntityRenderStateExtension;
@@ -31,6 +32,10 @@ public class GuiRendererMixin {
     @Shadow @Final
     GuiRenderState renderState;
 
+    @Mutable
+    @Shadow
+    @Final
+    private CachedOrthoProjectionMatrixBuffer guiProjectionMatrixBuffer;
     @Unique
     FiguraGuiEntityRenderer figura$paperDollRenderer;
 
@@ -51,5 +56,10 @@ public class GuiRendererMixin {
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Ljava/util/Collection;forEach(Ljava/util/function/Consumer;)V", ordinal = 0, shift = At.Shift.AFTER))
     private void onClose(CallbackInfo ci) {
         figura$paperDollRenderer.close();
+    }
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void onInit(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, List<PictureInPictureRenderer<?>> pictureInPictureRenderers, CallbackInfo ci) {
+        this.guiProjectionMatrixBuffer = new CachedOrthoProjectionMatrixBuffer("gui", 1000.0F, 21000.0F, true);
     }
 }

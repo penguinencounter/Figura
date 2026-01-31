@@ -18,7 +18,7 @@ import org.joml.Matrix4fStack;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 public class FiguraGui {
-    private static final CachedOrthoProjectionMatrixBuffer guiProjectionMatrixBuffer = new CachedOrthoProjectionMatrixBuffer("gui", 1000.0F, 11000.0F, true);
+    private static final CachedOrthoProjectionMatrixBuffer guiProjectionMatrixBuffer = new CachedOrthoProjectionMatrixBuffer("gui", 1000.0F, 21000.0F, true);
 
     public static void onRender(GuiGraphics guiGraphics, float tickDelta, CallbackInfo ci) {
         if (AvatarManager.panic)
