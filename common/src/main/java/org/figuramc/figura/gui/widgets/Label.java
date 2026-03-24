@@ -2,12 +2,15 @@ package org.figuramc.figura.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -118,7 +121,7 @@ public class Label implements FiguraWidget, GuiEventListener, NarratableEntry {
             if (mouseX >= this.x + x * scale && mouseX < this.x + (x + width) * scale && mouseY >= this.y + y * scale && mouseY < this.y + (y + height) * scale) {
                 // get style at the mouse pos
                 int pos = (int) ((mouseX - this.x - x * scale) / scale);
-                hovered = font.getSplitter().componentStyleAtWidth(text, pos);
+                hovered = TextUtils.componentStyleAtWidth(font, text, pos);
 
                 // add underline for the text with the click event
                 ClickEvent event = hovered != null ? hovered.getClickEvent() : null;
@@ -145,8 +148,8 @@ public class Label implements FiguraWidget, GuiEventListener, NarratableEntry {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
-        if (hovered != null && Minecraft.getInstance().screen != null) {
-            Minecraft.getInstance().screen.handleComponentClicked(hovered);
+        if (hovered != null && Minecraft.getInstance().screen != null && hovered.getClickEvent() != null) {
+            Screen.defaultHandleGameClickEvent(hovered.getClickEvent(), Minecraft.getInstance(), Minecraft.getInstance().screen);
             return true;
         }
 

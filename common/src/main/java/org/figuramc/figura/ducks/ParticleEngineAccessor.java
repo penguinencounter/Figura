@@ -4,7 +4,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleResources;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ public interface ParticleEngineAccessor {
     <T extends ParticleOptions> Particle figura$makeParticle(T parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ);
     void figura$spawnParticle(Particle particle, UUID owner);
     void figura$clearParticles(UUID owner);
-    SpriteSet figura$getParticleSprite(ResourceLocation particleID);
+    SpriteSet figura$getParticleSprite(Identifier particleID);
     void figura$removeParticle(Particle particle);
     ParticleResources figura$getParticleResources();
 }

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.gui.screens.WardrobeScreen;
@@ -30,7 +30,7 @@ public class PauseScreenMixin extends Screen {
     }
 
     @Unique
-    private static final ResourceLocation FIGURA_ICON = new FiguraIdentifier("textures/gui/icon.png");
+    private static final Identifier FIGURA_ICON = new FiguraIdentifier("textures/gui/icon.png");
 
     @Unique
     private LayoutElement lanButton;
@@ -78,7 +78,7 @@ public class PauseScreenMixin extends Screen {
         if (config > 0) { // button
             addRenderableWidget(new Button(x, y, 64, 20, FiguraText.of(), null, btn -> this.minecraft.setScreen(new WardrobeScreen(this))) {
                 @Override
-                public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+                public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
                     ChatFormatting color;
                     if (this.isHoveredOrFocused()) {
                         color = ChatFormatting.AQUA;
@@ -99,7 +99,7 @@ public class PauseScreenMixin extends Screen {
         } else { // icon
             addRenderableWidget(new Button(x, y, 20, 20, 0, 0, 20, FIGURA_ICON, 60, 20, null, btn -> this.minecraft.setScreen(new WardrobeScreen(this))) {
                 @Override
-                public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+                public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
                     renderVanillaBackground(gui, mouseX, mouseY, delta);
                     super.renderWidget(gui, mouseX, mouseY, delta);
                 }

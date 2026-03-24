@@ -15,7 +15,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
@@ -362,7 +362,7 @@ public class BlockStateAPI {
     }
 
     private static String getTextureName(TextureAtlasSprite sprite) {
-        ResourceLocation location = sprite.contents().name(); // do not close it
+        Identifier location = sprite.contents().name(); // do not close it
         return location.getNamespace() + ":textures/" + location.getPath();
     }
 

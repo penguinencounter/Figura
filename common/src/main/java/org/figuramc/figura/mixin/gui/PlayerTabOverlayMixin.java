@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.avatar.Badges;
@@ -65,8 +65,8 @@ public class PlayerTabOverlayMixin {
         return id;
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/PlayerFaceRenderer;draw(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/resources/ResourceLocation;IIIZZI)V"), index = 4)
-    private int doNotDrawFace(GuiGraphics guiGraphics, ResourceLocation id, int x, int y, int size, boolean hasHatLayer, boolean upsideDown, int color) {
+    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/PlayerFaceRenderer;draw(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/resources/Identifier;IIIZZI)V"), index = 4)
+    private int doNotDrawFace(GuiGraphics guiGraphics, Identifier id, int x, int y, int size, boolean hasHatLayer, boolean upsideDown, int color) {
         if (uuid != null) {
             Avatar avatar = AvatarManager.getAvatarForPlayer(uuid);
             if (avatar != null && avatar.submitPortraitDraw(guiGraphics, id, x, y, size, 16, upsideDown))

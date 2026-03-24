@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
 import org.figuramc.figura.lua.LuaWhitelist;
@@ -16,8 +16,8 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.model.FiguraModelPart;
 import org.figuramc.figura.model.rendering.Vertex;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.LuaUtils;
 import org.joml.Matrix3f;
@@ -35,13 +35,13 @@ import java.util.Locale;
 )
 public class SpriteTask extends RenderTask {
 
-    private ResourceLocation texture;
+    private Identifier texture;
     private int textureW = -1, textureH = -1;
     private int width, height;
     private int regionW, regionH;
     private float u = 0f, v = 0f;
     private int r = 0xFF, g = 0xFF, b = 0xFF, a = 0xFF;
-    private RenderTypes renderType = RenderTypes.TRANSLUCENT;
+    private FiguraRenderTypes renderType = FiguraRenderTypes.TRANSLUCENT;
     private final List<Vertex> vertices = new ArrayList<>(4);
 
     public SpriteTask(String name, Avatar owner, FiguraModelPart parent) {
@@ -81,7 +81,7 @@ public class SpriteTask extends RenderTask {
 
     @Override
     public boolean shouldRender() {
-        return super.shouldRender() && texture != null && renderType != RenderTypes.NONE;
+        return super.shouldRender() && texture != null && renderType != FiguraRenderTypes.NONE;
     }
 
     private void recalculateVertices() {
@@ -143,7 +143,7 @@ public class SpriteTask extends RenderTask {
         }
         if (texture instanceof String s) {
             try {
-                this.texture = ResourceLocation.parse(s);
+                this.texture = Identifier.parse(s);
             } catch (Exception e) {
                 this.texture = MissingTextureAtlasSprite.getLocation();
             }
@@ -406,7 +406,7 @@ public class SpriteTask extends RenderTask {
     )
     public SpriteTask setRenderType(@LuaNotNil String renderType) {
         try {
-            this.renderType = RenderTypes.valueOf(renderType.toUpperCase(Locale.US));
+            this.renderType = FiguraRenderTypes.valueOf(renderType.toUpperCase(Locale.US));
             return this;
         } catch (Exception ignored) {
             throw new LuaError("Illegal RenderType: \"" + renderType + "\".");

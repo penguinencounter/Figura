@@ -5,22 +5,23 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -54,7 +55,7 @@ public class RenderUtils {
         if (!vanillaModelAndScript(avatar))
             return null;
 
-        ResourceLocation layer = avatar.luaRuntime.renderer.fireLayer1;
+        Identifier layer = avatar.luaRuntime.renderer.fireLayer1;
         return layer != null ? Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(layer) : null;
     }
 
@@ -62,8 +63,8 @@ public class RenderUtils {
         if (!vanillaModelAndScript(avatar))
             return null;
 
-        ResourceLocation layer1 = avatar.luaRuntime.renderer.fireLayer1;
-        ResourceLocation layer2 = avatar.luaRuntime.renderer.fireLayer2;
+        Identifier layer1 = avatar.luaRuntime.renderer.fireLayer1;
+        Identifier layer2 = avatar.luaRuntime.renderer.fireLayer2;
 
         if (layer2 != null)
             return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(layer2);
@@ -149,7 +150,7 @@ public class RenderUtils {
     }
 
     @ExpectPlatform
-    public static ResourceLocation getPlayerSkinTexture(WingsLayer<?, ?> wingsLayer, HumanoidRenderState renderState) {
+    public static Identifier getPlayerSkinTexture(WingsLayer<?, ?> wingsLayer, HumanoidRenderState renderState) {
         throw new AssertionError();
     }
 
@@ -179,14 +180,14 @@ public class RenderUtils {
             PlayerModel playerModel = avatarRenderer.getModel();
             ((FiguraSubmitCallBackExtension) playerModel).figura$addPreRenderingCallback(preRender);
             ((FiguraSubmitCallBackExtension) playerModel).figura$addPostRenderingCallback(postRender);
-            submitNodeStorage.submitModel(playerModel, null, dummyPoseStack, RenderType.LINES, 0, 0, 0, null);
+            submitNodeStorage.submitModel(playerModel, null, dummyPoseStack, RenderTypes.LINES, 0, 0, 0, null);
         }
 
         if (selection.get(2)) {
             ModelPart modelPart = avatarRenderer.getModel().leftArm;
             ((FiguraSubmitCallBackExtension) (Object)modelPart).figura$addPreRenderingCallback(preRender);
             ((FiguraSubmitCallBackExtension) (Object)modelPart).figura$addPostRenderingCallback(postRender);
-            submitNodeStorage.submitModelPart(modelPart, dummyPoseStack, RenderType.LINES, 0, 0, null);
+            submitNodeStorage.submitModelPart(modelPart, dummyPoseStack, RenderTypes.LINES, 0, 0, null);
         }
 
         if (selection.get(3)) {

@@ -7,9 +7,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.MathUtils;
@@ -19,7 +19,7 @@ public class ScrollBarWidget extends AbstractWidget implements FiguraWidget {
 
     // -- fields -- // 
 
-    public static final ResourceLocation SCROLLBAR_TEXTURE = new FiguraIdentifier("textures/gui/scrollbar.png");
+    public static final Identifier SCROLLBAR_TEXTURE = new FiguraIdentifier("textures/gui/scrollbar.png");
 
     protected final int headHeight = 20;
     protected final int headWidth = 10;

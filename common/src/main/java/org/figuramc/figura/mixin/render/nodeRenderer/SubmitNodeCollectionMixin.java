@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -44,7 +44,7 @@ public class SubmitNodeCollectionMixin implements NodeCollectorExtension {
         return figuraSubmissions;
     }
 
-    @Inject(method = "submitModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$Storage;add(Lnet/minecraft/client/renderer/RenderType;Lnet/minecraft/client/renderer/SubmitNodeStorage$ModelSubmit;)V"))
+    @Inject(method = "submitModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$Storage;add(Lnet/minecraft/client/renderer/rendertype/RenderType;Lnet/minecraft/client/renderer/SubmitNodeStorage$ModelSubmit;)V"))
     private <S> void figura$onSubmitModel(Model<? super S> model, S object, PoseStack poseStack, RenderType renderType, int i, int j, int k, @Nullable TextureAtlasSprite textureAtlasSprite, int l, @Nullable ModelFeatureRenderer.CrumblingOverlay crumblingOverlay, CallbackInfo ci, @Local SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
         FiguraSubmitCallBackExtension modelSubmissionExtension = (FiguraSubmitCallBackExtension) (Object) modelSubmit;
         FiguraSubmitCallBackExtension modelExtension = (FiguraSubmitCallBackExtension) model;
@@ -60,7 +60,7 @@ public class SubmitNodeCollectionMixin implements NodeCollectorExtension {
         modelExtension.figura$getPostRenderingCallbacks().clear();
     }
 
-    @WrapOperation(method = "submitModelPart", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/feature/ModelPartFeatureRenderer$Storage;add(Lnet/minecraft/client/renderer/RenderType;Lnet/minecraft/client/renderer/SubmitNodeStorage$ModelPartSubmit;)V"))
+    @WrapOperation(method = "submitModelPart", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/feature/ModelPartFeatureRenderer$Storage;add(Lnet/minecraft/client/renderer/rendertype/RenderType;Lnet/minecraft/client/renderer/SubmitNodeStorage$ModelPartSubmit;)V"))
     private void figura$onSubmitModelPart(ModelPartFeatureRenderer.Storage instance, RenderType key, SubmitNodeStorage.ModelPartSubmit modelPartSubmit, Operation<Void> original) {
         FiguraSubmitCallBackExtension modelSubmissionExtension = (FiguraSubmitCallBackExtension) (Object) modelPartSubmit;
         FiguraSubmitCallBackExtension modelExtension = (FiguraSubmitCallBackExtension) (Object) modelPartSubmit.modelPart();

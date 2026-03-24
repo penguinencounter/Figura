@@ -9,7 +9,7 @@ import net.minecraft.client.gui.components.SubtitleOverlay;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance.Attenuation;
 import net.minecraft.client.sounds.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
@@ -100,8 +100,8 @@ public abstract class SoundEngineMixin implements SoundEngineAccessor {
             sound.volume(sound.getVolume());
     }
 
-    @Inject(at = @At("RETURN"), method = "stop(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/sounds/SoundSource;)V")
-    private void stop(ResourceLocation id, SoundSource category, CallbackInfo ci) {
+    @Inject(at = @At("RETURN"), method = "stop(Lnet/minecraft/resources/Identifier;Lnet/minecraft/sounds/SoundSource;)V")
+    private void stop(Identifier id, SoundSource category, CallbackInfo ci) {
         if (category == SoundSource.PLAYERS)
             figura$stopAllSounds();
     }
@@ -118,7 +118,7 @@ public abstract class SoundEngineMixin implements SoundEngineAccessor {
             // Run sound event
             AvatarManager.executeAll("playSoundEvent", avatar -> {
                 boolean cancel = avatar.playSoundEvent(
-                    sound.getLocation().toString(),
+                    sound.getIdentifier().toString(),
                     FiguraVec3.fromVec3(pos),
                     sound.getVolume(), sound.getPitch(),
                     sound.isLooping(),

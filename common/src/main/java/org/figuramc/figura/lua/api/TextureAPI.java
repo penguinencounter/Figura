@@ -8,7 +8,7 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.lua.LuaNotNil;
@@ -152,7 +152,7 @@ public class TextureAPI {
     )
     public FiguraTexture fromVanilla(@LuaNotNil String name, @LuaNotNil String path) {
         check();
-        ResourceLocation resourceLocation = LuaUtils.parsePath(path);
+        Identifier resourceLocation = LuaUtils.parsePath(path);
         // is there a way to check if an atlas exists without getAtlas? cause that is the only thing that will cause an error, and try catch blocks can be pricy
         try {
             AbstractTexture atlas = Minecraft.getInstance().getTextureManager().getTexture(resourceLocation);

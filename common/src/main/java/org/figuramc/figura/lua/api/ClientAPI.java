@@ -19,7 +19,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.*;
@@ -113,7 +113,7 @@ public class ClientAPI {
                 fps,
                 maxFps == 260 ? "inf" : maxFps,
                 Minecraft.getInstance().options.enableVsync().get() ? " vsync " : " ",
-                Minecraft.getInstance().options.graphicsMode().get(),
+                Minecraft.getInstance().options.graphicsPreset().get(),
                 Minecraft.getInstance().options.cloudStatus().get() == CloudStatus.OFF ? "" :
                         (Minecraft.getInstance().options.cloudStatus().get() == CloudStatus.FAST ? " fast-clouds" : " fancy-clouds"),
                 Minecraft.getInstance().options.biomeBlendRadius().get(),
@@ -286,7 +286,7 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_camera_pos")
     public static FiguraVec3 getCameraPos() {
-        Vec3 pos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 pos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         return FiguraVec3.fromVec3(pos);
     }
 
@@ -312,7 +312,7 @@ public class ClientAPI {
     @LuaWhitelist
     @LuaMethodDoc("client.get_camera_dir")
     public static FiguraVec3 getCameraDir() {
-        return FiguraVec3.fromVec3f(Minecraft.getInstance().gameRenderer.getMainCamera().getLookVector());
+        return FiguraVec3.fromVec3f(Minecraft.getInstance().gameRenderer.getMainCamera().forwardVector());
     }
 
     @LuaWhitelist
@@ -429,7 +429,7 @@ public class ClientAPI {
             value = "client.has_resource"
     )
     public static boolean hasResource(@LuaNotNil String path) {
-        ResourceLocation resource = LuaUtils.parsePath(path);
+        Identifier resource = LuaUtils.parsePath(path);
         try {
             return Minecraft.getInstance().getResourceManager().getResource(resource).isPresent();
         } catch (Exception ignored) {
@@ -682,7 +682,7 @@ public class ClientAPI {
             value = "client.get_atlas"
     )
     public static TextureAtlasAPI getAtlas(@LuaNotNil String atlas) {
-        ResourceLocation path = LuaUtils.parsePath(atlas);
+        Identifier path = LuaUtils.parsePath(atlas);
         try {
             return new TextureAtlasAPI(Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(path));
         } catch (Exception ignored) {
@@ -757,14 +757,14 @@ public class ClientAPI {
     public static List<String> getRegistry(@LuaNotNil String registryName) {
         Registry<?> registry;
         try {
-            registry = BuiltInRegistries.REGISTRY.getValue(ResourceLocation.parse(registryName));
+            registry = BuiltInRegistries.REGISTRY.getValue(Identifier.parse(registryName));
         } catch (Error e) {
             throw new LuaError("Registry " + registryName + " does not exist");
         }
 
         if (registry != null) {
-            return registry.filterFeatures(WorldAPI.getCurrentWorld().enabledFeatures()).listElementIds().map(ResourceKey::location)
-                    .map(ResourceLocation::toString)
+            return registry.filterFeatures(WorldAPI.getCurrentWorld().enabledFeatures()).listElementIds().map(ResourceKey::identifier)
+                    .map(Identifier::toString)
                     .collect(Collectors.toList());
         } else {
             throw new LuaError("Registry " + registryName + " does not exist");

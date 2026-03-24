@@ -216,7 +216,7 @@ public abstract class FiguraRenderer {
         Minecraft client = Minecraft.getInstance();
         Camera camera = client.gameRenderer.getMainCamera();
         FiguraMat4 result = FiguraMat4.of();
-        Vec3 cameraPos = camera.getPosition().scale(-1);
+        Vec3 cameraPos = camera.position().scale(-1);
         result.translate(cameraPos.x, cameraPos.y, cameraPos.z);
         return result;
     }

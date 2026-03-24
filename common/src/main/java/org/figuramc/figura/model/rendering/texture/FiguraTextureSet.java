@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.model.TextureCustomization;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public class FiguraTextureSet {
     public void uploadIfNeeded() {
         for (FiguraTexture texture : textures) {
             if (texture != null)
-                texture.uploadIfDirty();
+                texture.uploadIfDirty(false, false);
         }
     }
 
@@ -54,7 +54,7 @@ public class FiguraTextureSet {
         return -1;
     }
 
-    public ResourceLocation getOverrideTexture(UUID owner, TextureCustomization pair) {
+    public Identifier getOverrideTexture(UUID owner, TextureCustomization pair) {
         OverrideType type;
 
         if (pair == null || (type = pair.getOverrideType()) == null)
@@ -72,13 +72,13 @@ public class FiguraTextureSet {
 
                 yield switch (type) {
                     case CAPE -> info.getSkin().cape().texturePath();
-                    case ELYTRA -> info.getSkin().elytra() == null ? ResourceLocation.withDefaultNamespace("elytra") : info.getSkin().elytra().texturePath();
+                    case ELYTRA -> info.getSkin().elytra() == null ? Identifier.withDefaultNamespace("elytra") : info.getSkin().elytra().texturePath();
                     default -> info.getSkin().body().texturePath();
                 };
             }
             case RESOURCE -> {
                 try {
-                    yield ResourceLocation.parse(String.valueOf(pair.getValue()));
+                    yield Identifier.parse(String.valueOf(pair.getValue()));
                 } catch (Exception ignored) {
                     yield MissingTextureAtlasSprite.getLocation();
                 }

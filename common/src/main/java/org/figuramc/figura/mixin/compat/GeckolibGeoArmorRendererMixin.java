@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.cache.model.GeoBone;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 

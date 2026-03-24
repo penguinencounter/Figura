@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
@@ -180,7 +180,7 @@ public class EntityAPI<T extends Entity> {
     @LuaMethodDoc("entity.get_dimension_name")
     public String getDimensionName() {
         checkEntity();
-        return getLevel().dimension().location().toString();
+        return getLevel().dimension().identifier().toString();
     }
 
     @LuaWhitelist
@@ -512,7 +512,7 @@ public class EntityAPI<T extends Entity> {
 
         EntityType<?> entityType;
         if (type != null) {
-            ResourceLocation id = ResourceLocation.tryParse(type);
+            Identifier id = Identifier.tryParse(type);
             if (id == null) {
                 throw new LuaError("Invalid entity type: " + type);
             }

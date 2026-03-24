@@ -5,7 +5,7 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleResources;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.ducks.ParticleEngineAccessor;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;

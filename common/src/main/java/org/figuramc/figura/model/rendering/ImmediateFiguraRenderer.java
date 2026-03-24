@@ -6,7 +6,9 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.renderer.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import org.figuramc.figura.FiguraMod;
@@ -18,9 +20,9 @@ import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.model.*;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.model.rendertasks.RenderTask;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
@@ -123,7 +125,7 @@ public class ImmediateFiguraRenderer extends FiguraRenderer {
         for (FiguraTextureSet set : textureSets)
             set.uploadIfNeeded();
         for (FiguraTexture texture : customTextures.values())
-            texture.uploadIfDirty();
+            texture.uploadIfDirty(false, false);
 
         // Set shouldRenderPivots
         int config = Configs.RENDER_DEBUG_PARTS_PIVOT.value;
@@ -202,8 +204,8 @@ public class ImmediateFiguraRenderer extends FiguraRenderer {
     protected PartCustomization setupRootCustomization(double vertOffset) {
         PartCustomization customization = new PartCustomization();
 
-        customization.setPrimaryRenderType(RenderTypes.TRANSLUCENT);
-        customization.setSecondaryRenderType(RenderTypes.EMISSIVE);
+        customization.setPrimaryRenderType(FiguraRenderTypes.TRANSLUCENT);
+        customization.setSecondaryRenderType(FiguraRenderTypes.EMISSIVE);
 
         double s = 1.0 / 16;
         customization.positionMatrix.scale(s, s, s);
@@ -464,10 +466,43 @@ public class ImmediateFiguraRenderer extends FiguraRenderer {
 
         PoseStack stack = customization.copyIntoGlobalPoseStack();
 
-        ShapeRenderer.renderLineBox(stack.last(), bufferSource.getBuffer(RenderType.LINES),
+        renderLineBox(stack.last(), bufferSource.getBuffer(RenderTypes.LINES),
                 -boxSize, -boxSize, -boxSize,
                 boxSize, boxSize, boxSize,
                 (float) color.x, (float) color.y, (float) color.z, 1f);
+    }
+
+    public static void renderLineBox(PoseStack.Pose pose, VertexConsumer vertices, double x1, double y1, double z1, double x2, double y2, double z2, float r, float g, float b, float a) {
+        float f = (float)x1;
+        float h = (float)y1;
+        float i = (float)z1;
+        float j = (float)x2;
+        float k = (float)y2;
+        float l = (float)z2;
+        vertices.addVertex(pose, f, h, i).setColor(r, g, b, a).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, j, h, i).setColor(r, g, b, a).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, f, h, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        vertices.addVertex(pose, f, k, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        vertices.addVertex(pose, f, h, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vertices.addVertex(pose, f, h, l).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vertices.addVertex(pose, j, h, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        vertices.addVertex(pose, j, k, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        vertices.addVertex(pose, j, k, i).setColor(r, g, b, a).setNormal(pose, -1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, f, k, i).setColor(r, g, b, a).setNormal(pose, -1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, f, k, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vertices.addVertex(pose, f, k, l).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vertices.addVertex(pose, f, k, l).setColor(r, g, b, a).setNormal(pose, 0.0F, -1.0F, 0.0F);
+        vertices.addVertex(pose, f, h, l).setColor(r, g, b, a).setNormal(pose, 0.0F, -1.0F, 0.0F);
+        vertices.addVertex(pose, f, h, l).setColor(r, g, b, a).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, j, h, l).setColor(r, g, b, a).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, j, h, l).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, -1.0F);
+        vertices.addVertex(pose, j, h, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, -1.0F);
+        vertices.addVertex(pose, f, k, l).setColor(r, g, b, a).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, j, k, l).setColor(r, g, b, a).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        vertices.addVertex(pose, j, h, l).setColor(r, g, b, a).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        vertices.addVertex(pose, j, k, l).setColor(r, g, b, a).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        vertices.addVertex(pose, j, k, i).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vertices.addVertex(pose, j, k, l).setColor(r, g, b, a).setNormal(pose, 0.0F, 0.0F, 1.0F);
     }
 
     protected void savePivotTransform(ParentType parentType, PartCustomization customization) {
@@ -559,15 +594,15 @@ public class ImmediateFiguraRenderer extends FiguraRenderer {
     }
 
     private VertexData getTexture(PartCustomization customization, FiguraTextureSet textureSet, boolean primary) {
-        RenderTypes types = primary ? customization.getPrimaryRenderType() : customization.getSecondaryRenderType();
+        FiguraRenderTypes types = primary ? customization.getPrimaryRenderType() : customization.getSecondaryRenderType();
         TextureCustomization texture = primary ? customization.primaryTexture : customization.secondaryTexture;
         VertexData ret = new VertexData();
 
-        if (types == RenderTypes.NONE)
+        if (types == FiguraRenderTypes.NONE)
             return ret;
 
         // get texture
-        ResourceLocation id = textureSet.getOverrideTexture(avatar.owner, texture);
+        Identifier id = textureSet.getOverrideTexture(avatar.owner, texture);
 
         // color
         ret.color = primary ? customization.color : customization.color2;
@@ -578,11 +613,11 @@ public class ImmediateFiguraRenderer extends FiguraRenderer {
         // get render type
         if (id != null) {
             if (translucent) {
-                ret.renderType = RenderType.itemEntityTranslucentCull(id);
+                ret.renderType = RenderTypes.itemEntityTranslucentCull(id);
                 return ret;
             }
             if (glowing) {
-                ret.renderType = RenderType.outline(id);
+                ret.renderType = RenderTypes.outline(id);
                 return ret;
             }
         }
@@ -594,9 +629,9 @@ public class ImmediateFiguraRenderer extends FiguraRenderer {
             ret.vertexOffset = FiguraMod.VERTEX_OFFSET;
 
         // Switch to cutout with fullbright if the iris emissive fix is enabled
-        if (doIrisEmissiveFix && types == RenderTypes.EMISSIVE) {
+        if (doIrisEmissiveFix && types == FiguraRenderTypes.EMISSIVE) {
             ret.fullBright = true;
-            ret.renderType = RenderTypes.TRANSLUCENT_CULL.get(id);
+            ret.renderType = FiguraRenderTypes.TRANSLUCENT_CULL.get(id);
         } else {
             ret.renderType = types.get(id);
         }

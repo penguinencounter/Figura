@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraText;
@@ -32,7 +32,7 @@ public class EmojiContainer {
     private static final Style STYLE = Style.EMPTY.withColor(ChatFormatting.WHITE);
 
     public final String name;
-    private final ResourceLocation font;
+    private final Identifier font;
     private final EmojiUnicodeLookup lookup = new EmojiUnicodeLookup();
     private final String blacklist;
 
@@ -141,7 +141,7 @@ public class EmojiContainer {
         return TextUtils.replaceInText(text, "[" + blacklist + "]", TextUtils.UNKNOWN, (s, style) -> style.getFont().equals(font), Integer.MAX_VALUE);
     }
 
-    public ResourceLocation getFont() {
+    public Identifier getFont() {
         return font;
     }
 }

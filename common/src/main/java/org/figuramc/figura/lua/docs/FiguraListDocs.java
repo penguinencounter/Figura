@@ -9,7 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -23,8 +23,8 @@ import org.figuramc.figura.mixin.input.KeyMappingAccessor;
 import org.figuramc.figura.ducks.GameEffects;
 import org.figuramc.figura.model.ParentType;
 import org.figuramc.figura.model.rendering.EntityRenderMode;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.FiguraClientCommandSource;
 import org.figuramc.figura.utils.FiguraText;
@@ -53,7 +53,7 @@ public class FiguraListDocs {
         put("iso88591", List.of("iso_8859_1"));
     }};
     private static final LinkedHashSet<String> RENDER_TYPES = new LinkedHashSet<>() {{
-        for (RenderTypes value : RenderTypes.values())
+        for (FiguraRenderTypes value : FiguraRenderTypes.values())
             add(value.name());
     }};
     private static final LinkedHashSet<String> TEXTURE_TYPES = new LinkedHashSet<>() {{
@@ -69,7 +69,7 @@ public class FiguraListDocs {
             add(value.name());
     }};
     private static final LinkedHashSet<String> POST_EFFECTS = new LinkedHashSet<>() {{
-        for (ResourceLocation effect : GameEffects.getEffects()) {
+        for (Identifier effect : GameEffects.getEffects()) {
             String[] split = effect.getPath().split("/");
             String name = split[split.length - 1];
             add(name.split("\\.")[0]);
@@ -114,14 +114,14 @@ public class FiguraListDocs {
             add(value.name());
     }};
     private static final LinkedHashSet<String> REGISTRIES = new LinkedHashSet<>() {{
-        for (ResourceLocation resourceLocation : BuiltInRegistries.REGISTRY.keySet())
+        for (Identifier resourceLocation : BuiltInRegistries.REGISTRY.keySet())
             add(resourceLocation.getPath());
     }};
 
     private enum ListDoc {
         KEYBINDS(() -> FiguraListDocs.KEYBINDS, "Keybinds", "keybinds", 2),
         PARENT_TYPES(() -> FiguraListDocs.PARENT_TYPES, "ParentTypes", "parent_types", 1),
-        RENDER_TYPES(() -> FiguraListDocs.RENDER_TYPES, "RenderTypes", "render_types", 1),
+        RENDER_TYPES(() -> FiguraListDocs.RENDER_TYPES, "FiguraRenderTypes", "render_types", 1),
         TEXTURE_TYPES(() -> FiguraListDocs.TEXTURE_TYPES, "TextureTypes", "texture_types", 1),
         KEY_IDS(() -> new LinkedHashSet<>() {{this.addAll(KeyMappingAccessor.getAll().keySet());}}, "KeyIDs", "key_ids", 2),
         ENTITY_POSES(() -> FiguraListDocs.ENTITY_POSES, "EntityPoses", "entity_poses", 2),

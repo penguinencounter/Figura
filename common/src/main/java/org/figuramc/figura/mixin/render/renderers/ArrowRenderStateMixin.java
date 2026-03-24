@@ -1,7 +1,6 @@
 package org.figuramc.figura.mixin.render.renderers;
 
 import net.minecraft.client.renderer.entity.state.ArrowRenderState;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.figuramc.figura.ducks.FiguraProjectileRenderStateExtension;
 import org.spongepowered.asm.mixin.Mixin;

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.gui.widgets.lists.PlayerList;
 import org.figuramc.figura.permissions.PermissionPack;
 import org.figuramc.figura.utils.FiguraIdentifier;
@@ -16,7 +16,7 @@ import org.joml.Matrix3x2fStack;
 
 public class CategoryPermPackElement extends AbstractPermPackElement {
 
-    private static final ResourceLocation BACKGROUND = new FiguraIdentifier("textures/gui/group_permissions.png");
+    private static final Identifier BACKGROUND = new FiguraIdentifier("textures/gui/group_permissions.png");
     private boolean enabled;
 
     public CategoryPermPackElement(int width, PermissionPack pack, PlayerList parent) {
@@ -25,7 +25,7 @@ public class CategoryPermPackElement extends AbstractPermPackElement {
     }
 
     @Override
-    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+    public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
         Matrix3x2fStack pose = gui.pose();
         int width = getWidth();
         int height = getHeight();

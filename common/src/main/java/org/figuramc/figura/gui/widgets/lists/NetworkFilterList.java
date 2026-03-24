@@ -2,7 +2,7 @@ package org.figuramc.figura.gui.widgets.lists;
 
 import net.minecraft.client.gui.GuiGraphics;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.config.ConfigType;
 import org.figuramc.figura.gui.widgets.*;
 import org.figuramc.figura.lua.api.net.NetworkingAPI;
@@ -182,7 +182,7 @@ public class NetworkFilterList extends AbstractList {
     }
 
     public static class NetworkFilterEntry extends AbstractContainerElement {
-        private static final ResourceLocation deleteButtonLocation = new ResourceLocation("figura", "textures/gui/delete.png");
+        private static final Identifier deleteButtonLocation = new Identifier("figura", "textures/gui/delete.png");
         private final NetworkingAPI.Filter sourceFilter;
         private final IconButton deleteButton;
         private final TextField filterTextField;

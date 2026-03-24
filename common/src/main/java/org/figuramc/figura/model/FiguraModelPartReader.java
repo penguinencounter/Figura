@@ -18,8 +18,8 @@ import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.model.rendering.Vertex;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.utils.MathUtils;
 
 import java.util.*;
@@ -48,12 +48,12 @@ public class FiguraModelPartReader {
 
         if (partCompound.contains("primary")) {
             try {
-                customization.setPrimaryRenderType(RenderTypes.valueOf(partCompound.getStringOr("primary", "")));
+                customization.setPrimaryRenderType(FiguraRenderTypes.valueOf(partCompound.getStringOr("primary", "")));
             } catch (Exception ignored) {}
         }
         if (partCompound.contains("secondary")) {
             try {
-                customization.setSecondaryRenderType(RenderTypes.valueOf(partCompound.getStringOr("secondary", "")));
+                customization.setSecondaryRenderType(FiguraRenderTypes.valueOf(partCompound.getStringOr("secondary", "")));
             } catch (Exception ignored) {}
         }
 

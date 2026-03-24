@@ -7,7 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import org.figuramc.figura.lua.api.world.WorldAPI;
@@ -80,7 +80,7 @@ public class NbtToLua {
         DynamicOps<Tag> dynamicOps = WorldAPI.getCurrentWorld().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         components.forEach(typedDataComponent -> {
             Optional<Tag> optional = typedDataComponent.encodeValue(dynamicOps).result();
-            ResourceLocation resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
+            Identifier resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
             if (optional.isPresent() && resourceLocation != null){
                 tag.put(resourceLocation.toString(), optional.get());
             }

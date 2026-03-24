@@ -3,8 +3,8 @@ package org.figuramc.figura.gui.widgets;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.ui.UIHelper;
@@ -13,7 +13,7 @@ public class SliderWidget extends ScrollBarWidget {
 
     // -- fields -- // 
 
-    public static final ResourceLocation SLIDER_TEXTURE = new FiguraIdentifier("textures/gui/slider.png");
+    public static final Identifier SLIDER_TEXTURE = new FiguraIdentifier("textures/gui/slider.png");
 
     protected final int headHeight = 11;
     protected final int headWidth = 11;

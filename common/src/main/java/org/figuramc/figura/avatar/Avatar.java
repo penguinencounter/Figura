@@ -11,7 +11,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -26,7 +26,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -643,7 +643,7 @@ public class Avatar {
         FiguraMod.pushProfiler("firstPersonWorldRender");
 
         int light = Minecraft.getInstance().getEntityRenderDispatcher().getPackedLightCoords(watcher, tickDelta);
-        Vec3 camPos = camera.getPosition();
+        Vec3 camPos = camera.position();
 
         worldRender(watcher, camPos.x, camPos.y, camPos.z, matrices, bufferSource, light, tickDelta, EntityRenderMode.FIRST_PERSON_WORLD);
 
@@ -777,7 +777,7 @@ public class Avatar {
         return comp > 0 && luaRuntime != null && !luaRuntime.vanilla_model.HEAD.checkVisible();
     }
 
-    public boolean submitPortraitDraw(GuiGraphics gui, ResourceLocation fallback, int x, int y, int size, float modelScale, boolean upsideDown) {
+    public boolean submitPortraitDraw(GuiGraphics gui, Identifier fallback, int x, int y, int size, float modelScale, boolean upsideDown) {
         if (!Configs.AVATAR_PORTRAIT.value || renderer == null || !loaded)
             return false;
 

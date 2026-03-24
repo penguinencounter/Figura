@@ -8,7 +8,7 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.mixin.render.MissingTextureAtlasSpriteAccessor;
@@ -40,7 +40,7 @@ public class TextureCustomization {
     public FiguraTexture getTexture(Avatar avatar, FiguraTextureSet textureSet) {
         if (avatar.render == null) return null;
 
-        ResourceLocation resourceLocation = textureSet.getOverrideTexture(avatar.owner, this);
+        Identifier resourceLocation = textureSet.getOverrideTexture(avatar.owner, this);
         String name = resourceLocation.toString();
         if (avatar.renderer.customTextures.containsKey(name)) {
             return avatar.renderer.customTextures.get(name);

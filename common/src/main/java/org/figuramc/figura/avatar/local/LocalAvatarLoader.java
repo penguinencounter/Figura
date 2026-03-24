@@ -1,9 +1,10 @@
 package org.figuramc.figura.avatar.local;
 
-import net.minecraft.Util;
+
 import net.minecraft.nbt.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.Util;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.avatar.UserData;
@@ -42,14 +43,14 @@ public class LocalAvatarLoader {
 
     private static WatchService watcher;
 
-    public static final HashMap<ResourceLocation, CompoundTag> CEM_AVATARS = new HashMap<>();
+    public static final HashMap<Identifier, CompoundTag> CEM_AVATARS = new HashMap<>();
     public static final FiguraResourceListener AVATAR_LISTENER = FiguraResourceListener.createResourceListener("cem", manager -> {
         CEM_AVATARS.clear();
         AvatarManager.clearCEMAvatars();
 
-        for (Map.Entry<ResourceLocation, Resource> cem : manager.listResources("cem", location -> location.getNamespace().equals(FiguraMod.MOD_ID) && location.getPath().endsWith(".nbt")).entrySet()) {
+        for (Map.Entry<Identifier, Resource> cem : manager.listResources("cem", location -> location.getNamespace().equals(FiguraMod.MOD_ID) && location.getPath().endsWith(".nbt")).entrySet()) {
             // id
-            ResourceLocation key = cem.getKey();
+            Identifier key = cem.getKey();
             String[] split = key.getPath().split("/");
             if (split.length <= 1)
                 continue;
@@ -57,7 +58,7 @@ public class LocalAvatarLoader {
             String namespace = split[split.length - 2];
             String path = split[split.length - 1];
             // This is a 4 because .nbt has 4 characters
-            ResourceLocation id = new ResourceLocation(namespace, path.substring(0, path.length() - 4));
+            Identifier id = new Identifier(namespace, path.substring(0, path.length() - 4));
 
             // nbt
             CompoundTag nbt;

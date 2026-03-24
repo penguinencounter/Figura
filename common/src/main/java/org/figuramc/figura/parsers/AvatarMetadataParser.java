@@ -9,7 +9,7 @@ import net.minecraft.nbt.*;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.model.ParentType;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 import org.figuramc.figura.utils.PathUtils;
 import org.figuramc.figura.utils.Version;
 
@@ -146,14 +146,14 @@ public class AvatarMetadataParser {
         }
         if (customization.primaryRenderType != null) {
             try {
-                modelPart.putString("primary", RenderTypes.valueOf(customization.primaryRenderType.toUpperCase(Locale.US)).name());
+                modelPart.putString("primary", FiguraRenderTypes.valueOf(customization.primaryRenderType.toUpperCase(Locale.US)).name());
             } catch (Exception ignored) {
                 throw new IOException("Invalid render type \"" + customization.primaryRenderType + "\"!");
             }
         }
         if (customization.secondaryRenderType != null) {
             try {
-                modelPart.putString("secondary", RenderTypes.valueOf(customization.secondaryRenderType.toUpperCase(Locale.US)).name());
+                modelPart.putString("secondary", FiguraRenderTypes.valueOf(customization.secondaryRenderType.toUpperCase(Locale.US)).name());
             } catch (Exception ignored) {
                 throw new IOException("Invalid render type \"" + customization.secondaryRenderType + "\"!");
             }

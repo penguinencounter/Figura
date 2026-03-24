@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
@@ -164,7 +164,7 @@ public class PlayerList extends AbstractList {
 
             // get player data
             String name = player.getProfile().name();
-            ResourceLocation skin = player.getSkin().body().texturePath();
+            Identifier skin = player.getSkin().body().texturePath();
             Avatar avatar = AvatarManager.getAvatarForPlayer(uuid);
 
             // filter check

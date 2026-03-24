@@ -6,10 +6,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
@@ -160,12 +160,12 @@ public class FiguraToast implements Toast {
         ERROR(new FiguraIdentifier("textures/gui/toast/error.png"), 4, 160, 31, 0xFF0000),
         CHEESE(new FiguraIdentifier("textures/gui/toast/cheese.png"), 1, 160, 31, ColorUtils.Colors.CHEESE.hex);
 
-        private final ResourceLocation texture;
+        private final Identifier texture;
         private final int frames;
         private final Style style;
         private final int width, spacing;
 
-        ToastType(ResourceLocation texture, int frames, int width, int spacing, int color) {
+        ToastType(Identifier texture, int frames, int width, int spacing, int color) {
             this.texture = texture;
             this.frames = frames;
             this.width = width;

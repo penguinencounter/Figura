@@ -7,6 +7,8 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -325,7 +327,7 @@ public class WorldAPI {
             value = "world.get_moon_phase"
     )
     public static int getMoonPhase() {
-        return getCurrentWorld().getMoonPhase();
+        return getCurrentWorld().environmentAttributes().getDimensionValue(EnvironmentAttributes.MOON_PHASE).index();
     }
 
     @LuaWhitelist
@@ -479,7 +481,7 @@ public class WorldAPI {
     @LuaMethodDoc("world.get_dimension")
     public static String getDimension() {
         Level world = getCurrentWorld();
-        return world.dimension().location().toString();
+        return world.dimension().identifier().toString();
     }
 
     @LuaWhitelist

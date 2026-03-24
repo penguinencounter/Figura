@@ -6,9 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.entries.FiguraScreen;
@@ -24,7 +23,7 @@ import java.util.function.Function;
 
 public class PanelSelectorWidget extends AbstractContainerElement {
 
-    public static final ResourceLocation BACKGROUND = new FiguraIdentifier("textures/gui/panels_background.png");
+    public static final Identifier BACKGROUND = new FiguraIdentifier("textures/gui/panels_background.png");
 
     private static final List<Function<Screen, Pair<Screen, PanelIcon>>> PANELS = new ArrayList<>() {{
                 add(s -> Pair.of(new ProfileScreen(s), PanelIcon.PROFILE));
@@ -149,8 +148,8 @@ public class PanelSelectorWidget extends AbstractContainerElement {
 
     private static class PanelButton extends IconButton {
 
-        public static final ResourceLocation TEXTURE = new FiguraIdentifier("textures/gui/panels_button.png");
-        public static final ResourceLocation ICONS = new FiguraIdentifier("textures/gui/panels.png");
+        public static final Identifier TEXTURE = new FiguraIdentifier("textures/gui/panels_button.png");
+        public static final Identifier ICONS = new FiguraIdentifier("textures/gui/panels.png");
 
         private final PanelSelectorWidget parent;
 
@@ -160,8 +159,8 @@ public class PanelSelectorWidget extends AbstractContainerElement {
         }
 
         @Override
-        public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
-            super.renderWidget(gui, mouseX, mouseY, delta);
+        public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+            super.renderContents(gui, mouseX, mouseY, delta);
             boolean iconOnly = iconsOnly();
 
             if (iconOnly && this.isMouseOver(mouseX, mouseY))

@@ -4,7 +4,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
@@ -50,7 +50,7 @@ public class FiguraMod {
     public static boolean parseMessages = true;
     public static boolean processingKeybind;
     public static KeyMapping.Category FIGURA_KEY_CATEGORY = new KeyMapping.Category(new FiguraIdentifier("keys"));
-    public static ResourceLocation FIGURA_DEBUG_KEY = new ResourceLocation(MOD_ID, "figura_debug_info");
+    public static Identifier FIGURA_DEBUG_KEY = new Identifier(MOD_ID, "figura_debug_info");
 
     /* For some reason, the mod menu entrypoint (or something) is able to call this before the Config
     class can initialize, meaning Configs.DEBUG_MODE can be null when this is called.... Weird */

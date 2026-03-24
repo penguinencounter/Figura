@@ -3,7 +3,7 @@ package org.figuramc.figura.avatar;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
 import org.figuramc.figura.lua.api.sound.SoundAPI;
@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class Badges {
 
-    public static final ResourceLocation FONT = new FiguraIdentifier("badges");
+    public static final Identifier FONT = new FiguraIdentifier("badges");
 
     public static Component fetchBadges(UUID id) {
         if (PermissionManager.get(id).getCategory() == Permissions.Category.BLOCKED)

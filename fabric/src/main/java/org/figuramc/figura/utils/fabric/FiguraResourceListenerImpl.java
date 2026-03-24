@@ -1,7 +1,7 @@
 package org.figuramc.figura.utils.fabric;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.FiguraResourceListener;
@@ -17,7 +17,7 @@ public class FiguraResourceListenerImpl extends FiguraResourceListener implement
         return new FiguraResourceListenerImpl(id, reloadConsumer);
     }
 
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return new FiguraIdentifier(this.id());
     }
 

@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -62,7 +62,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
 
     @Shadow @Final private Camera mainCamera;
     @Shadow @Nullable
-    private ResourceLocation postEffectId;
+    private Identifier postEffectId;
 
     @Shadow @Final private CrossFrameResourcePool resourcePool;
     @Shadow private float fovModifier;
@@ -146,7 +146,7 @@ public abstract class GameRendererMixin implements GameRendererAccessor {
             return;
         }
 
-        ResourceLocation resource = avatar.luaRuntime.renderer.postShader;
+        Identifier resource = avatar.luaRuntime.renderer.postShader;
         if (resource == null) {
             if (avatarPostShader) {
                 avatarPostShader = false;

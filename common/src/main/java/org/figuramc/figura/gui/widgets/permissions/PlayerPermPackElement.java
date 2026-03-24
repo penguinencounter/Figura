@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.figuramc.figura.avatar.Avatar;
@@ -34,12 +34,12 @@ import java.util.UUID;
 
 public class PlayerPermPackElement extends AbstractPermPackElement {
 
-    public static final ResourceLocation UNKNOWN = new FiguraIdentifier("textures/gui/unknown_portrait.png");
-    private static final ResourceLocation BACKGROUND = new FiguraIdentifier("textures/gui/player_permissions.png");
+    public static final Identifier UNKNOWN = new FiguraIdentifier("textures/gui/unknown_portrait.png");
+    private static final Identifier BACKGROUND = new FiguraIdentifier("textures/gui/player_permissions.png");
     private static final Component DC_TEXT = FiguraText.of("gui.permissions.disconnected").withStyle(ChatFormatting.RED);
 
     private final String name;
-    private final ResourceLocation skin;
+    private final Identifier skin;
     private final UUID owner;
     private final ContextMenu context;
     private final Label nameLabel;
@@ -52,7 +52,7 @@ public class PlayerPermPackElement extends AbstractPermPackElement {
     public int anchorX, anchorY, initialY;
     public int index;
 
-    public PlayerPermPackElement(int width, String name, PermissionPack pack, ResourceLocation skin, UUID owner, PlayerList parent) {
+    public PlayerPermPackElement(int width, String name, PermissionPack pack, Identifier skin, UUID owner, PlayerList parent) {
         super(width, 40, pack, parent);
         this.name = name;
         this.skin = skin;
@@ -106,7 +106,7 @@ public class PlayerPermPackElement extends AbstractPermPackElement {
     }
 
     @Override
-    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+    public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
         if (dragged) {
             UIHelper.fillRounded(gui, getX() - 1, getY() - 1, getWidth() + 2, getHeight() + 2, 0x40FFFFFF);
         } else {

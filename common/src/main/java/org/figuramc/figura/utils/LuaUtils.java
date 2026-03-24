@@ -17,7 +17,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -240,7 +240,7 @@ public class LuaUtils {
                     String tagStr = string.substring(string.indexOf("{"));
                     CompoundTag nbtItem = TagParser.parseCompoundFully(tagStr);
                     CompoundTag tag = new CompoundTag();
-                    tag.putString("id", ResourceLocation.read(new StringReader(string)).toString());
+                    tag.putString("id", Identifier.read(new StringReader(string)).toString());
                     tag.putInt("Count", 1);
                     tag.put("tag", nbtItem);
                     Dynamic<Tag> ops = new Dynamic<>(NbtOps.INSTANCE, tag);
@@ -411,8 +411,8 @@ public class LuaUtils {
         throw new LuaError("Illegal argument to " + methodName + "(): " + block);
     }
 
-    public static ResourceLocation parsePath(String path) {
-        DataResult<ResourceLocation> res = ResourceLocation.read(path);
+    public static Identifier parsePath(String path) {
+        DataResult<Identifier> res = Identifier.read(path);
         return res.getOrThrow(s -> {
             throw new LuaError(s);
         });
@@ -439,7 +439,7 @@ public class LuaUtils {
 
             TypedDataComponent<?> typedDataComponent = iterator.next();
             Optional<Tag> optional = typedDataComponent.encodeValue(dynamicOps).result();
-            ResourceLocation resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
+            Identifier resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
             // apparently sometimes the game will not return a string, go figure
             String op = optional.map(tag -> tag.asString().orElse(tag.toString().isEmpty() ? "" : tag.toString())).orElse("");
             if (typedDataComponent.type() == DataComponents.ITEM_NAME && optional.isPresent() && op.contains("translate"))
@@ -448,7 +448,7 @@ public class LuaUtils {
             if (optional.isPresent() && resourceLocation != null && !op.isEmpty()) {
                 builder.append(resourceLocation).append("=");
                 // minecraft gets super picky if you give it a resource location so this check has to be added, ew
-                ResourceLocation flag = ResourceLocation.tryParse(op);
+                Identifier flag = Identifier.tryParse(op);
                 if (optional.get().getType() == StringTag.TYPE && flag != null) {
                     builder.append("\"").append(op).append("\"");
                 } else {

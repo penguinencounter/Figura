@@ -2,7 +2,7 @@ package org.figuramc.figura.mixin.render;
 
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -14,7 +14,7 @@ import java.util.Map;
 public interface TextureAtlasAccessor {
     @Intrinsic
     @Accessor("texturesByName")
-    Map<ResourceLocation, TextureAtlasSprite> figura$getTexturesByName();
+    Map<Identifier, TextureAtlasSprite> figura$getTexturesByName();
 
     @Intrinsic
     @Invoker("getWidth")

@@ -8,10 +8,10 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GlyphSource;
@@ -33,15 +33,17 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
@@ -80,11 +82,11 @@ public final class UIHelper {
 
     // -- Variables -- // 
 
-    public static final ResourceLocation OUTLINE_FILL = new FiguraIdentifier("textures/gui/outline_fill.png");
-    public static final ResourceLocation OUTLINE = new FiguraIdentifier("textures/gui/outline.png");
-    public static final ResourceLocation TOOLTIP = new FiguraIdentifier("textures/gui/tooltip.png");
-    public static final ResourceLocation UI_FONT = new FiguraIdentifier("ui");
-    public static final ResourceLocation SPECIAL_FONT = new FiguraIdentifier("special");
+    public static final Identifier OUTLINE_FILL = new FiguraIdentifier("textures/gui/outline_fill.png");
+    public static final Identifier OUTLINE = new FiguraIdentifier("textures/gui/outline.png");
+    public static final Identifier TOOLTIP = new FiguraIdentifier("textures/gui/tooltip.png");
+    public static final Identifier UI_FONT = new FiguraIdentifier("ui");
+    public static final Identifier SPECIAL_FONT = new FiguraIdentifier("special");
 
     public static final Component UP_ARROW = Component.literal("^").withStyle(Style.EMPTY.withFont(new FontDescription.Resource(UIHelper.UI_FONT)));
     public static final Component DOWN_ARROW = Component.literal("V").withStyle(Style.EMPTY.withFont(new FontDescription.Resource(UIHelper.UI_FONT)));
@@ -274,7 +276,6 @@ public final class UIHelper {
         EntityRenderer<? super LivingEntity, LivingEntityRenderState> entityRenderer = (EntityRenderer<? super LivingEntity, LivingEntityRenderState>) entityRenderDispatcher.getRenderer(entity);
         LivingEntityRenderState entityRenderState = entityRenderer.createRenderState();
         entityRenderer.extractRenderState(entity, entityRenderState,1.0F);
-        entityRenderState.hitboxesRenderState = null;
 
         GuiEntityRenderState state = new GuiEntityRenderState(entityRenderState, offset, quaternion, quaternion3, x1, y1, x2, y2, scale/entity.getScale(), ((GuiGraphicsAccessor)gui).figura$getScissorStack().peek());
         ((GuiEntityRenderStateExtension)(Object)state).setRenderMode(renderMode);
@@ -302,16 +303,11 @@ public final class UIHelper {
         GlStateManager._blendFuncSeparate(770, 771, 1, 0);
     }
 
-    private static void prepareTexture(ResourceLocation texture) {
-        enableBlend();
-        RenderSystem.setShaderTexture(0, Minecraft.getInstance().getTextureManager().getTexture(texture).getTextureView());
-    }
-
-    public static void blit(GuiGraphics gui, int x, int y, int width, int height, ResourceLocation texture) {
+    public static void blit(GuiGraphics gui, int x, int y, int width, int height, Identifier texture) {
         gui.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0f, 0f, width, height, 1, 1, 1, 1);
     }
 
-    public static void renderAnimatedBackground(GuiGraphics gui, ResourceLocation texture, float x, float y, float width, float height, float textureWidth, float textureHeight, double speed, float delta) {
+    public static void renderAnimatedBackground(GuiGraphics gui, Identifier texture, float x, float y, float width, float height, float textureWidth, float textureHeight, double speed, float delta) {
         if (speed != 0) {
             double d = (FiguraMod.ticks + delta) * speed;
             x -= d % textureWidth;
@@ -329,7 +325,7 @@ public final class UIHelper {
         renderBackgroundTexture(gui, texture, x, y, width, height, textureWidth, textureHeight);
     }
 
-    public static void renderBackgroundTexture(GuiGraphics gui, ResourceLocation texture, float x, float y, float width, float height, float textureWidth, float textureHeight) {
+    public static void renderBackgroundTexture(GuiGraphics gui, Identifier texture, float x, float y, float width, float height, float textureWidth, float textureHeight) {
         float u1 = width / textureWidth;
         float v1 = height / textureHeight;
         quad(gui, gui.pose(), x, y, width, height, -999f, 0f, u1, 0f, v1, texture);
@@ -349,11 +345,11 @@ public final class UIHelper {
         gui.fill(x + 1, y + height - 1, x + width - 1, y + height, color);
     }
 
-    public static void blitSliced(GuiGraphics gui, int x, int y, int width, int height, ResourceLocation texture) {
+    public static void blitSliced(GuiGraphics gui, int x, int y, int width, int height, Identifier texture) {
         blitSliced(gui, x, y, width, height, 0f, 0f, 15, 15, 15, 15, texture);
     }
 
-    public static void blitSliced(GuiGraphics gui, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, ResourceLocation texture) {
+    public static void blitSliced(GuiGraphics gui, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, Identifier texture) {
 
         Matrix3x2f pose = gui.pose();
 
@@ -383,11 +379,11 @@ public final class UIHelper {
 
     }
 
-    public static void renderHalfTexture(GuiGraphics gui, int x, int y, int width, int height, int textureWidth, ResourceLocation texture) {
+    public static void renderHalfTexture(GuiGraphics gui, int x, int y, int width, int height, int textureWidth, Identifier texture) {
         renderHalfTexture(gui, x, y, width, height, 0f, 0f, textureWidth, 1, textureWidth, 1, texture);
     }
 
-    public static void renderHalfTexture(GuiGraphics gui, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, ResourceLocation texture) {
+    public static void renderHalfTexture(GuiGraphics gui, int x, int y, int width, int height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, Identifier texture) {
         enableBlend();
 
         // left
@@ -404,7 +400,7 @@ public final class UIHelper {
         gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, width, height, z);
     }
 
-    private static void quad(GuiGraphics gui, Matrix3x2f pose, float x, float y, float width, float height, float u, float v, float regionWidth, float regionHeight, int textureWidth, int textureHeight, @Nullable ResourceLocation texture) {
+    private static void quad(GuiGraphics gui, Matrix3x2f pose, float x, float y, float width, float height, float u, float v, float regionWidth, float regionHeight, int textureWidth, int textureHeight, @Nullable Identifier texture) {
         float u0 = u / textureWidth;
         float v0 = v / textureHeight;
         float u1 = (u + regionWidth) / textureWidth;
@@ -412,14 +408,14 @@ public final class UIHelper {
         quad(gui, pose, x, y, width, height, 0f, u0, u1, v0, v1, texture);
     }
 
-    private static void quad(GuiGraphics gui, Matrix3x2f pose, float x, float y, float width, float height, float z, float u0, float u1, float v0, float v1, @Nullable ResourceLocation texture) {
+    private static void quad(GuiGraphics gui, Matrix3x2f pose, float x, float y, float width, float height, float z, float u0, float u1, float v0, float v1, @Nullable Identifier texture) {
         float x1 = x + width;
         float y1 = y + height;
 
         TextureSetup setup;
         if (texture != null) {
-            GpuTextureView gpuTextureView = Minecraft.getInstance().getTextureManager().getTexture(texture).getTextureView();
-            setup = TextureSetup.singleTexture(gpuTextureView);
+            AbstractTexture gpuTexture = Minecraft.getInstance().getTextureManager().getTexture(texture);
+            setup = TextureSetup.singleTexture(gpuTexture.getTextureView(), gpuTexture.getSampler());
         } else {
             setup = TextureSetup.noTexture();
         }
@@ -665,7 +661,7 @@ public final class UIHelper {
     // This is purely the outline to match vanilla, a second regular text state is also required.
     public static class OutlinedGuiTextRenderState extends GuiTextRenderState {
         public OutlinedGuiTextRenderState(Font font, FormattedCharSequence formattedCharSequence, Matrix3x2f matrix3x2f, int x, int y, int color, int outlineColor, @Nullable ScreenRectangle screenRectangle) {
-            super(font, formattedCharSequence, matrix3x2f, x, y, color, 0, false, screenRectangle);
+            super(font, formattedCharSequence, matrix3x2f, x, y, color, 0, false, false, screenRectangle);
             this.formattedCharSequence = formattedCharSequence;
             this.outlineColor = outlineColor;
         }
@@ -678,7 +674,7 @@ public final class UIHelper {
         @Override
         public Font.PreparedText ensurePrepared() {
             if (this.preparedText == null) {
-                Font.PreparedTextBuilder preparedTextBuilder = font.new PreparedTextBuilder(0, 0, outlineColor, false);
+                Font.PreparedTextBuilder preparedTextBuilder = font.new PreparedTextBuilder(0, 0, outlineColor, false, false);
 
                 for (int l = -1; l <= 1; l++) {
                     for (int m = -1; m <= 1; m++) {

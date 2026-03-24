@@ -13,10 +13,7 @@ import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.ducks.LivingEntityRendererAccessor;
 import org.figuramc.figura.lua.LuaWhitelist;
@@ -66,9 +63,9 @@ public class EntityTask extends RenderTask {
             try {
                 CameraRenderState cameraRenderState = new CameraRenderState();
                 cameraRenderState.initialized = minecraft.gameRenderer.getMainCamera().isInitialized();
-                cameraRenderState.pos = minecraft.gameRenderer.getMainCamera().getPosition();
-                cameraRenderState.blockPos = minecraft.gameRenderer.getMainCamera().getBlockPosition();
-                cameraRenderState.entityPos = minecraft.gameRenderer.getMainCamera().getEntity().getPosition(tickDelta);
+                cameraRenderState.pos = minecraft.gameRenderer.getMainCamera().position();
+                cameraRenderState.blockPos = minecraft.gameRenderer.getMainCamera().blockPosition();
+                cameraRenderState.entityPos = minecraft.gameRenderer.getMainCamera().entity().getPosition(tickDelta);
                 cameraRenderState.orientation = new Quaternionf(minecraft.gameRenderer.getMainCamera().rotation());
 
                 EntityRenderState state = dispatcher.extractEntity(entity, tickDelta);
@@ -131,7 +128,7 @@ public class EntityTask extends RenderTask {
             }
 
             assert Minecraft.getInstance().level != null;
-            entity = EntityType.loadEntityRecursive(finalNbt, Minecraft.getInstance().level, EntitySpawnReason.SPAWN_ITEM_USE, Function.identity());
+            entity = EntityType.loadEntityRecursive(finalNbt, Minecraft.getInstance().level, EntitySpawnReason.SPAWN_ITEM_USE, EntityProcessor.NOP);
             if (entity == null) {
                 throw new LuaError("Could not create entity");
             }

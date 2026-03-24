@@ -10,7 +10,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.ui.UIHelper;
 
@@ -19,7 +19,7 @@ import java.util.List;
 
 public class ContextMenu extends AbstractContainerElement {
 
-    public static final ResourceLocation BACKGROUND = new FiguraIdentifier("textures/gui/context.png");
+    public static final Identifier BACKGROUND = new FiguraIdentifier("textures/gui/context.png");
 
     private final int minWidth;
     private final List<ContextButton> entries = new ArrayList<>();
@@ -225,7 +225,7 @@ public class ContextMenu extends AbstractContainerElement {
         }
 
         @Override
-        public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+        public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
             // draw line
             gui.fill(this.getX() + 4, getY() + 4, this.getX() + this.getWidth() - 4, getY() + 5, 0xFF000000 + ChatFormatting.DARK_GRAY.getColor());
         }
@@ -248,9 +248,9 @@ public class ContextMenu extends AbstractContainerElement {
         }
 
         @Override
-        public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+        public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
             // super
-            super.renderWidget(gui, mouseX, mouseY, delta);
+            super.renderContents(gui, mouseX, mouseY, delta);
 
             // draw arrow
             Font font = Minecraft.getInstance().font;

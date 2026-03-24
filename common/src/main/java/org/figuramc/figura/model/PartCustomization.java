@@ -1,12 +1,10 @@
 package org.figuramc.figura.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import org.figuramc.figura.math.matrix.FiguraMat3;
 import org.figuramc.figura.math.matrix.FiguraMat4;
 import org.figuramc.figura.math.vector.FiguraVec3;
-import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 
 import java.util.Stack;
 
@@ -51,7 +49,7 @@ public class PartCustomization {
     public Integer light = null;
     public Integer overlay = null;
 
-    private RenderTypes primaryRenderType, secondaryRenderType;
+    private FiguraRenderTypes primaryRenderType, secondaryRenderType;
     public TextureCustomization primaryTexture, secondaryTexture;
 
     public void applyToStack(PoseStack stack) {
@@ -299,16 +297,16 @@ public class PartCustomization {
 
     // -- Render type thingies --// 
 
-    public void setPrimaryRenderType(RenderTypes type) {
+    public void setPrimaryRenderType(FiguraRenderTypes type) {
         primaryRenderType = type;
     }
-    public RenderTypes getPrimaryRenderType() {
+    public FiguraRenderTypes getPrimaryRenderType() {
         return primaryRenderType;
     }
-    public void setSecondaryRenderType(RenderTypes type) {
+    public void setSecondaryRenderType(FiguraRenderTypes type) {
         secondaryRenderType = type;
     }
-    public RenderTypes getSecondaryRenderType() {
+    public FiguraRenderTypes getSecondaryRenderType() {
         return secondaryRenderType;
     }
 

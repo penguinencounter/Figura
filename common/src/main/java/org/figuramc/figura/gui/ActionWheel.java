@@ -9,10 +9,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
@@ -35,8 +35,8 @@ import java.util.function.Function;
 
 public class ActionWheel {
 
-    private static final ResourceLocation TEXTURE = new FiguraIdentifier("textures/gui/action_wheel.png");
-    private static final ResourceLocation ICONS = new FiguraIdentifier("textures/gui/action_wheel_icons.png");
+    private static final Identifier TEXTURE = new FiguraIdentifier("textures/gui/action_wheel.png");
+    private static final Identifier ICONS = new FiguraIdentifier("textures/gui/action_wheel_icons.png");
     private static final double DISTANCE = 41;
     private static final double DEADZONE = 19;
 

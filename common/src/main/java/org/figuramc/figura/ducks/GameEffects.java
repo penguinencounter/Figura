@@ -1,13 +1,13 @@
 package org.figuramc.figura.ducks;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 // Mojang no longer ships the effects field in GameRenderer, instead statically calling the shaders themselves
 public interface GameEffects {
 
-    static ResourceLocation[] getEffects() {
+    static Identifier[] getEffects() {
         return EFFECTS;
     }
 
-    ResourceLocation[] EFFECTS = new ResourceLocation[]{ResourceLocation.parse("shaders/post/blur.json"), ResourceLocation.parse("shaders/post/entity_outline.json"), ResourceLocation.parse("shaders/post/invert.json"), ResourceLocation.parse("shaders/post/blur.json"), ResourceLocation.parse("shaders/post/creeper.json"), ResourceLocation.parse("shaders/post/spider.json")};
+    Identifier[] EFFECTS = new Identifier[]{Identifier.parse("shaders/post/blur.json"), Identifier.parse("shaders/post/entity_outline.json"), Identifier.parse("shaders/post/invert.json"), Identifier.parse("shaders/post/blur.json"), Identifier.parse("shaders/post/creeper.json"), Identifier.parse("shaders/post/spider.json")};
 }

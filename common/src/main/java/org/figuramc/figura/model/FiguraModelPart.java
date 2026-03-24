@@ -16,9 +16,9 @@ import org.figuramc.figura.math.vector.FiguraVec3;
 import org.figuramc.figura.model.rendering.FiguraRenderer;
 import org.figuramc.figura.model.rendering.ImmediateFiguraRenderer;
 import org.figuramc.figura.model.rendering.Vertex;
+import org.figuramc.figura.model.rendering.texture.FiguraRenderTypes;
 import org.figuramc.figura.model.rendering.texture.FiguraTexture;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
-import org.figuramc.figura.model.rendering.texture.RenderTypes;
 import org.figuramc.figura.model.rendertasks.*;
 import org.figuramc.figura.utils.LuaUtils;
 import org.figuramc.figura.utils.ui.UIHelper;
@@ -662,14 +662,14 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     @LuaWhitelist
     @LuaMethodDoc("model_part.get_primary_render_type")
     public String getPrimaryRenderType() {
-        RenderTypes renderType = this.customization.getPrimaryRenderType();
+        FiguraRenderTypes renderType = this.customization.getPrimaryRenderType();
         return renderType == null ? null : renderType.name();
     }
 
     @LuaWhitelist
     @LuaMethodDoc("model_part.get_secondary_render_type")
     public String getSecondaryRenderType() {
-        RenderTypes renderType = this.customization.getSecondaryRenderType();
+        FiguraRenderTypes renderType = this.customization.getSecondaryRenderType();
         return renderType == null ? null : renderType.name();
     }
 
@@ -684,7 +684,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     )
     public FiguraModelPart setPrimaryRenderType(String type) {
         try {
-            this.customization.setPrimaryRenderType(type == null ? null : RenderTypes.valueOf(type.toUpperCase(Locale.US)));
+            this.customization.setPrimaryRenderType(type == null ? null : FiguraRenderTypes.valueOf(type.toUpperCase(Locale.US)));
             return this;
         } catch (Exception ignored) {
             throw new LuaError("Illegal RenderType: \"" + type + "\".");
@@ -702,7 +702,7 @@ public class FiguraModelPart implements Comparable<FiguraModelPart> {
     )
     public FiguraModelPart setSecondaryRenderType(String type) {
         try {
-            this.customization.setSecondaryRenderType(type == null ? null : RenderTypes.valueOf(type.toUpperCase(Locale.US)));
+            this.customization.setSecondaryRenderType(type == null ? null : FiguraRenderTypes.valueOf(type.toUpperCase(Locale.US)));
             return this;
         } catch (Exception ignored) {
             throw new LuaError("Illegal RenderType: \"" + type + "\".");

@@ -5,6 +5,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.attribute.EnvironmentAttribute;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.biome.Biome;
 import org.figuramc.figura.lua.LuaWhitelist;
 import org.figuramc.figura.lua.docs.LuaFieldDoc;
@@ -108,7 +110,7 @@ public class BiomeAPI {
     @LuaWhitelist
     @LuaMethodDoc("biome.get_sky_color")
     public FiguraVec3 getSkyColor() {
-        return ColorUtils.intToRGB(biome.getSkyColor());
+        return ColorUtils.intToRGB(biome.getAttributes().applyModifier(EnvironmentAttributes.SKY_COLOR, 0));
     }
 
     @LuaWhitelist
@@ -127,7 +129,7 @@ public class BiomeAPI {
     @LuaWhitelist
     @LuaMethodDoc("biome.get_fog_color")
     public FiguraVec3 getFogColor() {
-        return ColorUtils.intToRGB(biome.getFogColor());
+        return ColorUtils.intToRGB(biome.getAttributes().applyModifier(EnvironmentAttributes.FOG_COLOR, 0));
     }
 
     @LuaWhitelist
@@ -139,7 +141,7 @@ public class BiomeAPI {
     @LuaWhitelist
     @LuaMethodDoc("biome.get_water_fog_color")
     public FiguraVec3 getWaterFogColor() {
-        return ColorUtils.intToRGB(biome.getWaterFogColor());
+        return ColorUtils.intToRGB(biome.getAttributes().applyModifier(EnvironmentAttributes.WATER_FOG_COLOR, 0));
     }
 
     @LuaWhitelist

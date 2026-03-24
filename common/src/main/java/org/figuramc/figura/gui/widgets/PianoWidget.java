@@ -101,7 +101,7 @@ public class PianoWidget extends AbstractContainerElement {
         }
 
         @Override
-        public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+        public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
             if (!this.isVisible())
                 return;
 

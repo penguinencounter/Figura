@@ -74,7 +74,7 @@ public class MathUtils {
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
         FiguraMat3 transformMatrix = FiguraMat3.of().set(new Matrix3f().rotation(camera.rotation()));
-        Vec3 pos = camera.getPosition();
+        Vec3 pos = camera.position();
         transformMatrix.invert();
 
         FiguraVec3 ret = vec.copy();
@@ -92,7 +92,7 @@ public class MathUtils {
         transformMatrix.scale(-1, 1,-1);
         transformMatrix.invert();
 
-        Vec3 camPos = camera.getPosition();
+        Vec3 camPos = camera.position();
         FiguraVec3 posDiff = worldSpace.copy().subtract(camPos.x, camPos.y, camPos.z);
         Vector3f camSpace = posDiff.asVec3f();
         transformMatrix.transform(camSpace);

@@ -1,27 +1,6 @@
 package org.figuramc.figura.mixin.compat;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.world.entity.EquipmentSlot;
-import org.figuramc.figura.avatar.Avatar;
-import org.figuramc.figura.ducks.GeckolibGeoArmorAccessor;
-import org.figuramc.figura.lua.api.vanilla_model.VanillaPart;
-import org.figuramc.figura.model.ParentType;
-import org.figuramc.figura.permissions.Permissions;
-import org.figuramc.figura.utils.RenderUtils;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
 

@@ -2,7 +2,7 @@ package org.figuramc.figura.neoforge;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,16 +37,16 @@ public class FiguraModClientNeoForge extends FiguraMod {
 
     @SubscribeEvent
     public static void registerResourceListener(AddClientReloadListenersEvent event) {
-        getResourceListeners().forEach(figuraResourceListener -> event.addListener(new ResourceLocation(FiguraMod.MOD_ID, figuraResourceListener.id()), (FiguraResourceListenerImpl)figuraResourceListener));
+        getResourceListeners().forEach(figuraResourceListener -> event.addListener(new Identifier(FiguraMod.MOD_ID, figuraResourceListener.id()), (FiguraResourceListenerImpl)figuraResourceListener));
     }
 
     @SubscribeEvent
     public static void registerOverlays(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(new ResourceLocation(FiguraMod.MOD_ID, "figura_overlay"), new GuiOverlay());
-        event.registerBelowAll(new ResourceLocation(FiguraMod.MOD_ID, "figura_underlay"), new GuiUnderlay());
+        event.registerAboveAll(new Identifier(FiguraMod.MOD_ID, "figura_overlay"), new GuiOverlay());
+        event.registerBelowAll(new Identifier(FiguraMod.MOD_ID, "figura_underlay"), new GuiUnderlay());
     }
 
-    private static final List<ResourceLocation> vanillaOverlays = new ArrayList<>();
+    private static final List<Identifier> vanillaOverlays = new ArrayList<>();
 
     public static void cancelVanillaOverlays(RenderGuiLayerEvent.Pre event) {
         if (event.getName().getNamespace().equals("minecraft")) {

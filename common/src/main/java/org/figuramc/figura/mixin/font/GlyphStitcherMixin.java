@@ -7,7 +7,7 @@ import net.minecraft.client.gui.font.FontTexture;
 import net.minecraft.client.gui.font.GlyphStitcher;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.font.glyphs.BakedSheetGlyph;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.ducks.BakedGlyphAccessor;
 import org.figuramc.figura.ducks.GlyphStitcherExtension;
 import org.figuramc.figura.font.Emojis;
@@ -29,7 +29,7 @@ public class GlyphStitcherMixin implements GlyphStitcherExtension {
 
     @Shadow
     @Final
-    private ResourceLocation texturePrefix;
+    private Identifier texturePrefix;
 
     @Redirect(method = "stitch", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/FontTexture;add(Lcom/mojang/blaze3d/font/GlyphInfo;Lcom/mojang/blaze3d/font/GlyphBitmap;)Lnet/minecraft/client/gui/font/glyphs/BakedSheetGlyph;"))
     public BakedSheetGlyph insertDataIntoBakedGlyph(FontTexture instance, GlyphInfo glyphInfo, GlyphBitmap glyphBitmap) {

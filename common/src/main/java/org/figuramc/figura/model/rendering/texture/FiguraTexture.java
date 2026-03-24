@@ -4,12 +4,15 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.AddressMode;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.TextureFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.MipmapStrategy;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureContents;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.avatar.Avatar;
@@ -98,19 +101,13 @@ public class FiguraTexture extends SimpleTexture {
     }
 
     @Override
-    public void setUseMipmaps(boolean bl) {
-        if (texture != null)
-            super.setUseMipmaps(bl);
-    }
-
-    @Override
     public @NotNull TextureContents loadContents(ResourceManager resourceManager) throws IOException {
-        return new TextureContents(copy(), new TextureMetadataSection(false, false));
+        return new TextureContents(copy(), new TextureMetadataSection(false, false, MipmapStrategy.AUTO, 0));
     }
 
     @Override
     public void apply(TextureContents textureContents) {
-        uploadIfDirty();
+        uploadIfDirty(false, false);
     }
 
     public void closeFromRenderThread() {
@@ -134,7 +131,7 @@ public class FiguraTexture extends SimpleTexture {
         ((TextureManagerAccessor) Minecraft.getInstance().getTextureManager()).getByPath().remove(this.getLocation());
     }
 
-    public void uploadIfDirty() {
+    public void uploadIfDirty(boolean clamp, boolean blur) {
         if (!registered) {
             Minecraft.getInstance().getTextureManager().register(this.getLocation(), this);
             registered = true;
@@ -143,17 +140,19 @@ public class FiguraTexture extends SimpleTexture {
         if (dirty && !isClosed && nativeImageTexture != null) {
             dirty = false;
 
-            this.doLoad(nativeImageTexture, false, false);
+            AddressMode addressMode = clamp ? AddressMode.CLAMP_TO_EDGE : AddressMode.REPEAT;
+            FilterMode filterMode = blur ? FilterMode.LINEAR : FilterMode.NEAREST;
+            this.sampler = RenderSystem.getSamplerCache().getSampler(addressMode, addressMode, filterMode, filterMode, false);
+
+            this.doLoad(nativeImageTexture);
         }
     }
 
     @Override
-    public void doLoad(NativeImage nativeImage, boolean bl, boolean bl2) {
+    protected void doLoad(NativeImage nativeImage) {
         GpuDevice gpuDevice = RenderSystem.getDevice();
         this.texture = gpuDevice.createTexture(this.resourceId()::toString, 5, TextureFormat.RGBA8, nativeImage.getWidth(), nativeImage.getHeight(), 1, 1);
         this.textureView = gpuDevice.createTextureView(this.texture);
-        this.setFilter(bl, false);
-        this.setClamp(bl2);
         gpuDevice.createCommandEncoder().writeToTexture(this.texture, nativeImage);
     }
 
@@ -181,7 +180,7 @@ public class FiguraTexture extends SimpleTexture {
         return nativeImageTexture.getHeight();
     }
 
-    public ResourceLocation getLocation() {
+    public Identifier getLocation() {
         return this.resourceId();
     }
 

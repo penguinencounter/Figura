@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.avatar.local.LocalAvatarFetcher;
 import org.figuramc.figura.font.Emojis;
@@ -18,7 +18,7 @@ import org.figuramc.figura.utils.ui.UIHelper;
 
 public class AvatarWidget extends AbstractAvatarWidget {
 
-    public static final ResourceLocation MISSING_ICON = new FiguraIdentifier("textures/gui/unknown_icon.png");
+    public static final Identifier MISSING_ICON = new FiguraIdentifier("textures/gui/unknown_icon.png");
 
     public AvatarWidget(int depth, int width, LocalAvatarFetcher.AvatarPath avatar, AvatarList parent) {
         super(depth, width, 24, avatar, parent);
@@ -30,8 +30,8 @@ public class AvatarWidget extends AbstractAvatarWidget {
             AvatarList.selectedEntry = avatar.getTheActualPathForThis();
         }) {
             @Override
-            public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
-                super.renderWidget(gui, mouseX, mouseY, delta);
+            public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+                super.renderContents(gui, mouseX, mouseY, delta);
 
                 // selected border
                 if (instance.isOf(AvatarList.selectedEntry))
@@ -50,7 +50,7 @@ public class AvatarWidget extends AbstractAvatarWidget {
 
                 // icon
                 FileTexture texture = avatar.getIcon();
-                ResourceLocation icon = texture == null ? MISSING_ICON : texture.getLocation();
+                Identifier icon = texture == null ? MISSING_ICON : texture.getLocation();
                 UIHelper.blit(gui, x, y, 20, 20, icon);
 
                 // name

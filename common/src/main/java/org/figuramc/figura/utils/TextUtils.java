@@ -8,7 +8,9 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.*;
@@ -16,6 +18,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.StringDecomposer;
 import org.figuramc.figura.gui.FiguraFunctionClickEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -512,6 +515,11 @@ public class TextUtils {
         }
     }
 
+    public static Style componentStyleAtWidth(Font font, Component text, int pos) {
+        StringSplitter.WidthLimitedCharSink widthLimitedCharSink = font.getSplitter().new WidthLimitedCharSink((float) pos);
+        return text.visit((style, string) -> StringDecomposer.iterateFormatted(string, style, widthLimitedCharSink) ? Optional.empty() : Optional.of(style), Style.EMPTY).orElse(null);
+    }
+
     public enum Alignment {
         LEFT((font, component) -> 0, i -> 0),
         RIGHT((font, component) -> font.width(component), i -> i),
@@ -531,6 +539,14 @@ public class TextUtils {
 
         public int apply(int width) {
             return integerFunction.apply(width);
+        }
+
+        public TextAlignment toVanilla() {
+            return switch (this) {
+                case LEFT -> TextAlignment.LEFT;
+                case RIGHT -> TextAlignment.RIGHT;
+                case CENTER -> TextAlignment.CENTER;
+            };
         }
     }
 

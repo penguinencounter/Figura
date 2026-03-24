@@ -6,16 +6,15 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.ui.UIHelper;
 
 public class Button extends net.minecraft.client.gui.components.Button implements FiguraWidget {
 
     // default textures
-    private static final ResourceLocation TEXTURE = new FiguraIdentifier("textures/gui/button.png");
+    private static final Identifier TEXTURE = new FiguraIdentifier("textures/gui/button.png");
 
     // texture data
     protected Integer u;
@@ -24,7 +23,7 @@ public class Button extends net.minecraft.client.gui.components.Button implement
     protected final Integer textureWidth;
     protected final Integer textureHeight;
     protected final Integer regionSize;
-    protected final ResourceLocation texture;
+    protected final Identifier texture;
 
     // extra fields
     protected Component tooltip;
@@ -32,7 +31,7 @@ public class Button extends net.minecraft.client.gui.components.Button implement
     private boolean hasBackground = true;
 
     // texture and text constructor
-    public Button(int x, int y, int width, int height, Integer u, Integer v, Integer regionSize, ResourceLocation texture, Integer textureWidth, Integer textureHeight, Component text, Component tooltip, OnPress pressAction) {
+    public Button(int x, int y, int width, int height, Integer u, Integer v, Integer regionSize, Identifier texture, Integer textureWidth, Integer textureHeight, Component text, Component tooltip, OnPress pressAction) {
         super(x, y, width, height, text, pressAction, DEFAULT_NARRATION);
 
         this.u = u;
@@ -50,12 +49,12 @@ public class Button extends net.minecraft.client.gui.components.Button implement
     }
 
     // texture constructor
-    public Button(int x, int y, int width, int height, int u, int v, int regionSize, ResourceLocation texture, int textureWidth, int textureHeight, Component tooltip, OnPress pressAction) {
+    public Button(int x, int y, int width, int height, int u, int v, int regionSize, Identifier texture, int textureWidth, int textureHeight, Component tooltip, OnPress pressAction) {
         this(x, y, width, height, u, v, regionSize, texture, textureWidth, textureHeight, Component.empty(), tooltip, pressAction);
     }
 
     @Override
-    public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float delta) {
+    public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
         if (!this.isVisible())
             return;
 
