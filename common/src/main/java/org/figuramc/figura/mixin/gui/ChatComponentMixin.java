@@ -42,7 +42,7 @@ public class ChatComponentMixin {
 
     @Shadow @Final private Minecraft minecraft;
     @Unique private Integer color;
-    @Unique private int currColor;
+    @Unique private static int currColor;
 
     @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void injectAddMessage(Component message, MessageSignature signature, GuiMessageTag tag, CallbackInfo ci, @Local(argsOnly = true) LocalRef<Component> localMessageRef) {
@@ -168,25 +168,25 @@ public class ChatComponentMixin {
             ci.cancel();
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Ljava/util/List;add(ILjava/lang/Object;)V"), method = "addMessageToDisplayQueue")
-    private Object addMessagesDisplayQueue(int index, Object message) {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V"), method = "addMessageToDisplayQueue")
+    private Object addMessagesDisplayQueue(Object message) {
         if (color != null) ((GuiMessageAccessor) message).figura$setColor(color);
         return message;
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Ljava/util/List;add(ILjava/lang/Object;)V"), method = "addMessageToQueue")
-    private Object addMessagesQueue(int index, Object message) {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Ljava/util/List;addFirst(Ljava/lang/Object;)V"), method = "addMessageToQueue")
+    private Object addMessagesQueue(Object message) {
         if (color != null) ((GuiMessageAccessor) message).figura$setColor(color);
         return message;
     }
 
-    @ModifyVariable(at = @At("HEAD"), method = "method_71992", argsOnly = true)
-    private GuiMessage.Line grabColor(GuiMessage.Line value) {
+    @ModifyVariable(at = @At("HEAD"), method = "method_75802", argsOnly = true)
+    private static GuiMessage.Line grabColor(GuiMessage.Line value) {
         currColor = ((GuiMessageAccessor) (Object) value).figura$getColor();
         return value;
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V", ordinal = 0), method = "render", index = 4)
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;fill(IIIII)V", ordinal = 0), method = "render(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IIZ)V", index = 4)
     private int textBackgroundOnRender(int color) {
         return color + currColor;
     }

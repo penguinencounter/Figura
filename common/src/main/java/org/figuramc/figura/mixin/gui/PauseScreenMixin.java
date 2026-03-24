@@ -90,7 +90,7 @@ public class PauseScreenMixin extends Screen {
                     setMessage(getMessage().copy().withStyle(color));
 
                     renderVanillaBackground(gui, mouseX, mouseY, delta);
-                    super.renderWidget(gui, mouseX, mouseY, delta);
+                    super.renderContents(gui, mouseX, mouseY, delta);
                 }
 
                 @Override
@@ -101,7 +101,7 @@ public class PauseScreenMixin extends Screen {
                 @Override
                 public void renderContents(GuiGraphics gui, int mouseX, int mouseY, float delta) {
                     renderVanillaBackground(gui, mouseX, mouseY, delta);
-                    super.renderWidget(gui, mouseX, mouseY, delta);
+                    super.renderContents(gui, mouseX, mouseY, delta);
                 }
 
                 @Override

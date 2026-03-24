@@ -3,6 +3,8 @@ package org.figuramc.figura.mixin.gui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.SplashRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import org.figuramc.figura.FiguraMod;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,17 +24,15 @@ public class SplashRendererMixin {
         gui = graphics;
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;width(Ljava/lang/String;)I"))
-    private String getSplashWidth(String text) {
-        return FiguraMod.splashText == null ? text : FiguraMod.splashText.getString();
+    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;width(Lnet/minecraft/network/chat/FormattedText;)I"))
+    private FormattedText getSplashWidth(FormattedText formattedText) {
+        return FiguraMod.splashText == null ? formattedText : FiguraMod.splashText;
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawCenteredString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V"))
-    private String drawSplashText(Font font, String text, int centerX, int y, int color) {
+    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/ActiveTextCollector;accept(Lnet/minecraft/client/gui/TextAlignment;IILnet/minecraft/client/gui/ActiveTextCollector$Parameters;Lnet/minecraft/network/chat/Component;)V"), index = 4)
+    private Component drawSplashText(Component component) {
         if (FiguraMod.splashText == null || gui == null)
-            return text;
-
-        gui.drawCenteredString(font, FiguraMod.splashText, centerX, y, color);
-        return "";
+            return component;
+        return FiguraMod.splashText;
     }
 }

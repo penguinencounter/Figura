@@ -50,7 +50,7 @@ public abstract class SoundEngineMixin implements SoundEngineAccessor {
     private final List<LuaSound> figuraHandlers = Collections.synchronizedList(new ArrayList<>());
 
     @Inject(at = @At("RETURN"), method = "<init>")
-    private void soundEngineInit(MusicManager musicManager, SoundManager soundManager, Options options, ResourceProvider resourceProvider, CallbackInfo ci) {
+    private void soundEngineInit(SoundManager soundManager, Options options, ResourceProvider resourceProvider, CallbackInfo ci) {
         figuraChannel = new ChannelAccess(this.library, this.executor);
     }
 
@@ -92,8 +92,8 @@ public abstract class SoundEngineMixin implements SoundEngineAccessor {
     }
 
     @Inject(at = @At("RETURN"), method = "updateCategoryVolume")
-    private void updateCategoryVolume(SoundSource category, CallbackInfo ci) {
-        if (!this.loaded || category != SoundSource.PLAYERS)
+    private void updateCategoryVolume(SoundSource soundSource, float f, CallbackInfo ci) {
+        if (!this.loaded || soundSource != SoundSource.PLAYERS)
             return;
 
         for (LuaSound sound : figuraHandlers)

@@ -47,7 +47,7 @@ public abstract class ItemInHandLayerMixin<S extends ArmedEntityRenderState, M e
     }
 
     @Inject(method = "submitArmWithItem", at = @At("HEAD"), cancellable = true)
-    protected void renderArmWithItemInject(S state, ItemStackRenderState itemStackRenderState, HumanoidArm humanoidArm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int light, CallbackInfo ci) {
+    protected void renderArmWithItemInject(S state, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm humanoidArm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int light, CallbackInfo ci) {
         av = AvatarManager.getAvatar(state);
 
         if (itemStackRenderState.isEmpty())

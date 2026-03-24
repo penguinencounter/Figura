@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemStack;
 import org.figuramc.figura.avatar.Avatar;
 import org.figuramc.figura.avatar.AvatarManager;
 import org.figuramc.figura.ducks.FiguraItemStackRenderStateExtension;
@@ -45,8 +46,8 @@ public abstract class PlayerItemInHandLayerMixin <S extends AvatarRenderState, M
     @Unique
     S figura$renderState;
 
-    @Inject(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At("HEAD"))
-    void captureState(S avatarRenderState, ItemStackRenderState itemStackRenderState, HumanoidArm humanoidArm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
+    @Inject(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At("HEAD"))
+    void captureState(S avatarRenderState, ItemStackRenderState itemStackRenderState, ItemStack itemStack, HumanoidArm humanoidArm, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, CallbackInfo ci) {
         this.figura$renderState = avatarRenderState;
     }
 

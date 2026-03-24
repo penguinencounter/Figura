@@ -51,10 +51,7 @@ public class LevelRendererMixinFabric {
     private FeatureRenderDispatcher featureRenderDispatcher;
 
     @Inject(method = {"method_62214"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V", ordinal = 0))
-    private void renderLevelFirstPerson(GpuBufferSlice gpuBufferSlice, LevelRenderState levelRenderState, ProfilerFiller profiler,
-                                        Matrix4f matrix4f, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, boolean bl,
-                                        Frustum frustum, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, CallbackInfo ci,
-                                        @Local PoseStack stack
+    private void renderLevelFirstPerson(GpuBufferSlice gpuBufferSlice, LevelRenderState levelRenderState, ProfilerFiller profiler, Matrix4f matrix4f, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, boolean bl, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, CallbackInfo ci, @Local PoseStack stack
     ) {
         Camera camera = this.minecraft.gameRenderer.getMainCamera();
         DeltaTracker deltaTracker = this.minecraft.getDeltaTracker();
@@ -62,7 +59,7 @@ public class LevelRendererMixinFabric {
             return;
 
         float tickDelta = deltaTracker.getGameTimeDeltaPartialTick(false);
-        Entity e = camera.getEntity();
+        Entity e = camera.entity();
         Avatar avatar = AvatarManager.getAvatar(e);
 
         if (avatar == null || !(e instanceof LivingEntity livingEntity))
@@ -83,7 +80,7 @@ public class LevelRendererMixinFabric {
             int lastIndex = ((PoseStackAccessor)stack).getLastIndex();
             stack.pushPose();
             Vec3 offset = entityRenderer.getRenderOffset(state);
-            Vec3 cam = camera.getPosition();
+            Vec3 cam = camera.position();
             stack.translate(
                     Mth.lerp(tickDelta, livingEntity.xOld, livingEntity.getX()) - cam.x() + offset.x(),
                     Mth.lerp(tickDelta, livingEntity.yOld, livingEntity.getY()) - cam.y() + offset.y(),
@@ -103,7 +100,7 @@ public class LevelRendererMixinFabric {
     }
 
     @Inject(method =  {"method_62214"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderBuffers;bufferSource()Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;"))
-    public void applyFiguraNormals(GpuBufferSlice gpuBufferSlice, LevelRenderState levelRenderState, ProfilerFiller profiler, Matrix4f matrix4f, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, boolean bl, Frustum frustum, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, CallbackInfo ci, @Local PoseStack poseStack) {
+    public void applyFiguraNormals(GpuBufferSlice gpuBufferSlice, LevelRenderState levelRenderState, ProfilerFiller profiler, Matrix4f matrix4f, ResourceHandle resourceHandle, ResourceHandle resourceHandle2, boolean bl, ResourceHandle resourceHandle3, ResourceHandle resourceHandle4, CallbackInfo ci, @Local PoseStack poseStack) {
         Avatar avatar = AvatarManager.getAvatar(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
         if (!RenderUtils.vanillaModelAndScript(avatar)) return;
 

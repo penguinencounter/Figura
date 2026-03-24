@@ -6,7 +6,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
@@ -291,9 +292,9 @@ public abstract class HumanoidArmorLayerMixinFabric<S extends HumanoidRenderStat
 
             if (k != 0) {
                 Identifier normalArmorResource = ((EquipmentLayerRendererAccessor)this.equipmentRenderer).layerTextureLookup().apply(new EquipmentLayerRenderer.LayerTextureKey(layerType, layer));
-                nodeCollector.order(order++).submitModelPart(modelPart, poseStack, RenderType.armorCutoutNoCull(normalArmorResource), light, OverlayTexture.NO_OVERLAY, null, 0, null);
+                nodeCollector.order(order++).submitModelPart(modelPart, poseStack, RenderTypes.armorCutoutNoCull(normalArmorResource), light, OverlayTexture.NO_OVERLAY, null, 0, null);
                 if (hasGlint)
-                    nodeCollector.order(order++).submitModelPart(modelPart, poseStack, RenderType.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null, 0, null);
+                    nodeCollector.order(order++).submitModelPart(modelPart, poseStack, RenderTypes.armorEntityGlint(), light, OverlayTexture.NO_OVERLAY, null, 0, null);
                 hasGlint = false;
             }
         }

@@ -103,7 +103,7 @@ public class FiguraPortraitRenderer extends PictureInPictureRenderer<FiguraPortr
             entry.textureView = gpuDevice.createTextureView(entry.texture);
             entry.depthTexture = gpuDevice.createTexture(() -> "UI " + this.getTextureLabel() + " depth texture " + avatar.name, 8, TextureFormat.DEPTH32, i, j, 1, 1);
             entry.depthTextureView = gpuDevice.createTextureView(entry.depthTexture);
-            entry.sampler = gpuDevice.createSampler(AddressMode.CLAMP_TO_EDGE, AddressMode.CLAMP_TO_EDGE, FilterMode.NEAREST, FilterMode.NEAREST, 0, OptionalDouble.empty());
+            entry.sampler = gpuDevice.createSampler(AddressMode.CLAMP_TO_EDGE, AddressMode.CLAMP_TO_EDGE, FilterMode.NEAREST, FilterMode.NEAREST, 1, OptionalDouble.empty());
         }
 
         gpuDevice.createCommandEncoder().clearColorAndDepthTextures(entry.texture, 0, entry.depthTexture, 1.0);

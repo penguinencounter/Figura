@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
@@ -396,7 +398,19 @@ public class EntityAPI<T extends Entity> {
     @LuaMethodDoc("entity.get_permission_level")
     public int getPermissionLevel() {
         checkEntity();
-        return entity instanceof Player ? ((PlayerAccessor) entity).getPermissionLevel() : 0;
+        // approx mapping check if it's correct laters
+        if (entity instanceof Player p) {
+            PermissionSet permissionSet = p.permissions();
+            if (permissionSet.hasPermission(Permissions.COMMANDS_OWNER))
+                return 4;
+            if (permissionSet.hasPermission(Permissions.COMMANDS_ADMIN))
+                return 3;
+            if (permissionSet.hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                return 2;
+            if (permissionSet.hasPermission(Permissions.COMMANDS_MODERATOR))
+                return 1;
+        }
+        return 0;
     }
 
     @LuaWhitelist
