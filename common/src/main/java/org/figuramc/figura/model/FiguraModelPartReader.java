@@ -17,6 +17,7 @@ import org.figuramc.figura.math.vector.FiguraVec4;
 import org.figuramc.figura.model.rendering.Vertex;
 import org.figuramc.figura.model.rendering.texture.FiguraTextureSet;
 import org.figuramc.figura.model.rendering.texture.RenderTypes;
+import org.figuramc.figura.parsers.BlockbenchCommonTypes;
 import org.figuramc.figura.utils.MathUtils;
 import org.figuramc.figura.utils.NbtType;
 
@@ -27,8 +28,26 @@ import java.util.*;
  * was becoming really massive. Reduces bloat slightly
  */
 public class FiguraModelPartReader {
+    public static FiguraModelPart read(
+            Avatar owner,
+            CompoundTag partCompound,
+            List<FiguraTextureSet> textureSets,
+            boolean smoothNormals
+    ) {
+        return read(owner, partCompound, textureSets, smoothNormals, null);
+    }
 
-    public static FiguraModelPart read(Avatar owner, CompoundTag partCompound, List<FiguraTextureSet> textureSets, boolean smoothNormals) {
+    public static FiguraModelPart read(
+            Avatar owner,
+            CompoundTag partCompound,
+            List<FiguraTextureSet> textureSets,
+            boolean smoothNormals,
+            Byte inheritedFormatVersion
+    ) {
+        // if not present, assume v4
+        byte formatVersion = partCompound.contains("_v") ? partCompound.getByte("_v") :
+                inheritedFormatVersion == null ? BlockbenchCommonTypes.FORMAT_V4 : inheritedFormatVersion;
+
         // Read name
         String name = partCompound.getString("name");
 
@@ -47,12 +66,14 @@ public class FiguraModelPartReader {
         if (partCompound.contains("primary")) {
             try {
                 customization.setPrimaryRenderType(RenderTypes.valueOf(partCompound.getString("primary")));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (partCompound.contains("secondary")) {
             try {
                 customization.setSecondaryRenderType(RenderTypes.valueOf(partCompound.getString("secondary")));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         if (partCompound.contains("vsb"))
@@ -85,10 +106,13 @@ public class FiguraModelPartReader {
         if (partCompound.contains("chld")) {
             ListTag listTag = partCompound.getList("chld", NbtType.COMPOUND.getValue());
             for (Tag tag : listTag)
-                children.add(read(owner, (CompoundTag) tag, textureSets, smoothNormals));
+                children.add(read(owner, (CompoundTag) tag, textureSets, smoothNormals, formatVersion));
         }
 
-        FiguraModelPart result = new FiguraModelPart(owner, name, customization, vertices, children);
+        FiguraModelPart result = new FiguraModelPart(
+                owner, name, customization, vertices,
+                children, formatVersion
+        );
 
         for (FiguraModelPart child : children)
             child.parent = result;
@@ -98,7 +122,8 @@ public class FiguraModelPartReader {
         if (partCompound.contains("pt")) {
             try {
                 result.parentType = ParentType.valueOf(partCompound.getString("pt"));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         // Read animations :D
@@ -108,7 +133,8 @@ public class FiguraModelPartReader {
                 CompoundTag compound = (CompoundTag) tag;
                 Animation animation;
 
-                if (!compound.contains("id") || !compound.contains("data") || (animation = owner.animations.get(compound.getInt("id"))) == null)
+                if (!compound.contains("id") || !compound.contains("data") || (animation = owner.animations.get(compound.getInt(
+                        "id"))) == null)
                     continue;
 
                 CompoundTag animNbt = compound.getCompound("data");
@@ -145,7 +171,10 @@ public class FiguraModelPartReader {
                         try {
                             interpolation = Interpolation.valueOf(keyframeNbt.getString("int").toUpperCase(Locale.US));
                         } catch (Exception e) {
-                            FiguraMod.LOGGER.error("Invalid interpolation type in the model {}, something is wrong with this model!", keyframeNbt.getString("int"));
+                            FiguraMod.LOGGER.error(
+                                    "Invalid interpolation type in the model {}, something is wrong with this model!",
+                                    keyframeNbt.getString("int")
+                            );
                             FiguraMod.LOGGER.error("", e);
                             continue;
                         }
@@ -168,11 +197,27 @@ public class FiguraModelPartReader {
                         bezierLeftTime = MathUtils.clamp(bezierLeftTime, 0, 1);
                         bezierRightTime = MathUtils.clamp(bezierRightTime, 0, 1);
 
-                        keyframes.add(new Keyframe(owner, animation, time, interpolation, pre, end, bezierLeft, bezierRight, bezierLeftTime, bezierRightTime));
+                        keyframes.add(new Keyframe(
+                                owner,
+                                result,
+                                type,
+                                animation,
+                                time,
+                                interpolation,
+                                pre,
+                                end,
+                                bezierLeft,
+                                bezierRight,
+                                bezierLeftTime,
+                                bezierRightTime
+                        ));
                     }
 
                     keyframes.sort(Keyframe::compareTo);
-                    animation.addAnimation(result, new Animation.AnimationChannel(type, keyframes.toArray(new Keyframe[0])));
+                    animation.addAnimation(
+                            result,
+                            new Animation.AnimationChannel(type, keyframes.toArray(new Keyframe[0]))
+                    );
                 }
             }
         }
@@ -191,7 +236,10 @@ public class FiguraModelPartReader {
             return Pair.of(ret, null);
         } else {
             ListTag stringList = keyframeNbt.getList(tag, NbtType.STRING.getValue());
-            return Pair.of(null, new String[]{stringList.getString(0), stringList.getString(1), stringList.getString(2)});
+            return Pair.of(
+                    null,
+                    new String[]{stringList.getString(0), stringList.getString(1), stringList.getString(2)}
+            );
         }
     }
 
@@ -309,42 +357,42 @@ public class FiguraModelPartReader {
         return false;
     }
     private static final Map<String, FiguraVec3[]> faceData = ImmutableMap.<String, FiguraVec3[]>builder() // booze 🥴
-            .put("n", new FiguraVec3[] {
+            .put("n", new FiguraVec3[]{
                     FiguraVec3.of(1, 0, 0),
                     FiguraVec3.of(0, 0, 0),
                     FiguraVec3.of(0, 1, 0),
                     FiguraVec3.of(1, 1, 0),
                     FiguraVec3.of(0, 0, -1)
             })
-            .put("s", new FiguraVec3[] {
+            .put("s", new FiguraVec3[]{
                     FiguraVec3.of(0, 0, 1),
                     FiguraVec3.of(1, 0, 1),
                     FiguraVec3.of(1, 1, 1),
                     FiguraVec3.of(0, 1, 1),
                     FiguraVec3.of(0, 0, 1)
             })
-            .put("e", new FiguraVec3[] {
+            .put("e", new FiguraVec3[]{
                     FiguraVec3.of(1, 0, 1),
                     FiguraVec3.of(1, 0, 0),
                     FiguraVec3.of(1, 1, 0),
                     FiguraVec3.of(1, 1, 1),
                     FiguraVec3.of(1, 0, 0)
             })
-            .put("w", new FiguraVec3[] {
+            .put("w", new FiguraVec3[]{
                     FiguraVec3.of(0, 0, 0),
                     FiguraVec3.of(0, 0, 1),
                     FiguraVec3.of(0, 1, 1),
                     FiguraVec3.of(0, 1, 0),
                     FiguraVec3.of(-1, 0, 0)
             })
-            .put("u", new FiguraVec3[] {
+            .put("u", new FiguraVec3[]{
                     FiguraVec3.of(0, 1, 1),
                     FiguraVec3.of(1, 1, 1),
                     FiguraVec3.of(1, 1, 0),
                     FiguraVec3.of(0, 1, 0),
                     FiguraVec3.of(0, 1, 0)
             })
-            .put("d", new FiguraVec3[] {
+            .put("d", new FiguraVec3[]{
                     FiguraVec3.of(0, 0, 0),
                     FiguraVec3.of(1, 0, 0),
                     FiguraVec3.of(1, 0, 1),
@@ -361,7 +409,9 @@ public class FiguraModelPartReader {
     };
 
 
-    private static void readCuboid(List<Integer> facesByTexture, CompoundTag data, Map<Integer, List<Vertex>> vertices) {
+    private static void readCuboid(List<Integer> facesByTexture,
+                                   CompoundTag data,
+                                   Map<Integer, List<Vertex>> vertices) {
         // Read from and to
         FiguraVec3 from = FiguraVec3.of();
         readVec3(from, data, "f");
@@ -384,7 +434,12 @@ public class FiguraModelPartReader {
             readFace(data.getCompound("cube_data"), facesByTexture, direction, vertices, from, ftDiff);
     }
 
-    private static void readFace(CompoundTag faces, List<Integer> facesByTexture, String direction, Map<Integer, List<Vertex>> vertices, FiguraVec3 from, FiguraVec3 ftDiff) {
+    private static void readFace(CompoundTag faces,
+                                 List<Integer> facesByTexture,
+                                 String direction,
+                                 Map<Integer, List<Vertex>> vertices,
+                                 FiguraVec3 from,
+                                 FiguraVec3 ftDiff) {
         if (faces.contains(direction)) {
             CompoundTag face = faces.getCompound(direction);
             short texId = face.getShort("tex");
