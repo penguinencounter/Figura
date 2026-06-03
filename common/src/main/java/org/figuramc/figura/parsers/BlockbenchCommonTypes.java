@@ -1,7 +1,7 @@
 package org.figuramc.figura.parsers;
 
 import com.google.gson.*;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.SerializableUUID;
 import net.minecraft.nbt.*;
 import org.figuramc.figura.math.vector.FiguraVec2;
 import org.figuramc.figura.math.vector.FiguraVec3;
@@ -228,7 +228,7 @@ public class BlockbenchCommonTypes {
             tag.putString("name", name);
             if (context.options.partsWithUUIDs) {
                 try {
-                    tag.putIntArray("nr", UUIDUtil.uuidToIntArray(UUID.fromString(uuid)));
+                    tag.putIntArray("nr", SerializableUUID.uuidToIntArray(UUID.fromString(uuid)));
                 } catch (IllegalArgumentException ignored) {
                     tag.putString("nr", uuid);
                 }

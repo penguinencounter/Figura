@@ -2,7 +2,6 @@ package org.figuramc.figura.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.*;
 import net.minecraft.util.Mth;
 import org.figuramc.figura.FiguraMod;
