@@ -3,6 +3,12 @@ plugins {
 	id "dev.architectury.loom" version "1.4-SNAPSHOT" apply false
 }
 
+if (JavaVersion.current() > JavaVersion.VERSION_17)
+	throw new GradleException(
+			"Don't build 1.16.5 with a JDK above Java 17; this will cause reflection issues at runtime.\n" +
+					"Current JDK is version ${JavaVersion.current()}."
+	)
+
 architectury {
 	minecraft = rootProject.minecraft_version
 }
