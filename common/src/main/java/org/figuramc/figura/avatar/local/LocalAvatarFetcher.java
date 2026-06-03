@@ -45,7 +45,12 @@ public class LocalAvatarFetcher {
 
         // load avatars
         FolderPath root = new FolderPath(getLocalAvatarDirectory());
-        root.fetch();
+        try {
+            root.fetch();
+        } catch (RuntimeException e) {
+            FiguraMod.LOGGER.error("Failed to fetch avatars!! This is probably a bug, or your filesystem is weird", e);
+            return;
+        }
 
         // add new avatars
         ALL_AVATARS.clear();
@@ -340,7 +345,7 @@ public class LocalAvatarFetcher {
         protected final FileSystem fileSystem;
 
         public FolderPath(FileSystem fileSystem, Path folder, Path path) {
-            super(fileSystem.getPath(""), folder, path, IOUtils.getFileNameOrEmpty(path));
+            super(fileSystem.getPath("/"), folder, path, IOUtils.getFileNameOrEmpty(path));
             this.fileSystem = fileSystem;
         }
 
