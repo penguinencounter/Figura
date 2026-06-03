@@ -160,9 +160,15 @@ public class BlockbenchCommonTypes {
 
         for (float c : fa) {
             switch (type) {
-                case 0 -> tag.add(ByteTag.valueOf((byte) c));
-                case 1 -> tag.add(ShortTag.valueOf((short) c));
-                case 2 -> tag.add(FloatTag.valueOf(c));
+                case 0:
+                    tag.add(ByteTag.valueOf((byte) c));
+                    break;
+                case 1:
+                    tag.add(ShortTag.valueOf((short) c));
+                    break;
+                case 2:
+                    tag.add(FloatTag.valueOf(c));
+                    break;
             }
         }
         return tag;
@@ -178,7 +184,7 @@ public class BlockbenchCommonTypes {
 
     public static float parseFloatOr(@Nullable String floatLike, float fallback) {
         // fail-fast the most common not-numbers
-        if (floatLike == null || floatLike.isBlank()) return fallback;
+        if (floatLike == null || floatLike.isEmpty()) return fallback;
         try {
             return Float.parseFloat(floatLike);
         } catch (NumberFormatException e) {
@@ -384,12 +390,20 @@ public class BlockbenchCommonTypes {
                     face.reorder(vert2pos);
 
                 for (String vertID : face.vertices) {
-                    Tag value = switch (intType) {
-                        case 0 -> ByteTag.valueOf(vert2idx.get(vertID).byteValue());
-                        case 1 -> ShortTag.valueOf(vert2idx.get(vertID).shortValue());
-                        case 2 -> IntTag.valueOf(vert2idx.get(vertID));
-                        default -> throw new IllegalStateException("bad int size key " + intType);
-                    };
+                    Tag value;
+                    switch (intType) {
+                        case 0:
+                            value = ByteTag.valueOf(vert2idx.get(vertID).byteValue());
+                            break;
+                        case 1:
+                            value = ShortTag.valueOf(vert2idx.get(vertID).shortValue());
+                            break;
+                        case 2:
+                            value = IntTag.valueOf(vert2idx.get(vertID));
+                            break;
+                        default:
+                            throw new IllegalStateException("bad int size key " + intType);
+                    }
                     fac.add(value);
 
                     FiguraVec2 uv = face.uv.get(vertID);
@@ -556,7 +570,8 @@ public class BlockbenchCommonTypes {
 
             if (keyframes != null)
                 for (Keyframe kf : keyframes) {
-                    if (!(kf instanceof Keyframe.Keyframe3 kf3)) continue;
+                    if (!(kf instanceof Keyframe.Keyframe3)) continue;
+                    Keyframe.Keyframe3 kf3 = (Keyframe.Keyframe3) kf;
 
                     CompoundTag kfTag = new CompoundTag();
                     kfTag.putFloat("time", kf3.time);
@@ -567,9 +582,15 @@ public class BlockbenchCommonTypes {
                     boolean transX = isV5 && (kf3.channel.equals("rotation") || kf3.channel.equals("position"));
                     boolean transY = isV5 && (kf3.channel.equals("rotation"));
                     switch (kf3.channel) {
-                        case "rotation" -> trans = rotTrans;
-                        case "position" -> trans = posTrans;
-                        default -> trans = DO_NOTHING;
+                        case "rotation":
+                            trans = rotTrans;
+                            break;
+                        case "position":
+                            trans = posTrans;
+                            break;
+                        default:
+                            trans = DO_NOTHING;
+                            break;
                     }
 
                     kfTag.put("pre", pre.toNBT(kf3.channel, transX, transY));
@@ -593,9 +614,15 @@ public class BlockbenchCommonTypes {
                     }
 
                     switch (kf3.channel) {
-                        case "position" -> pos.add(kfTag);
-                        case "rotation" -> rot.add(kfTag);
-                        case "scale" -> scale.add(kfTag);
+                        case "position":
+                            pos.add(kfTag);
+                            break;
+                        case "rotation":
+                            rot.add(kfTag);
+                            break;
+                        case "scale":
+                            scale.add(kfTag);
+                            break;
                     }
                 }
 
@@ -653,12 +680,12 @@ public class BlockbenchCommonTypes {
                     Object x = kfData(this.x, fallback), y = kfData(this.y, fallback), z = kfData(this.z, fallback);
 
                     ListTag tag = new ListTag();
-                    if (x instanceof Float xf && y instanceof Float yf && z instanceof Float zf) {
+                    if (x instanceof Float && y instanceof Float && z instanceof Float) {
                         float xs = invX ? -1f : 1f;
                         float ys = invY ? -1f : 1f;
-                        tag.add(FloatTag.valueOf(xf * xs));
-                        tag.add(FloatTag.valueOf(yf * ys));
-                        tag.add(FloatTag.valueOf(zf));
+                        tag.add(FloatTag.valueOf((Float) x * xs));
+                        tag.add(FloatTag.valueOf((Float) y * ys));
+                        tag.add(FloatTag.valueOf((Float) z));
                     } else {
                         if (invX)
                             tag.add(StringTag.valueOf(BlockbenchV5Model.negateLua(String.valueOf(x))));
@@ -689,7 +716,7 @@ public class BlockbenchCommonTypes {
         }
 
         public static Object kfData(String in, float fallback) {
-            if (in == null || in.isBlank()) return fallback;
+            if (in == null || in.isEmpty()) return fallback;
             try {
                 return Float.parseFloat(in);
             } catch (NumberFormatException e) {

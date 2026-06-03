@@ -316,7 +316,7 @@ public class ImmediateAvatarRenderer extends AvatarRenderer {
             if (renderPivot || renderTasks || renderPivotParts) {
                 // fix light and overlay
                 PartCustomization parent = customizationStack.peek();
-                int light = parent.light != null ? parent.light : LightTexture.FULL_BRIGHT;
+                int light = parent.light != null ? parent.light : (15 << 20 | 15 << 4) /* FULL_BRIGHT */;
                 int overlay = parent.overlay != null ? parent.overlay : OverlayTexture.NO_OVERLAY;
 
                 // fix pivots

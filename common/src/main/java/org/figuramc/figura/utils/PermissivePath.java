@@ -2,19 +2,17 @@ package org.figuramc.figura.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.*;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PermissivePath implements Path {
     public PermissivePath(String from) {
-        List<String> chunks = List.of(from.split("/"));
+        List<String> chunks = Arrays.asList(from.split("/"));
         boolean isAbsolute = from.startsWith("/");
         if (!chunks.isEmpty() && isAbsolute) chunks = chunks.subList(1, chunks.size());
         if (!chunks.isEmpty() && chunks.get(chunks.size() - 1).isEmpty()) chunks = chunks.subList(0, chunks.size() - 1);
@@ -22,19 +20,19 @@ public class PermissivePath implements Path {
         this.isAbsolute = isAbsolute;
     }
 
-    public static final PermissivePath ROOT = new PermissivePath(true, List.of());
+    public static final PermissivePath ROOT = new PermissivePath(true, Collections.emptyList());
 
     private final List<String> chunks;
     private final boolean isAbsolute;
 
     public PermissivePath(boolean isAbsolute, List<String> chunks) {
         // VERSIONING: replace with `new ArrayList<String>(chunks)` on 1.16.5
-        this.chunks = List.copyOf(chunks);
+        this.chunks = new ArrayList<>(chunks);
         this.isAbsolute = isAbsolute;
     }
 
     public static PermissivePath ofOneChunk(String chunk) {
-        return new PermissivePath(false, List.of(chunk));
+        return new PermissivePath(false, Collections.singletonList(chunk));
     }
 
     private static final RuntimeException exc = new IllegalArgumentException(
@@ -69,17 +67,17 @@ public class PermissivePath implements Path {
 
         @Override
         public Iterable<Path> getRootDirectories() {
-            return List.of(ROOT);
+            return Collections.singletonList(ROOT);
         }
 
         @Override
         public Iterable<FileStore> getFileStores() {
-            return List.of();
+            return Collections.emptyList();
         }
 
         @Override
         public Set<String> supportedFileAttributeViews() {
-            return Set.of();
+            return Collections.emptySet();
         }
 
         @Override
@@ -159,7 +157,6 @@ public class PermissivePath implements Path {
     @Override
     public boolean startsWith(@NotNull Path other) {
         if (!(other instanceof PermissivePath)) return false;
-        //noinspection PatternVariableCanBeUsed (Java 8 compat)
         PermissivePath other2 = (PermissivePath) other;
         if (other2.isAbsolute != this.isAbsolute) return false;
         if (other2.chunks.size() > chunks.size()) return false;
@@ -170,9 +167,13 @@ public class PermissivePath implements Path {
     }
 
     @Override
+    public boolean startsWith(@NotNull String other) {
+        return this.toString().startsWith(other);
+    }
+
+    @Override
     public boolean endsWith(@NotNull Path other) {
         if (!(other instanceof PermissivePath)) return false;
-        //noinspection PatternVariableCanBeUsed (Java 8 compat)
         PermissivePath other2 = (PermissivePath) other;
         if (other2.isAbsolute) return this.equals(other2);
         if (other2.chunks.size() > chunks.size()) return false;
@@ -180,6 +181,11 @@ public class PermissivePath implements Path {
             if (!other2.chunks.get(i).equals(chunks.get(j))) return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean endsWith(@NotNull String other) {
+        return this.toString().endsWith(other);
     }
 
     private static List<String> internalNormalize(List<String> chunks) {
@@ -196,7 +202,7 @@ public class PermissivePath implements Path {
         }
 
         // VERSIONING: just `return newChunks;` on 1.16.5
-        return List.copyOf(newChunks);
+        return newChunks;
     }
 
     @Override
@@ -207,7 +213,6 @@ public class PermissivePath implements Path {
     @Override
     public @NotNull PermissivePath resolve(@NotNull Path other) {
         if (!(other instanceof PermissivePath)) throw exc;
-        //noinspection PatternVariableCanBeUsed (Java 8 compat)
         PermissivePath other2 = (PermissivePath) other;
         if (other2.isAbsolute) return other2;
         ArrayList<String> both = new ArrayList<>(chunks.size() + other2.chunks.size());
@@ -217,9 +222,31 @@ public class PermissivePath implements Path {
     }
 
     @Override
+    public @NotNull Path resolve(@NotNull String other) {
+        return resolve(new PermissivePath(other));
+    }
+
+    @Override
+    public @NotNull Path resolveSibling(@NotNull Path other) {
+        if (!(other instanceof PermissivePath)) throw exc;
+        PermissivePath other2 = (PermissivePath) other;
+        if (other2.isAbsolute) return other2;
+        if (other2.chunks.isEmpty()) return this.getParent();
+        ArrayList<String> result = new ArrayList<>(chunks.size() - 1 + other2.chunks.size());
+        result.addAll(chunks);
+        if (!result.isEmpty()) result.remove(result.size() - 1);
+        result.addAll(other2.chunks);
+        return new PermissivePath(isAbsolute, internalNormalize(result));
+    }
+
+    @Override
+    public @NotNull Path resolveSibling(@NotNull String other) {
+        return resolveSibling(new PermissivePath(other));
+    }
+
+    @Override
     public @NotNull PermissivePath relativize(@NotNull Path other) {
         if (!(other instanceof PermissivePath)) throw exc;
-        //noinspection PatternVariableCanBeUsed (Java 8 compat)
         PermissivePath other2 = (PermissivePath) other;
         if (isAbsolute != other2.isAbsolute)
             throw new IllegalArgumentException("Cannot relativize two paths with different absoluteness");
@@ -247,6 +274,11 @@ public class PermissivePath implements Path {
     }
 
     @Override
+    public @NotNull File toFile() {
+        throw new RuntimeException("toFile is not supported on PermissivePath");
+    }
+
+    @Override
     public @NotNull WatchKey register(@NotNull WatchService watcher,
                                       WatchEvent.Kind<?> @NotNull [] events,
                                       WatchEvent.Modifier @NotNull ... modifiers) throws IOException {
@@ -254,10 +286,31 @@ public class PermissivePath implements Path {
     }
 
     @Override
+    public @NotNull WatchKey register(@NotNull WatchService watcher,
+                                      WatchEvent.@NotNull Kind<?> @NotNull ... events) throws IOException {
+        throw new FileSystemException("PermissivePath is not a real path and is not backed by an actual filesystem");
+    }
+
+    @Override
+    public @NotNull Iterator<@NotNull Path> iterator() {
+        Iterator<String> spool = chunks.iterator();
+        return new Iterator<Path>() {
+            @Override
+            public boolean hasNext() {
+                return spool.hasNext();
+            }
+
+            @Override
+            public Path next() {
+                return ofOneChunk(spool.next());
+            }
+        };
+    }
+
+    @Override
     public int compareTo(@NotNull Path other) {
         if (this.equals(other)) return 0;
         if (!(other instanceof PermissivePath)) throw exc;
-        //noinspection PatternVariableCanBeUsed (Java 8 compat)
         PermissivePath other2 = (PermissivePath) other;
         Iterator<String> it = this.chunks.iterator();
         Iterator<String> it2 = other2.chunks.iterator();
@@ -274,7 +327,6 @@ public class PermissivePath implements Path {
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof PermissivePath)) return false;
-        //noinspection PatternVariableCanBeUsed (Java 8 compat)
         PermissivePath other = (PermissivePath) obj;
         return isAbsolute == other.isAbsolute && chunks.equals(other.chunks);
     }

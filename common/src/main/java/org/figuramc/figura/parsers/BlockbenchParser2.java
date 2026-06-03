@@ -281,7 +281,7 @@ public class BlockbenchParser2 {
             // assign externally
             public final int globalID;
 
-            final String mdl = locatedWithin.isBlank() ? Intermediary.this.name : locatedWithin + Intermediary.this.name;
+            final String mdl = locatedWithin.isEmpty() ? Intermediary.this.name : locatedWithin + Intermediary.this.name;
             final String name;
             // skip if 'once'
             final String loop;
@@ -360,8 +360,9 @@ public class BlockbenchParser2 {
                     for (BlockbenchCommonTypes.Keyframe keyframe : fxAnimator.keyframes) {
                         if (!keyframe.channel.equalsIgnoreCase("timeline"))
                             continue;
-                        if (!(keyframe instanceof BlockbenchCommonTypes.Keyframe.InstructionKeyframe ik))
+                        if (!(keyframe instanceof BlockbenchCommonTypes.Keyframe.InstructionKeyframe))
                             continue;
+                        BlockbenchCommonTypes.Keyframe.InstructionKeyframe ik = (BlockbenchCommonTypes.Keyframe.InstructionKeyframe) keyframe;
                         CompoundTag kfTag = new CompoundTag();
                         kfTag.putFloat("time", ik.time);
                         kfTag.putString("src", ik.data_points[0].script);

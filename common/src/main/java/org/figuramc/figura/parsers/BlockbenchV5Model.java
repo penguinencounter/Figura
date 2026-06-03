@@ -230,7 +230,7 @@ public class BlockbenchV5Model extends ModelFormat {
             @Override
             public @Nullable CompoundTag toNBT(BlockbenchParser2.Intermediary context) {
                 UUIDReferable groupProbably = context.referents.get(uuid);
-                if (!(groupProbably instanceof Group group)) {
+                if (!(groupProbably instanceof Group)) {
                     FiguraMod.LOGGER.warn(
                             "Broken reference (in model '{}'): expected a group at UUID {} but found {} instead",
                             context.name,
@@ -240,6 +240,7 @@ public class BlockbenchV5Model extends ModelFormat {
                     );
                     return null;
                 }
+                Group group = (Group) groupProbably;
                 if (Boolean.FALSE.equals(group.export)) return null;
 
                 CompoundTag tag = new CompoundTag();
