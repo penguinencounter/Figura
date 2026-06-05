@@ -254,8 +254,8 @@ public class WardrobeScreen extends AbstractPanelScreen {
         boolean isErrorBlockingUpload = avatar != null && avatar.scriptError && !Configs.ALLOW_UPLOADING_ERRORED_AVATARS.value;
         upload.setTooltip(
                 isErrorBlockingUpload
-                        ? FiguraText.of("gui.wardrobe.upload.errored", avatar.errorText).withStyle(ChatFormatting.RED)
-                        : FiguraText.of("gui.wardrobe.upload.tooltip")
+                        ? new FiguraText("gui.wardrobe.upload.errored", avatar.errorText).withStyle(ChatFormatting.RED)
+                        : new FiguraText("gui.wardrobe.upload.tooltip")
         );
         delete.setActive(NetworkStuff.isConnected() && AvatarManager.localUploaded);
 
