@@ -24,6 +24,7 @@
     "NativeImageMixin",
     "PlayerAccessor",
     "PlayerModelMixin",
+    "PlayerSocialManagerMixin",
     "ReloadableResourceManagerMixin",
     "SkullBlockEntityAccessor",
     "SNIHelperMixin",

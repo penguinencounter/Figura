@@ -40,6 +40,9 @@ public class FiguraCommands {
         // export
         root.then(ExportCommand.getCommand());
 
+        // badge
+        root.then(BadgeCommand.getCommand());
+
         if (FiguraMod.debugModeEnabled()) {
             // backend debug
             root.then(BackendCommands.getCommand());
