@@ -183,4 +183,17 @@ public class HttpAPI {
         }
         return post;
     }
+
+    public HttpRequest setBadge(Integer badgeId) {
+        String badge = badgeId.toString();
+        return header("temp_badges").POST(HttpRequest.BodyPublishers.ofString(badge))
+                .header("Content-Type", "application/json")
+                .build();
+    }
+
+    public HttpRequest clearBadge() {
+        return header("temp_badges").POST(HttpRequest.BodyPublishers.ofString("null"))
+                .header("Content-Type", "application/json")
+                .build();
+    }
 }
