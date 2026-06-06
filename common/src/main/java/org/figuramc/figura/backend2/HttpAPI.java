@@ -186,14 +186,24 @@ public class HttpAPI {
 
     public HttpRequest setBadge(Integer badgeId) {
         String badge = badgeId.toString();
-        return header("temp_badges").POST(HttpRequest.BodyPublishers.ofString(badge))
-                .header("Content-Type", "application/json")
-                .build();
+        HttpPost post = (HttpPost) header("temp_badges");
+        post.setHeader("Content-Type", "application/json");
+        try {
+            post.setEntity(new StringEntity(badge));
+        } catch (UnsupportedEncodingException e) {
+            FiguraMod.LOGGER.error("Failed to encode string, ", e);
+        }
+        return post;
     }
 
     public HttpRequest clearBadge() {
-        return header("temp_badges").POST(HttpRequest.BodyPublishers.ofString("null"))
-                .header("Content-Type", "application/json")
-                .build();
+        HttpPost post = (HttpPost) header("temp_badges");
+        post.setHeader("Content-Type", "application/json");
+        try {
+            post.setEntity(new StringEntity("null"));
+        } catch (UnsupportedEncodingException e) {
+            FiguraMod.LOGGER.error("Failed to encode string, ", e);
+        }
+        return post;
     }
 }

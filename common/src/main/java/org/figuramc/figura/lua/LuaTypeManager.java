@@ -11,7 +11,6 @@ import org.luaj.vm2.lib.VarArgFunction;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static java.util.Map.entry;
 import static org.luaj.vm2.LuaValue.*;
 
 /**
@@ -457,24 +456,35 @@ public class LuaTypeManager {
             return wrap(val);
     }
 
-    private record OperatorInfo(String name, boolean binary) {}
+    private static final class OperatorInfo {
+        public final String name;
+        public final boolean binary;
 
-    private static final Map<String, OperatorInfo> OPERATORS = Map.ofEntries(
-            entry(INDEX.tojstring(), new OperatorInfo("indexing", true)),
-            entry(NEWINDEX.tojstring(), new OperatorInfo("indexing", true)),
-            entry(CALL.tojstring(), new OperatorInfo("function call", false)),
-            entry(ADD.tojstring(), new OperatorInfo("+", true)),
-            entry(SUB.tojstring(), new OperatorInfo("-", true)),
-            entry(DIV.tojstring(), new OperatorInfo("/", true)),
-            entry(MUL.tojstring(), new OperatorInfo("*", true)),
-            entry(POW.tojstring(), new OperatorInfo("^", true)),
-            entry(MOD.tojstring(), new OperatorInfo("%", true)),
-            entry(UNM.tojstring(), new OperatorInfo("-", false)),
-            entry(LEN.tojstring(), new OperatorInfo("#", false)),
-            entry(EQ.tojstring(), new OperatorInfo("==", true)),
-            entry(LT.tojstring(), new OperatorInfo("<", true)),
-            entry(LE.tojstring(), new OperatorInfo("<=", true)),
-            entry(TOSTRING.tojstring(), new OperatorInfo("tostring", false)),
-            entry(CONCAT.tojstring(), new OperatorInfo("..", true))
-    );
+        private OperatorInfo(String name, boolean binary) {
+            this.name = name;
+            this.binary = binary;
+        }
+    }
+
+    private static final Map<String, OperatorInfo> OPERATORS;
+
+    static {
+        OPERATORS = new HashMap<>();
+        OPERATORS.put(INDEX.tojstring(), new OperatorInfo("indexing", true));
+        OPERATORS.put(NEWINDEX.tojstring(), new OperatorInfo("indexing", true));
+        OPERATORS.put(CALL.tojstring(), new OperatorInfo("function call", false));
+        OPERATORS.put(ADD.tojstring(), new OperatorInfo("+", true));
+        OPERATORS.put(SUB.tojstring(), new OperatorInfo("-", true));
+        OPERATORS.put(DIV.tojstring(), new OperatorInfo("/", true));
+        OPERATORS.put(MUL.tojstring(), new OperatorInfo("*", true));
+        OPERATORS.put(POW.tojstring(), new OperatorInfo("^", true));
+        OPERATORS.put(MOD.tojstring(), new OperatorInfo("%", true));
+        OPERATORS.put(UNM.tojstring(), new OperatorInfo("-", false));
+        OPERATORS.put(LEN.tojstring(), new OperatorInfo("#", false));
+        OPERATORS.put(EQ.tojstring(), new OperatorInfo("==", true));
+        OPERATORS.put(LT.tojstring(), new OperatorInfo("<", true));
+        OPERATORS.put(LE.tojstring(), new OperatorInfo("<=", true));
+        OPERATORS.put(TOSTRING.tojstring(), new OperatorInfo("tostring", false));
+        OPERATORS.put(CONCAT.tojstring(), new OperatorInfo("..", true));
+    }
 }

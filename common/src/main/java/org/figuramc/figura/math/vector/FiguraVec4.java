@@ -655,14 +655,21 @@ public class FiguraVec4 extends FiguraVector<FiguraVec4, FiguraMat4> {
             }
     )
     public static FiguraVec4 __div(@LuaNotNil Object lhs, @LuaNotNil Object rhs) {
-        if (lhs instanceof FiguraVec4 lvec) {
-            if (rhs instanceof FiguraVec4 rvec) return lvec.dividedBy(rvec);
-            if (rhs instanceof Number n) {
+        if (lhs instanceof FiguraVec4) {
+            FiguraVec4 lvec = (FiguraVec4) lhs;
+            if (rhs instanceof FiguraVec4) {
+                FiguraVec4 rvec = (FiguraVec4) rhs;
+                return lvec.dividedBy(rvec);
+            }
+            if (rhs instanceof Number) {
+                Number n = (Number) rhs;
                 double d = n.doubleValue();
                 if (d == 0) throw new LuaError("Attempt to divide vector by 0");
                 return lvec.scaled(1 / d);
             }
-        } else if (lhs instanceof Number n && rhs instanceof FiguraVec4 rvec) {
+        } else if (lhs instanceof Number && rhs instanceof FiguraVec4) {
+            Number n = (Number) lhs;
+            FiguraVec4 rvec = (FiguraVec4) rhs;
             double d = n.doubleValue();
             return FiguraVec4.of(d / rvec.x, d / rvec.y, d / rvec.z, d / rvec.w);
         }
