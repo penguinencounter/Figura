@@ -62,6 +62,7 @@
     "render.LevelRendererMixin",
     "render.MissingTextureAtlasSpriteAccessor",
     "render.PlayerModelMixin",
+    "render.PoseStackAccessor",
     "render.TextureAtlasMixin",
     "render.TextureManagerAccessor",
     "render.layers.CapeLayerMixin",
