@@ -6,8 +6,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.config.Configs;
+import org.figuramc.figura.gui.FiguraToast;
 import org.figuramc.figura.gui.cards.CardBackground;
 import org.figuramc.figura.parsers.AvatarMetadataParser;
+import org.figuramc.figura.utils.FiguraText;
 import org.figuramc.figura.utils.FileTexture;
 import org.figuramc.figura.utils.IOUtils;
 import org.figuramc.figura.utils.NbtType;
@@ -389,6 +391,11 @@ public class LocalAvatarFetcher {
                     }
                 } else if (IOUtils.getFileNameOrEmpty(path).endsWith(".zip")) {
                     try {
+                        if ("jar".equalsIgnoreCase(path.getFileSystem().provider().getScheme())) {
+                            FiguraMod.LOGGER.warn("Refusing to descend into nested zip file {} (in filesystem {})", path, path.getFileSystem());
+                            FiguraToast.sendToast(new FiguraText("toast.zip_load_error"), new FiguraText("toast.zip_load_error.why", path), FiguraToast.ToastType.WARNING);
+                            continue;
+                        }
                         FileSystem opened = FileSystems.newFileSystem(path, null);
                         if ("jar".equalsIgnoreCase(opened.provider().getScheme())) {
                             Path newPath = opened.getPath("/");
