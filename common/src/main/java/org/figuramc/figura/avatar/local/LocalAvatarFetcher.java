@@ -14,6 +14,7 @@ import org.figuramc.figura.utils.NbtType;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -404,8 +405,30 @@ public class LocalAvatarFetcher {
                             }
                         } else
                             opened.close();
-                    } catch (IOException ignored) {
-                        FiguraMod.LOGGER.error("Failed to load avatar from zip ", ignored);
+                    } catch (RuntimeException | IOException exc) {
+                        FiguraMod.LOGGER.error("---- Error loading {} as zip; debug info: ----", path);
+                        FiguraMod.LOGGER.error("  Path {} - Filesystem: {}, Path object type: {}", path, path.getFileSystem(), path.getClass().getName());
+                        Map<String, ?> env = Collections.emptyMap();
+
+                        for (FileSystemProvider provider: FileSystemProvider.installedProviders()) {
+                            String name1 = provider.getClass().getName();
+                            try {
+                                try (FileSystem fs = provider.newFileSystem(path, env)) {
+                                    FiguraMod.LOGGER.error("  load {}: with {}, success! -> {}", path, name1, fs.toString());
+                                }
+                                break;
+                            } catch (UnsupportedOperationException uoe) {
+                                FiguraMod.LOGGER.error("  load {}: with {}, not supported", path, name1);
+                            } catch (IOException ioe) {
+                                FiguraMod.LOGGER.error("  load {}: with {}, io error", path, name1, ioe);
+                            }
+                        }
+                        FiguraMod.LOGGER.error("---- End of debug info for {} ----", path);
+                        if (exc instanceof IOException) {
+                            throw new RuntimeException(exc);
+                        } else {
+                            throw (RuntimeException) exc;
+                        }
                     }
                 }
             }
