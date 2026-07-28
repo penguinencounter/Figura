@@ -26,6 +26,7 @@ rootProject.mod_projects.split(",").each { project(":$it") {
 				includeGroup("com.eliotlash.mclib")
 			}
 		}
+        mavenLocal()
 	}
 
 	dependencies {
@@ -37,7 +38,7 @@ rootProject.mod_projects.split(",").each { project(":$it") {
 		modCompileOnly "maven.modrinth:immediatelyfast:$immediately_fast"
 		modCompileOnly "maven.modrinth:iris:$iris"
 	}
-}
+}}
 
 allprojects {
 	apply plugin: "java"
