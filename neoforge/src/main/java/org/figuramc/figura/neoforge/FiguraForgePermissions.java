@@ -2,6 +2,7 @@ package org.figuramc.figura.neoforge;
 
 
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.server.permission.events.PermissionGatherEvent;
 import net.neoforged.neoforge.server.permission.nodes.PermissionNode;
 import net.neoforged.neoforge.server.permission.nodes.PermissionTypes;
@@ -12,6 +13,7 @@ import org.figuramc.figura.server.utils.Pair;
 
 import java.util.HashMap;
 
+@EventBusSubscriber(modid="figura")
 public class FiguraForgePermissions {
 
     private static final HashMap<FiguraPermissionNodes, PermissionNode<?>> registeredPermission = new HashMap<>() {{
@@ -40,7 +42,7 @@ public class FiguraForgePermissions {
 
 
     @SubscribeEvent
-    public void registerPermissions(PermissionGatherEvent.Nodes event) {
+    public static void registerPermissions(PermissionGatherEvent.Nodes event) {
         event.addNodes(registeredPermission.values());
         event.addNodes(registeredOption.values());
     }
