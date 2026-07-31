@@ -96,8 +96,6 @@
     "sound.SoundManagerAccessor",
     "sound.SubtitleOverlayMixin"
   ],
-  "server": [
-  ],
   "injectors": {
     "defaultRequire": 1
   }
