@@ -10,7 +10,6 @@ import org.figuramc.figura.utils.ColorUtils;
 import org.figuramc.figura.utils.FiguraIdentifier;
 import org.figuramc.figura.utils.ui.UIHelper;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector4f;
 
 public class PageButton extends Button {
     // TODO: add additional resource for theming these if someone wants that (corners & stuff)
@@ -30,7 +29,7 @@ public class PageButton extends Button {
             int hue
     ) {
         super(x, y, width, height, text, tooltip, pressAction);
-        ColorUtils.ColorTheme theme = new ColorUtils.ColorTheme(hue);
+        ColorUtils.HueTheme theme = new ColorUtils.HueTheme(hue);
         disabledColor = theme.stop(1);
         defaultColor = theme.stop(3);
         selectedColor = theme.stop(5);
