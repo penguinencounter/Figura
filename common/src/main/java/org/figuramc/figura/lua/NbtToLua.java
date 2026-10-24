@@ -1,23 +1,19 @@
 package org.figuramc.figura.lua;
 
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import org.figuramc.figura.FiguraMod;
 import org.figuramc.figura.lua.api.world.WorldAPI;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class NbtToLua {
 
@@ -31,15 +27,17 @@ public class NbtToLua {
         put(DoubleTag.class, tag -> LuaValue.valueOf(((DoubleTag) tag).getAsDouble()));
 
         // compound special :D
-        put(CompoundTag.class, tag -> {
-            LuaTable table = new LuaTable();
-            CompoundTag compound = (CompoundTag) tag;
+        put(
+                CompoundTag.class, tag -> {
+                    LuaTable table = new LuaTable();
+                    CompoundTag compound = (CompoundTag) tag;
 
-            for (String key : compound.getAllKeys())
-                table.set(key, convert(compound.get(key)));
+                    for (String key : compound.getAllKeys())
+                        table.set(key, convert(compound.get(key)));
 
-            return table;
-        });
+                    return table;
+                }
+        );
 
         // collection types
         put(ByteArrayTag.class, tag -> fromCollection((CollectionTag<?>) tag));
@@ -72,17 +70,30 @@ public class NbtToLua {
         return builder.apply(tag);
     }
 
+    // avoid logspam by suppressing the same component dying more than once
+    private static final HashSet<String> deadCodecs = new HashSet<>();
+
     public static CompoundTag convertToNbt(DataComponentMap components) {
         if (components == null)
             return null;
 
         CompoundTag tag = new CompoundTag();
-        DynamicOps<Tag> dynamicOps = WorldAPI.getCurrentWorld().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        DynamicOps<Tag> dynamicOps = WorldAPI.getCurrentWorld().registryAccess()
+                .createSerializationContext(NbtOps.INSTANCE);
         components.forEach(typedDataComponent -> {
-            Optional<Tag> optional = typedDataComponent.encodeValue(dynamicOps).result();
-            ResourceLocation resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
-            if (optional.isPresent() && resourceLocation != null){
-                tag.put(resourceLocation.toString(), optional.get());
+            try {
+                Optional<Tag> optional = typedDataComponent.encodeValue(dynamicOps).result();
+                ResourceLocation resourceLocation = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(typedDataComponent.type());
+                if (optional.isPresent() && resourceLocation != null) {
+                    tag.put(resourceLocation.toString(), optional.get());
+                }
+            } catch (RuntimeException e) {
+                if (deadCodecs.add(typedDataComponent.type().toString()))
+                    FiguraMod.LOGGER.error(
+                            "Item codec exploded while generating NBT from component '{}' (further errors from this type of component will be suppressed)",
+                            typedDataComponent,
+                            e
+                    );
             }
         });
 
